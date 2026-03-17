@@ -1,11 +1,13 @@
 {
+ 
   "name": "quinta-dalam",
   "type": "module",
   "version": "0.0.1",
   "engines": {
     "node": ">=22.12.0"
   },
-  "scripts": {
+  "scripts": { 
+    "packageManager": "pnpm@9.0.0",
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
@@ -26,4 +28,9 @@
     "postcss": "^8.5.8",
     "tailwindcss": "^4.2.1"
   }
+<<<<<<< HEAD
 }
+=======
+  
+}
+>>>>>>> 27bc8e8577ba77dbd11dab8860d5ed9ecc8a2f37
