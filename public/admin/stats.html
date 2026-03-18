@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="es-MX">
+  <head>
+    <title>Admin - Estadísticas</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <link rel="icon" type="image/png" href="../images/stats-icono.png" />
+    <!-- * FontAwesome: Librería de Iconos -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
+    <!-- ! CSS -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css"
+    />
+  </head>
+  <body>
+    <header class="section pb-4 pt-5 has-text-centered">
+      <h1 class="title is-3 mb-0">
+        <i class="fa-solid fa-gears has-text-info mr-2"></i>
+        Panel de Administración
+      </h1>
+    </header>
+
+    <div class="container section pt-0">
+      <div class="columns">
+        <!-- ! Columna 1: de Navegación -->
+        <div class="column is-3">
+          <nav id="indice" role="navigation" class="menu box">
+            <p class="menu-label">Menú Principal</p>
+            <ul class="menu-list">
+              <li>
+                <a href="panel-admin.html" class="has-text-white-ter"
+                  ><span class="icon is-small">
+                    <i class="fa-solid fa-house mr-2"></i>
+                  </span>
+                  Vista General</a
+                >
+              </li>
+              <li>
+                <a href="inbox.html" class="has-text-white-ter"
+                  ><span class="icon is-small">
+                    <i class="fa-solid fa-inbox mr-2"></i>
+                  </span>
+                  Inbox</a
+                >
+              </li>
+              <li>
+                <a href="stats.html" class="is-active"
+                  ><span class="icon is-small">
+                    <i class="fa-solid fa-chart-column mr-2"></i>
+                  </span>
+                  Estadísticas</a
+                >
+              </li>
+              <li>
+                <a href="balance.html" class="has-text-white-ter"
+                  ><span class="icon is-small">
+                    <i class="fa-solid fa-cash-register mr-2"></i>
+                  </span>
+                  Balance y Caja</a
+                >
+              </li>
+              <li>
+                <a href="database.html" class="has-text-white-ter"
+                  ><span class="icon is-small">
+                    <i class="fa-solid fa-database mr-2"></i>
+                  </span>
+                  Base de Datos</a
+                >
+              </li>
+              <li>
+                <a href="dev.html" class="has-text-white-ter"
+                  ><span class="icon is-small">
+                    <i class="fa-solid fa-laptop-code mr-2"></i>
+                  </span>
+                  Desarrollo</a
+                >
+              </li>
+            </ul>
+            <a href="admin.html">
+              <button
+                class="button is-danger is-outlined is-rounded mt-4 is-fullwidth"
+              >
+                Cerrar Sesión
+              </button>
+            </a>
+          </nav>
+        </div>
+
+        <!-- ! Columna 2: Contenido Principal -->
+        <div class="column is-10">
+          <main class="box content">
+            <section id="estadisticas">
+              <details open class="box p-4 has-background-black-ter">
+                <summary class="is-clickable m-0 p-0" style="list-style: none">
+                  <h3 class="title is-5 is-inline-block m-0">
+                    <i class="fa-solid fa-chart-column has-text-info mr-2"></i>
+                    Estadísticas
+                  </h3>
+                </summary>
+                <div class="mt-4 pl-4 border-left has-text-white">
+                  <div class="box mb-5 has-background-black">
+                    <canvas id="barChart"></canvas>
+                  </div>
+                  <div class="box has-background-black">
+                    <div style="max-width: 500px; margin: 0 auto">
+                      <canvas id="pieChart"></canvas>
+                    </div>
+                  </div>
+                </div>
+              </details>
+            </section>
+          </main>
+        </div>
+      </div>
+    </div>
+
+    <footer class="footer has-background-black-bis">
+      <div class="content has-text-centered">
+        <p>
+          Copyright &copy; 2026 Hotel Quinta Dalam. Todos los derechos
+          reservados.
+        </p>
+      </div>
+    </footer>
+
+    <!-- Librería Chart.js CDN - Todo se procesa de manera segura localmente -->
+    <!-- <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> -->
+    <!-- <script>
+      // Configuración de Chart.js con colores acordes al diseño oscuro
+      Chart.defaults.color = "#b5b5b5"; // Gris claro para el texto de las leyendas
+
+      // GRÁFICA DE BARRAS (Ocupación)
+      const ctxBar = document.getElementById("barChart");
+      new Chart(ctxBar, {
+        type: "bar",
+        data: {
+          labels: ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio"],
+          datasets: [
+            {
+              label: "Ocupación del Hotel (%)",
+              data: [65, 59, 80, 81, 56, 75],
+              backgroundColor: "rgba(50, 152, 220, 0.7)", // Color Info de Bulma
+              borderColor: "rgba(50, 152, 220, 1)",
+              borderWidth: 1,
+              borderRadius: 4,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            title: {
+              display: true,
+              text: "Ocupación Mensual (1er Semestre)",
+              color: "#fff",
+              font: { size: 16 },
+            },
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              grid: { color: "rgba(255, 255, 255, 0.1)" },
+            },
+            x: {
+              grid: { color: "rgba(255, 255, 255, 0.1)" },
+            },
+          },
+        },
+      });
+
+      // GRÁFICA DE PASTEL (Tipo de Ingreso)
+      const ctxPie = document.getElementById("pieChart");
+      new Chart(ctxPie, {
+        type: "pie", // También puedes usar 'doughnut' para una gráfica de dona
+        data: {
+          labels: ["Habitaciones", "Restaurante", "Eventos", "Otros Servicios"],
+          datasets: [
+            {
+              data: [50, 25, 15, 10],
+              backgroundColor: [
+                "rgba(50, 152, 220, 0.8)", // Info
+                "rgba(72, 199, 116, 0.8)", // Success
+                "rgba(255, 221, 87, 0.8)", // Warning
+                "rgba(241, 70, 104, 0.8)", // Danger
+              ],
+              borderColor: "#121212", // Color oscuro de fondo para separar
+              borderWidth: 2,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            title: {
+              display: true,
+              text: "Distribución de Ingresos",
+              color: "#fff",
+              font: { size: 16 },
+            },
+            legend: {
+              position: "bottom",
+            },
+          },
+        },
+      });
+    </script> -->
+  </body>
+</html>

@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="es-MX">
+  <head>
+    <title>Admin - Balance y Caja</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <link rel="icon" type="image/png" href="../images/balance-icono.png" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css"
+    />
+  </head>
+  <body>
+    <header class="section pb-4 pt-5 has-text-centered">
+      <h1 class="title is-3 mb-0">
+        <i class="fa-solid fa-gears has-text-info mr-2"></i>
+        Panel de Administración
+      </h1>
+    </header>
+
+    <div class="container section pt-0">
+      <div class="columns">
+        <!-- ! Columna 1: de Navegación -->
+        <div class="column is-3">
+          <nav id="indice" role="navigation" class="menu box">
+            <p class="menu-label">Menú Principal</p>
+            <ul class="menu-list">
+              <li>
+                <a href="panel-admin.html" class="has-text-white-ter"
+                  ><span class="icon is-small">
+                    <i class="fa-solid fa-house mr-2"></i>
+                  </span>
+                  Vista General</a
+                >
+              </li>
+              <li>
+                <a href="inbox.html" class="has-text-white-ter"
+                  ><span class="icon is-small">
+                    <i class="fa-solid fa-inbox mr-2"></i>
+                  </span>
+                  Inbox</a
+                >
+              </li>
+              <li>
+                <a href="stats.html" class="has-text-white-ter"
+                  ><span class="icon is-small">
+                    <i class="fa-solid fa-chart-column mr-2"></i>
+                  </span>
+                  Estadísticas</a
+                >
+              </li>
+              <li>
+                <a href="balance.html" class="is-active"
+                  ><span class="icon is-small">
+                    <i class="fa-solid fa-cash-register mr-2"></i>
+                  </span>
+                  Balance y Caja</a
+                >
+              </li>
+              <li>
+                <a href="database.html" class="has-text-white-ter"
+                  ><span class="icon is-small">
+                    <i class="fa-solid fa-database mr-2"></i>
+                  </span>
+                  Base de Datos</a
+                >
+              </li>
+              <li>
+                <a href="dev.html" class="has-text-white-ter"
+                  ><span class="icon is-small">
+                    <i class="fa-solid fa-laptop-code mr-2"></i>
+                  </span>
+                  Desarrollo</a
+                >
+              </li>
+            </ul>
+            <a href="admin.html">
+              <button
+                class="button is-danger is-outlined is-rounded mt-4 is-fullwidth"
+              >
+                Cerrar Sesión
+              </button>
+            </a>
+          </nav>
+        </div>
+
+        <!-- ! Columna 2: Contenido Principal -->
+        <div class="column is-10">
+          <main class="box content">
+            <section id="balance">
+              <details open class="box p-4 has-background-black-ter">
+                <summary class="is-clickable m-0 p-0" style="list-style: none">
+                  <h3 class="title is-5 is-inline-block m-0">
+                    <i class="fa-solid fa-cash-register has-text-info mr-2"></i>
+                    Balance y Caja
+                  </h3>
+                </summary>
+                <div class="mt-4 pl-4 border-left has-text-white">
+                  <div class="box">
+                    <h5 class="title is-5 mb-4 has-text-white">
+                      Resumen de Estados
+                    </h5>
+                    <ul
+                      class="is-size-6 has-text-grey-light"
+                      style="list-style-type: none; margin-left: 0"
+                    >
+                      <li class="mb-4">
+                        <strong class="has-text-info"
+                          >Saldo Total en Caja:</strong
+                        >
+                        Actualmente en {x} fecha se dispone de ${y}MXN en
+                        efectivo.
+                      </li>
+                      <li class="mb-4">
+                        <strong class="has-text-info">Balance Bancario:</strong>
+                        Actualmente dentro de nuestro balance bancario
+                        (integrando cuentas digitales y de bancos) contamos con
+                        un saldo de: ${y}MXN
+                      </li>
+                      <li class="mb-4">
+                        <strong class="has-text-info">Ingresos del Mes:</strong>
+                        Actualmente percibimos un ingreso mensual estimado de
+                        ${x}MXN, de los cuales se estuvieron de estos diferentes
+                        ingresos:
+                        <ol type="a" class="mt-2 ml-5 has-text-grey-light">
+                          <li class="mb-2">
+                            Restaurante: ${x}MXN, de los cuales representan un
+                            {y}% de nuestros ingresos <em>totales</em>.
+                          </li>
+                          <li class="mb-2">
+                            Hotel (Habitaciones): ${x}MXN, de los cuales
+                            representan un {y}% de nuestros ingresos
+                            <em>totales</em>.
+                          </li>
+                          <li class="mb-2">
+                            Snacks, room service & máquina expendedora: ${x}MXN,
+                            de los cuales representan un {y}% de nuestros
+                            ingresos <em>totales</em>.
+                          </li>
+                        </ol>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </details>
+            </section>
+          </main>
+        </div>
+      </div>
+    </div>
+
+    <footer class="footer has-background-black-bis">
+      <div class="content has-text-centered">
+        <p>
+          Copyright &copy; 2026 Hotel Quinta Dalam. Todos los derechos
+          reservados.
+        </p>
+      </div>
+    </footer>
+  </body>
+</html>
