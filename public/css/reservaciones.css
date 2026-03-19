@@ -1,7 +1,7 @@
 /* ==================== PÁGINA DE RESERVACIONES - ESTILOS ESPECÍFICOS ==================== */
 
 /* Solo aplica a páginas con clase .pagina-reservaciones */
-.pagina-reservaciones main section {
+.pagina-reservaciones section {
   max-width: 800px;
   margin: 3rem auto;
   padding: 3rem 2rem;
@@ -10,7 +10,7 @@
   box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
 }
 
-.pagina-reservaciones main section header h2 {
+.pagina-reservaciones section header h2 {
   font-size: 2.5rem;
   color: var(--color-primary);
   text-align: center;
@@ -20,7 +20,7 @@
   padding-bottom: 1rem;
 }
 
-.pagina-reservaciones main section header h2::after {
+.pagina-reservaciones section header h2::after {
   content: "";
   position: absolute;
   bottom: 0;
@@ -31,7 +31,7 @@
   background-color: var(--color-accent);
 }
 
-.pagina-reservaciones main section > div p {
+.pagina-reservaciones section > div p {
   text-align: center;
   font-size: 1.2rem;
   color: var(--color-text);
@@ -222,12 +222,12 @@
 /* ==================== RESPONSIVE - RESERVACIONES ==================== */
 
 @media (max-width: 768px) {
-  .pagina-reservaciones main section {
+  .pagina-reservaciones section {
     margin: 2rem 1rem;
     padding: 2rem 1rem;
   }
 
-  .pagina-reservaciones main section header h2 {
+  .pagina-reservaciones section header h2 {
     font-size: 2rem;
   }
 
@@ -246,7 +246,7 @@
 }
 
 @media (max-width: 480px) {
-  .pagina-reservaciones main section header h2 {
+  .pagina-reservaciones section header h2 {
     font-size: 1.7rem;
   }
 

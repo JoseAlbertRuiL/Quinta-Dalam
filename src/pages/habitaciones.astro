@@ -1,9 +1,13 @@
 ---
-// Importamos nuestra Plantilla Base
+// ↓ Importamos nuestra Plantilla Base
 import Layout from "../layouts/Layout.astro";
+// ↓ Importamos el componente Image para optimizar imágenes pesadas
+import { Image } from "astro:assets";
+import habitacionImg from "../assets/images/habitacion.png";
 ---
 
-<Layout title="Habitaciones - Quinta Dalam">
+<Layout title="Habitaciones | Hotel Quinta Dalam">
+  <link rel="stylesheet" href="/css/habitaciones.css" />
   <main>
     <!-- * <main>: Define el contenido principal y único de la página web dentro del <body> -->
     <!-- TODO (Alberto): Darle estilado a la página dentro de la hoja de estilos CSS -->
@@ -29,60 +33,66 @@ import Layout from "../layouts/Layout.astro";
         <h3>Planta Baja (Serie 100)</h3>
         <div class="habitaciones-grid">
           <div class="habitacion-card">
-            <img
-              src="../images/habitacion.png"
+            <Image
+              src={habitacionImg}
               alt="Habitación 101 - Tzintzunzan"
-              loading="lazy"
+              width={400}
+              height={150}
             />
             <h4>101 - Tzintzunzan</h4>
             <p class="precio">$1,200 MXN/noche</p>
             <button class="btn-reservar">Reservar</button>
           </div>
           <div class="habitacion-card">
-            <img
-              src="../images/habitacion.png"
+            <Image
+              src={habitacionImg}
               alt="Habitación 102 - Paracho"
-              loading="lazy"
+              width={400}
+              height={150}
             />
             <h4>102 - Paracho</h4>
             <p class="precio">$1,100 MXN/noche</p>
             <button class="btn-reservar">Reservar</button>
           </div>
           <div class="habitacion-card">
-            <img
-              src="../images/habitacion.png"
+            <Image
+              src={habitacionImg}
               alt="Habitación 103 - Yunuen"
-              loading="lazy"
+              width={400}
+              height={150}
             />
             <h4>103 - Yunuen</h4>
             <p class="precio">$1,150 MXN/noche</p>
             <button class="btn-reservar">Reservar</button>
           </div>
           <div class="habitacion-card">
-            <img
-              src="../images/habitacion.png"
+            <Image
+              src={habitacionImg}
               alt="Habitación 104 - Patzcuaro"
-              loading="lazy"
+              width={400}
+              height={150}
             />
             <h4>104 - Patzcuaro</h4>
             <p class="precio">$1,300 MXN/noche</p>
             <button class="btn-reservar">Reservar</button>
           </div>
           <div class="habitacion-card">
-            <img
-              src="../images/habitacion.png"
+            <Image
+              src={habitacionImg}
               alt="Habitación 105 - Coeneo"
-              loading="lazy"
+              width={400}
+              height={150}
             />
             <h4>105 - Coeneo</h4>
             <p class="precio">$1,050 MXN/noche</p>
             <button class="btn-reservar">Reservar</button>
           </div>
           <div class="habitacion-card">
-            <img
-              src="../images/habitacion.png"
+            <Image
+              src={habitacionImg}
               alt="Habitación 106 - Janitzio"
-              loading="lazy"
+              width={400}
+              height={150}
             />
             <h4>106 - Janitzio</h4>
             <p class="precio">$1,250 MXN/noche</p>
@@ -96,70 +106,77 @@ import Layout from "../layouts/Layout.astro";
         <h3>Planta Alta (Serie 200)</h3>
         <div class="habitaciones-grid">
           <div class="habitacion-card">
-            <img
-              src="../images/habitacion.png"
-              alt="Habitación 201 - Quencio"
-              loading="lazy"
+            <Image
+              src={habitacionImg}
+              alt="Habitación 201 - Suite Quencio"
+              width={400}
+              height={150}
             />
             <h4>201 - Suite Quencio</h4>
             <p class="precio">$1,500 MXN/noche</p>
             <button class="btn-reservar">Reservar</button>
           </div>
           <div class="habitacion-card">
-            <img
-              src="../images/habitacion.png"
+            <Image
+              src={habitacionImg}
               alt="Habitación 202 - Morelia"
-              loading="lazy"
+              width={400}
+              height={150}
             />
             <h4>202 - Morelia</h4>
             <p class="precio">$1,400 MXN/noche</p>
             <button class="btn-reservar">Reservar</button>
           </div>
           <div class="habitacion-card">
-            <img
-              src="../images/habitacion.png"
+            <Image
+              src={habitacionImg}
               alt="Habitación 203 - Tacambaro"
-              loading="lazy"
+              width={400}
+              height={150}
             />
             <h4>203 - Tacambaro</h4>
             <p class="precio">$1,350 MXN/noche</p>
             <button class="btn-reservar">Reservar</button>
           </div>
           <div class="habitacion-card">
-            <img
-              src="../images/habitacion.png"
+            <Image
+              src={habitacionImg}
               alt="Habitación 204 - Uruapan"
-              loading="lazy"
+              width={400}
+              height={150}
             />
             <h4>204 - Uruapan</h4>
             <p class="precio">$1,450 MXN/noche</p>
             <button class="btn-reservar">Reservar</button>
           </div>
           <div class="habitacion-card">
-            <img
-              src="../images/habitacion.png"
+            <Image
+              src={habitacionImg}
               alt="Habitación 205 - Tlalpujahua"
-              loading="lazy"
+              width={400}
+              height={150}
             />
             <h4>205 - Tlalpujahua</h4>
             <p class="precio">$1,200 MXN/noche</p>
             <button class="btn-reservar">Reservar</button>
           </div>
           <div class="habitacion-card">
-            <img
-              src="../images/habitacion.png"
+            <Image
+              src={habitacionImg}
               alt="Habitación 206 - Cuitzeo"
-              loading="lazy"
+              width={400}
+              height={150}
             />
             <h4>206 - Cuitzeo</h4>
             <p class="precio">$1,300 MXN/noche</p>
             <button class="btn-reservar">Reservar</button>
           </div>
           <div class="habitacion-card">
-            <img
-              src="../images/habitacion.png"
+            <Image
+              src={habitacionImg}
               alt="Habitación 207 - Cuanajo"
-              loading="lazy"
+              width={400}
+              height={150}
             />
             <h4>207 - Cuanajo</h4>
             <p class="precio">$1,350 MXN/noche</p>
@@ -175,7 +192,8 @@ import Layout from "../layouts/Layout.astro";
           <h2>¿Quieres saber un poco más sobre cada una?</h2>
         </header>
         <p></p>
-        <img src="../images/habitacion2.png" alt="Habitación 2" />
+        <!-- * habitacion2.png pesa solo 167KB, se queda en public/images sin necesitar optimización -->
+        <img src="/images/habitacion2.png" alt="Habitación 2" loading="lazy" />
       </div>
     </section>
   </main>

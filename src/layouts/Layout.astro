@@ -1,13 +1,18 @@
 ---
-import Header from '../components/Header.astro';
-import Footer from '../components/Footer.astro';
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+
+// ↓ Recibimos las propiedades que nos envían las páginas
+// ↓ favicon tiene valor default: todas las páginas públicas usan el mismo icono
+const { title, favicon = "/images/Hotel_icono.png" } = Astro.props;
 ---
+
 <!doctype html>
 <!-- ? Definimos qué tipo de documento está siendo creado, formalidad aunque se agrega por buenas prácticas -->
 <html lang="es-MX">
   <head>
     <!-- ! En nuestro <head> estarán los metadatos como el títulos, etiquetas <meta>, scripts, CSS y demás, especial para los desarrolladores del proyecto -->
-    <title>Hotel Quinta Dalam</title>
+    <title>{title}</title>
     <!-- * Ponemos el título del Hotel -->
     <meta
       name="description"
@@ -25,7 +30,7 @@ import Footer from '../components/Footer.astro';
       content="hotel, quinta dalam, pueblos magicos, michoacan, mexico"
     />
     <!-- ? Keywords: Define las palabras clave de la página web, algo útiles para SEO pero no tan relevantes -->
-    <link rel="icon" type="image/png" href="images/Hotel_icono.png" />
+    <link rel="icon" type="image/png" href={favicon} />
     <!-- * Icono: En este caso, estamos añadiendo nuestra 'favicon', es decir, el ícono que aparecerá al lado del título de la página web en el navegador de los cliente -->
 
     <!-- ! Open Graph: Modelo que permite la buena visualización de nuestro contenido en redes sociales -->
@@ -47,7 +52,7 @@ import Footer from '../components/Footer.astro';
       property="og:description"
       content="Bienvenido a Hotel Quinta Dalam, disfruta de nuestras 15 habitaciones con temática de Pueblos Mágicos."
     />
-    <meta property="og:image" content="images/hotel-icono.png" />
+    <meta property="og:image" content="/images/hotel-icono.png" />
     <meta property="og:url" content="https://hotelquintadalam.com" />
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="es_MX" />
@@ -59,9 +64,9 @@ import Footer from '../components/Footer.astro';
     />
 
     <!-- ! CSS -->
-    <link rel="stylesheet" href="css/reset.css" />
-    <link rel="stylesheet" href="css/styles.css" />
-    <link rel="stylesheet" href="css/responsive.css" />
+    <link rel="stylesheet" href="/css/reset.css" />
+    <link rel="stylesheet" href="/css/styles.css" />
+    <link rel="stylesheet" href="/css/responsive.css" />
   </head>
 
   <body>
