@@ -1,11 +1,14 @@
 ---
+// ↓ Importamos nuestra Plantilla Base para admin/
 import LayoutAdmin from "../../layouts/LayoutAdmin.astro";
+// ↓ Importamos el componente de navegación reutilizable del panel
+import NavAdmin from "../../components/NavAdmin.astro";
 ---
 
 <LayoutAdmin title="Admin | Inbox" favicon="/images/inbox-icono.png">
   <header class="section pb-4 pt-5 has-text-centered">
     <h1 class="title is-3 mb-0">
-      <i class="fa-solid fa-gears has-text-info mr-2"></i>
+      <i class="fa-solid fa-gears has-text-info mr-2" aria-hidden="true"></i>
       Panel de Administración
     </h1>
   </header>
@@ -13,68 +16,7 @@ import LayoutAdmin from "../../layouts/LayoutAdmin.astro";
   <div class="container section pt-0">
     <div class="columns">
       <!-- ! Columna 1: de Navegación -->
-      <div class="column is-3">
-        <nav id="indice" role="navigation" class="menu box">
-          <p class="menu-label">Menú Principal</p>
-          <ul class="menu-list">
-            <li>
-              <a href="/admin/panel-admin" class="has-text-white-ter"
-                ><span class="icon is-small">
-                  <i class="fa-solid fa-house mr-2"></i>
-                </span>
-                Vista General</a
-              >
-            </li>
-            <li>
-              <a href="/admin/inbox" class="is-active"
-                ><span class="icon is-small">
-                  <i class="fa-solid fa-inbox mr-2"></i>
-                </span>
-                Inbox</a
-              >
-            </li>
-            <li>
-              <a href="/admin/stats" class="has-text-white-ter"
-                ><span class="icon is-small">
-                  <i class="fa-solid fa-chart-column mr-2"></i>
-                </span>
-                Estadísticas</a
-              >
-            </li>
-            <li>
-              <a href="/admin/balance" class="has-text-white-ter"
-                ><span class="icon is-small">
-                  <i class="fa-solid fa-cash-register mr-2"></i>
-                </span>
-                Balance y Caja</a
-              >
-            </li>
-            <li>
-              <a href="/admin/database" class="has-text-white-ter"
-                ><span class="icon is-small">
-                  <i class="fa-solid fa-database mr-2"></i>
-                </span>
-                Base de Datos</a
-              >
-            </li>
-            <li>
-              <a href="/admin/dev" class="has-text-white-ter"
-                ><span class="icon is-small">
-                  <i class="fa-solid fa-laptop-code mr-2"></i>
-                </span>
-                Desarrollo</a
-              >
-            </li>
-          </ul>
-          <a href="/admin/admin">
-            <button
-              class="button is-danger is-outlined is-rounded mt-4 is-fullwidth"
-            >
-              Cerrar Sesión
-            </button>
-          </a>
-        </nav>
-      </div>
+      <NavAdmin paginaActual="inbox" />
 
       <!-- ! Columna 2: Contenido Principal -->
       <div class="column is-10">

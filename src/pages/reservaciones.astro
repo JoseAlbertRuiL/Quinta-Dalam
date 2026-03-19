@@ -1,13 +1,17 @@
 ---
 // ↓ Importamos nuestra Plantilla Base
 import Layout from "../layouts/Layout.astro";
+// ↓ Leemos los parámetros que vienen de PanelReservation
+const fechaLlegada = Astro.url.searchParams.get("fecha-check-in") ?? "";
+const fechaSalida = Astro.url.searchParams.get("fecha-check-out") ?? "";
+const personas = Astro.url.searchParams.get("personas") ?? "";
 ---
 
 <Layout title="Reservaciones | Hotel Quinta Dalam">
   <link rel="stylesheet" href="/css/reservaciones.css" />
   <!-- ? La clase 'pagina-reservaciones' activa los estilos de reservaciones.css -->
-    <main class="pagina-reservaciones">
-      <!-- * <main>: Define el contenido principal y único de la página web dentro del <body> -->
+  <main class="pagina-reservaciones">
+    <!-- * <main>: Define el contenido principal y único de la página web dentro del <body> -->
     <section>
       <header>
         <h2>Reservaciones</h2>
@@ -136,6 +140,7 @@ import Layout from "../layouts/Layout.astro";
                 id="fecha-llegada"
                 name="fecha-llegada"
                 required
+                value={fechaLlegada}
                 title="Por favor, ingresa una fecha de llegada"
               />
             </label>
@@ -148,6 +153,7 @@ import Layout from "../layouts/Layout.astro";
                 id="fecha-salida"
                 name="fecha-salida"
                 required
+                value={fechaSalida}
                 title="Por favor, ingresa una fecha de salida"
               />
             </label>
@@ -161,7 +167,8 @@ import Layout from "../layouts/Layout.astro";
                 name="numero-personas"
                 required
                 min="1"
-                max="10"
+                max="6"
+                value={personas}
                 title="Por favor, ingresa un número de personas"
               />
             </label>
@@ -196,9 +203,7 @@ import Layout from "../layouts/Layout.astro";
           <div>
             <label for="terms"
               >¿Aceptas la
-              <a href="/privacidad" target="_blank"
-                >Política de Privacidad
-              </a>
+              <a href="/privacidad" target="_blank">Política de Privacidad </a>
               y los
               <a href="/tyc" target="_blank">Términos y Condiciones</a>?
             </label>
@@ -219,5 +224,5 @@ import Layout from "../layouts/Layout.astro";
           <h3></h3>
         </header>
       </section> -->
-    </main>
+  </main>
 </Layout>

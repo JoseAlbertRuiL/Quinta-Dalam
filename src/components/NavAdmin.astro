@@ -1,0 +1,91 @@
+---
+// ↓ Definimos una constante para manejar las diferentes páginas del panel
+// ↓ La página padre nos pasa su identificador mediante esta prop
+const { paginaActual } = Astro.props;
+---
+
+<div class="column is-3">
+  <nav
+    id="indice"
+    class="menu box"
+    aria-label="Menú del panel de administración"
+  >
+    <p class="menu-label">Menú Principal</p>
+    <ul class="menu-list">
+      <li>
+        <a
+          href="/admin/panel-admin"
+          class={paginaActual === "panel-admin" ? "is-active" : "has-text-white-ter"}
+        >
+          <span class="icon is-small">
+            <i class="fa-solid fa-house mr-2" aria-hidden="true"></i>
+          </span>
+          Vista General
+        </a>
+      </li>
+      <li>
+        <a
+          href="/admin/inbox"
+          class={paginaActual === "inbox" ? "is-active" : "has-text-white-ter"}
+        >
+          <span class="icon is-small">
+            <i class="fa-solid fa-inbox mr-2" aria-hidden="true"></i>
+          </span>
+          Inbox
+        </a>
+      </li>
+      <li>
+        <a
+          href="/admin/stats"
+          class={paginaActual === "stats" ? "is-active" : "has-text-white-ter"}
+        >
+          <span class="icon is-small">
+            <i class="fa-solid fa-chart-column mr-2" aria-hidden="true"></i>
+          </span>
+          Estadísticas
+        </a>
+      </li>
+      <li>
+        <a
+          href="/admin/balance"
+          class={paginaActual === "balance" ? "is-active" : "has-text-white-ter"}
+        >
+          <span class="icon is-small">
+            <i class="fa-solid fa-cash-register mr-2" aria-hidden="true"></i>
+          </span>
+          Balance y Caja
+        </a>
+      </li>
+      <li>
+        <a
+          href="/admin/database"
+          class={paginaActual === "database" ? "is-active" : "has-text-white-ter"}
+        >
+          <span class="icon is-small">
+            <i class="fa-solid fa-database mr-2" aria-hidden="true"></i>
+          </span>
+          Base de Datos
+        </a>
+      </li>
+      <li>
+        <a
+          href="/admin/dev"
+          class={paginaActual === "dev" ? "is-active" : "has-text-white-ter"}
+        >
+          <span class="icon is-small">
+            <i class="fa-solid fa-laptop-code mr-2" aria-hidden="true"></i>
+          </span>
+          Desarrollo
+        </a>
+      </li>
+    </ul>
+    <a href="/admin/admin">
+      <button class="button is-danger is-outlined is-rounded mt-4 is-fullwidth">
+        <span class="icon">
+          <i class="fa-solid fa-sign-out" aria-hidden="true"></i>
+        </span>
+        <span>Cerrar Sesión</span>
+      </button>
+    </a>
+  </nav>
+</div>

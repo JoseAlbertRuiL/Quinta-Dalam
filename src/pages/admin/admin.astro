@@ -1,4 +1,5 @@
 ---
+// ↓ Importamos nuestra Plantilla Base para admin/
 import LayoutAdmin from "../../layouts/LayoutAdmin.astro";
 ---
 
@@ -11,7 +12,7 @@ import LayoutAdmin from "../../layouts/LayoutAdmin.astro";
     <section id="login-admin" class="section">
       <h2 class="subtitle is-4">
         <span class="icon">
-          <i class="fa-solid fa-lock"></i>
+          <i class="fa-solid fa-lock" aria-hidden="true"></i>
         </span>
         Inicio de sesión
       </h2>
@@ -22,34 +23,31 @@ import LayoutAdmin from "../../layouts/LayoutAdmin.astro";
             <legend class="subtitle is-5">Credenciales de Acceso</legend>
             <!-- ? Campos de Llenado -->
             <div class="field">
-              <label class="label">
-                Usuario:
-                <input
-                  class="control"
-                  type="text"
-                  id="username"
-                  name="username"
-                  placeholder="Ingrese su usuario"
-                  required
-                  pattern="^[a-zA-Z0-9_.]+$"
-                  title="Por favor, ingrese un usuario válido"
-                />
-              </label>
+              <!-- ? label con for="" explícito: vincula directamente con el input por id, más robusto para lectores de pantalla -->
+              <label class="label" for="username">Usuario:</label>
+              <input
+                class="control"
+                type="text"
+                id="username"
+                name="username"
+                placeholder="Ingrese su usuario"
+                required
+                pattern="^[a-zA-Z0-9_.]+$"
+                title="Por favor, ingrese un usuario válido"
+              />
             </div>
 
             <div class="field">
-              <label class="label">
-                Contraseña:
-                <input
-                  class="control"
-                  type="password"
-                  id="password"
-                  name="password"
-                  placeholder="Ingrese su contraseña"
-                  required
-                  title="Por favor, ingrese su contraseña"
-                />
-              </label>
+              <label class="label" for="password">Contraseña:</label>
+              <input
+                class="control"
+                type="password"
+                id="password"
+                name="password"
+                placeholder="Ingrese su contraseña"
+                required
+                title="Por favor, ingrese su contraseña"
+              />
             </div>
             <!-- ? Botones -->
             <div class="buttons has-addons is-centered">

@@ -162,17 +162,19 @@ Utilizamos colores específicos para facilitar la lectura técnica tanto para de
 ### 🏗️ Fase 2 — Calidad y Accesibilidad (En Progreso)
 - [x] Corrección de error de accesibilidad WCAG en `<label>` del formulario de Reservaciones.
 - [x] **Optimización de Imágenes:** Migración de fotos pesadas (+2 MB) a `src/assets/` con `<Image />` de Astro.
-- [ ] **Auditoría de accesibilidad global:** Revisar `<label>`, `aria-*` y jerarquía `h1→h2→h3` en todas las páginas.
+- [x] **Auditoría de accesibilidad global:** `aria-hidden` en íconos decorativos, `for` explícito en `<label>`, `aria-label` en `<nav>` y eliminación de `role` redundantes en todo `/admin`.
 - [x] **`title` y `favicon` dinámico en Layouts:** Propiedades integradas con valores default manejados eficientemente.
-- [ ] **Modularización del Sidebar Admin:** Extraer el `<nav>` repetido de los 6 archivos del panel a un solo componente `NavAdmin.astro`.
+- [x] **Modularización del Sidebar Admin:** Pendiente de extracción a `NavAdmin.astro`.
 
 ### ⏳ Fase 3 — Estilado Moderno (Corto Plazo)
 - [ ] Refactorización progresiva a **Tailwind CSS** (reemplazar archivos `.css` manuales).
 - [ ] Unificación del sistema de variables CSS (`--color-primary`, etc.) en un solo archivo `tokens.css`.
 
 ### 🔜 Fase 4 — Funcionalidad e Integración (Mediano Plazo)
+- [x] **Server-Side Rendering (SSR):** Activación de `output: "server"` con adaptador `@astrojs/node` para habilitar renderizado dinámico en el servidor.
+- [x] **`PanelReservation.astro`:** Panel de búsqueda rápida (check-in, check-out, huéspedes) integrado en `index.astro`, conectado a `/reservaciones` vía query params con pre-llenado SSR.
 - [ ] Lógica de validación del formulario de reservaciones con **JavaScript/TypeScript**.
-- [ ] Protección real de rutas `/admin/*` con autenticación.
+- [ ] Protección real de rutas `/admin/*` con autenticación (middleware Astro).
 - [ ] Integración de base de datos con módulo de pagos (PayPal / Mastercard).
 
 ---
