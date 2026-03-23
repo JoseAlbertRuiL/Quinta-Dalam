@@ -1,6 +1,8 @@
 ---
 // ↓ Importamos nuestra Plantilla Base
 import Layout from "../layouts/Layout.astro";
+// ↓ Importamos nuestro componente de Reservación dentro del index.astro
+import PanelReservation from "../components/PanelReservation.astro";
 
 // ↓ Importamos el componente Image para optimizar imágenes pesadas
 import { Image, getImage } from "astro:assets";
@@ -43,27 +45,11 @@ Al usar title="", le pasamos la variable al <head> de la página en cuestión
         </p>
       </div>
     </section>
+    <br />
+    <br />
+    <br />
+    <PanelReservation />
 
-    <!-- Sección Acerca de -->
-    <section id="acerca-de">
-      <header>
-        <h2>Acerca de Nosotros</h2>
-      </header>
-      <p>
-        Nació de la inspiración por la riqueza cultural de nuestro estado.
-        <strong>Hotel Quinta Dalam</strong>
-        busca resaltar la belleza de los Pueblos Mágicos de Michoacán en cada detalle.
-      </p>
-      <p>
-        Ofrecemos un ambiente acogedor y lleno de tradición, donde cada una de
-        nuestras 15 habitaciones cuenta una historia diferente. ¡Ven a
-        descubrirlo!
-        <br />
-        ¡Atrévete a descubrir esta experiencia inolvidable!
-      </p>
-    </section>
-
-    <!-- TODO (Alberto): Mejorar el vídeo con CSS -->
     <section id="video">
       <header>
         <h3 style="display: none">Bienvenido</h3>
@@ -121,7 +107,6 @@ Al usar title="", le pasamos la variable al <head> de la página en cuestión
         <div class="seccion-item">
           <h2>Servicios</h2>
           <a href="/servicios">
-
             <Image
               src={serviciosImg}
               title="Servicios Premium"

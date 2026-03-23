@@ -1,9 +1,228 @@
-﻿---
-//  Importamos nuestra Plantilla Base
+---
+// ↓ Importamos nuestra Plantilla Base
 import Layout from "../layouts/Layout.astro";
-import ReservacionForm from "../components/ReservacionForm.jsx";
+// ↓ Leemos los parámetros que vienen de PanelReservation
+const fechaLlegada = Astro.url.searchParams.get("fecha-check-in") ?? "";
+const fechaSalida = Astro.url.searchParams.get("fecha-check-out") ?? "";
+const personas = Astro.url.searchParams.get("personas") ?? "";
 ---
 
 <Layout title="Reservaciones | Hotel Quinta Dalam">
-  <ReservacionForm client:load />
+  <link rel="stylesheet" href="/css/reservaciones.css" />
+  <!-- ? La clase 'pagina-reservaciones' activa los estilos de reservaciones.css -->
+  <main class="pagina-reservaciones">
+    <!-- * <main>: Define el contenido principal y único de la página web dentro del <body> -->
+    <section>
+      <header>
+        <h2>Reservaciones</h2>
+      </header>
+      <div>
+        <p>
+          ¡Bienvenido! ¿Estás listo para reservar un espacio donde se sienta y
+          se viva Michoacán de verdad?
+        </p>
+      </div>
+
+      <form method="post" action="/reservaciones">
+        <fieldset id="informacion-personal">
+          <legend>Información Personal</legend>
+          <div>
+            <label>
+              Nombre:
+              <input
+                type="text"
+                id="name"
+                name="name"
+                placeholder="Nombre del anfitrión"
+                required
+                pattern="^[a-zA-ZáéíóúÁÉÍÓÚñÑ ]+$"
+                title="Por favor, ingresa un nombre válido"
+              />
+            </label>
+          </div>
+          <div>
+            <label>
+              Email:
+              <input
+                type="email"
+                id="email"
+                name="email"
+                placeholder="Correo del anfitrión"
+                required
+                pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
+                title="Por favor, ingresa un correo válido"
+              />
+            </label>
+          </div>
+          <div>
+            <label for="tel">Número telefónico:</label>
+            <div class="phone-input-group">
+              <select
+                id="country-code"
+                name="country-code"
+                aria-label="Código de país"
+              >
+                <option value="+52" selected>🇲🇽 (+52)</option>
+                <option value="+1">🇺🇸 (+1)</option>
+                <option value="+1">🇨🇦 (+1)</option>
+                <option value="+34">🇪🇸 (+34)</option>
+                <option value="+57">🇨🇴 (+57)</option>
+                <option value="+54">🇦🇷 (+54)</option>
+                <option value="+51">🇵🇪 (+51)</option>
+                <option value="+56">🇨🇱 (+56)</option>
+                <option value="+55">🇧🇷 (+55)</option>
+                <option value="+44">🇬🇧 (+44)</option>
+                <option value="+33">🇫🇷 (+33)</option>
+                <option value="+49">🇩🇪 (+49)</option>
+                <option value="+39">🇮🇹 (+39)</option>
+                <option value="+81">🇯🇵 (+81)</option>
+                <option value="+86">🇨🇳 (+86)</option>
+                <option value="+91">🇮🇳 (+91)</option>
+                <option value="+7">🇷🇺 (+7)</option>
+                <option value="+61">🇦🇺 (+61)</option>
+                <option value="+82">🇰🇷 (+82)</option>
+                <option value="+58">🇻🇪 (+58)</option>
+                <option value="+593">🇪🇨 (+593)</option>
+                <option value="+502">🇬🇹 (+502)</option>
+                <option value="+53">🇨🇺 (+53)</option>
+                <option value="+591">🇧🇴 (+591)</option>
+                <option value="+1">🇩🇴 (+1)</option>
+                <option value="+504">🇭🇳 (+504)</option>
+                <option value="+595">🇵🇾 (+595)</option>
+                <option value="+503">🇸🇻 (+503)</option>
+                <option value="+505">🇳🇮 (+505)</option>
+                <option value="+506">🇨🇷 (+506)</option>
+                <option value="+507">🇵🇦 (+507)</option>
+                <option value="+598">🇺🇾 (+598)</option>
+                <option value="+1">🇵🇷 (+1)</option>
+                <option value="+351">🇵🇹 (+351)</option>
+                <option value="+31">🇳🇱 (+31)</option>
+                <option value="+41">🇨🇭 (+41)</option>
+                <option value="+46">🇸🇪 (+46)</option>
+                <option value="+32">🇧🇪 (+32)</option>
+                <option value="+43">🇦🇹 (+43)</option>
+                <option value="+90">🇹🇷 (+90)</option>
+                <option value="+972">🇮🇱 (+972)</option>
+                <option value="+20">🇪🇬 (+20)</option>
+                <option value="+27">🇿🇦 (+27)</option>
+                <option value="+234">🇳🇬 (+234)</option>
+                <option value="+966">🇸🇦 (+966)</option>
+                <option value="+971">🇦🇪 (+971)</option>
+                <option value="+65">🇸🇬 (+65)</option>
+                <option value="+64">🇳🇿 (+64)</option>
+                <option value="+353">🇮🇪 (+353)</option>
+                <option value="+30">🇬🇷 (+30)</option>
+              </select>
+              <input
+                type="tel"
+                id="tel"
+                name="tel"
+                placeholder="4431234567"
+                required
+                pattern="[0-9]{10}"
+                minlength="10"
+                maxlength="10"
+                title="Ingresa exactamente 10 dígitos numéricos"
+                oninput="
+                    this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10)
+                  "
+              />
+            </div>
+          </div>
+        </fieldset>
+        <fieldset id="informacion-reservacion">
+          <legend>Información de la Reservación</legend>
+          <div>
+            <label>
+              Fecha de llegada:
+              <input
+                type="date"
+                id="fecha-llegada"
+                name="fecha-llegada"
+                required
+                value={fechaLlegada}
+                title="Por favor, ingresa una fecha de llegada"
+              />
+            </label>
+          </div>
+          <div>
+            <label>
+              Fecha de salida:
+              <input
+                type="date"
+                id="fecha-salida"
+                name="fecha-salida"
+                required
+                value={fechaSalida}
+                title="Por favor, ingresa una fecha de salida"
+              />
+            </label>
+          </div>
+          <div>
+            <label>
+              Número de personas:
+              <input
+                type="number"
+                id="numero-personas"
+                name="numero-personas"
+                required
+                min="1"
+                max="6"
+                value={personas}
+                title="Por favor, ingresa un número de personas"
+              />
+            </label>
+          </div>
+          <div>
+            <label for="room-preference"> Selecciona tu Habitación*: </label>
+            <select id="room-preference" name="room-preference" required>
+              <option value="" disabled selected>
+                <!-- * Mediante value="" y disabled selected podemos omitir la opción para que el usuario no pueda seleccionarla -->
+                Selecciona una habitación
+              </option>
+              <optgroup label="Planta Baja (Serie 100)">
+                <!-- ? Mediante label podemos agregar un título al grupo, el cual el usuario podrá ver y facilitar más su UX -->
+                <option value="101">101: Tzintzunzan</option>
+                <option value="102">102: Paracho</option>
+                <option value="103">103: Yunuen</option>
+                <option value="104">104: Patzcuaro</option>
+                <option value="105">105: Coeneo</option>
+                <option value="106">106: Janitzio</option>
+              </optgroup>
+              <optgroup label="Planta Alta (Serie 200)">
+                <option value="201">201: Suite Quencio</option>
+                <option value="202">202: Morelia</option>
+                <option value="203">203: Tacambaro</option>
+                <option value="204">204: Uruapan</option>
+                <option value="205">205: Tlalpujahua</option>
+                <option value="206">206: Cuitzeo</option>
+                <option value="207">207: Cuanajo</option>
+              </optgroup>
+            </select>
+          </div>
+          <div>
+            <label for="terms"
+              >¿Aceptas la
+              <a href="/privacidad" target="_blank">Política de Privacidad </a>
+              y los
+              <a href="/tyc" target="_blank">Términos y Condiciones</a>?
+            </label>
+            <!-- ? Redirigimos al usuario a la página de los Términos y Condiciones al hacer clic en el texto enlazado -->
+            <input type="checkbox" id="terms" name="terms" required />
+          </div>
+        </fieldset>
+        <button type="submit">Enviar Datos de Reservación</button>
+
+        <br />
+        <small>*: Sujeto a disponibilidad</small>
+      </form>
+    </section>
+
+    <!-- TODO (José): Incluir un formulario para reservar por WhatsApp -->
+    <!-- <section>
+        <header>
+          <h3></h3>
+        </header>
+      </section> -->
+  </main>
 </Layout>
