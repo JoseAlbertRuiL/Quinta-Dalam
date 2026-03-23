@@ -1,0 +1,48 @@
+---
+// ↓ Importamos nuestra Plantilla Base para admin/
+import LayoutAdmin from "../../layouts/LayoutAdmin.astro";
+// ↓ Importamos el componente de navegación reutilizable del panel
+import NavAdmin from "../../components/NavAdmin.astro";
+---
+
+<LayoutAdmin title="Admin | Estadísticas" favicon="/images/stats-icono.png">
+  <header class="section pb-4 pt-5 has-text-centered">
+    <h1 class="title is-3 mb-0">
+      <i class="fa-solid fa-gears has-text-info mr-2" aria-hidden="true"></i>
+      Panel de Administración
+    </h1>
+  </header>
+
+  <div class="container section pt-0">
+    <div class="columns">
+      <!-- ! Columna 1: de Navegación -->
+      <NavAdmin paginaActual="stats" />
+
+      <!-- ! Columna 2: Contenido Principal -->
+      <div class="column is-10">
+        <main class="box content">
+          <section id="estadisticas">
+            <details open class="box p-4 has-background-black-ter">
+              <summary class="is-clickable m-0 p-0" style="list-style: none">
+                <h3 class="title is-5 is-inline-block m-0">
+                  <i class="fa-solid fa-chart-column has-text-info mr-2"></i>
+                  Estadísticas
+                </h3>
+              </summary>
+              <div class="mt-4 pl-4 border-left has-text-white">
+                <div class="box mb-5 has-background-black">
+                  <canvas id="barChart"></canvas>
+                </div>
+                <div class="box has-background-black">
+                  <div style="max-width: 500px; margin: 0 auto">
+                    <canvas id="pieChart"></canvas>
+                  </div>
+                </div>
+              </div>
+            </details>
+          </section>
+        </main>
+      </div>
+    </div>
+  </div>
+</LayoutAdmin>

@@ -1,23 +1,78 @@
-<!doctype html>
-<html lang="en">
-	<head>
-		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro Basics</title>
-	</head>
-	<body>
-		<slot />
-	</body>
-</html>
+---
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
 
-<style>
-	html,
-	body {
-		margin: 0;
-		width: 100%;
-		height: 100%;
-	}
-</style>
+// ↓ Recibimos las propiedades que nos envían las páginas
+// ↓ favicon tiene valor default: todas las páginas públicas usan el mismo icono
+const { title, favicon = "/images/Hotel_icono.png" } = Astro.props;
+---
+
+<!doctype html>
+<!-- ? Definimos qué tipo de documento está siendo creado, formalidad aunque se agrega por buenas prácticas -->
+<html lang="es-MX">
+  <head>
+    <!-- ! En nuestro <head> estarán los metadatos como el títulos, etiquetas <meta>, scripts, CSS y demás, especial para los desarrolladores del proyecto -->
+    <title>{title}</title>
+    <!-- * Ponemos el título del Hotel -->
+    <meta
+      name="description"
+      content="Bienvenido a Hotel Quinta Dalam, donde la magia de los pueblos de Michoacán cobra vida."
+    />
+    <!-- * Añadimos una descripción o 'eslogan' de nuestro proyecto, aparecerá cuando sea buscada en un motor de búsqueda -->
+    <meta charset="UTF-8" />
+    <!-- ? Meta: Define metadatos sobre el documento y la codificación que se usará -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- ? Viewport Width: Adapta la página web según el ancho del dispositivo en cuestión, útil para móviles -->
+    <meta name="robots" content="index, follow" />
+    <!-- ? Robots: Indica a los motores de búsqueda cómo rastrear e indexar la página (indexar la página y seguir los enlaces) -->
+    <meta
+      name="keywords"
+      content="hotel, quinta dalam, pueblos magicos, michoacan, mexico"
+    />
+    <!-- ? Keywords: Define las palabras clave de la página web, algo útiles para SEO pero no tan relevantes -->
+    <link rel="icon" type="image/png" href={favicon} />
+    <!-- * Icono: En este caso, estamos añadiendo nuestra 'favicon', es decir, el ícono que aparecerá al lado del título de la página web en el navegador de los cliente -->
+
+    <!-- ! Open Graph: Modelo que permite la buena visualización de nuestro contenido en redes sociales -->
+    <!--
+    * Property: Define la propiedad del Open Graph
+    * Content: Define el contenido de la propiedad del Open Graph
+    ? Title: Define el título de la página web
+    ? Description: Define la descripción de la página web
+    ? Image: Define la imagen de la página web
+    ? URL: Define la URL de la página web
+    ? Type: Define el tipo de la página web
+    ? Locale: Define el idioma de la página web
+    -->
+    <meta
+      property="og:title"
+      content="Hotel Quinta Dalam, vive la magia de Michoacán"
+    />
+    <meta
+      property="og:description"
+      content="Bienvenido a Hotel Quinta Dalam, disfruta de nuestras 15 habitaciones con temática de Pueblos Mágicos."
+    />
+    <meta property="og:image" content="/images/hotel-icono.png" />
+    <meta property="og:url" content="https://hotelquintadalam.com" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="es_MX" />
+
+    <!-- * FontAwesome: Librería de iconos -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
+
+    <!-- ! CSS -->
+    <link rel="stylesheet" href="/css/reset.css" />
+    <link rel="stylesheet" href="/css/styles.css" />
+    <link rel="stylesheet" href="/css/responsive.css" />
+  </head>
+
+  <body>
+    <!-- ! <body>: Aquí estará todo lo visible de nuestra página web. Parte indispensable para los usuarios -->
+    <Header />
+    <slot />
+    <Footer />
+  </body>
+</html>

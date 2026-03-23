@@ -1,0 +1,196 @@
+/* ==================== ESTILOS PARA PÁGINA DE HABITACIONES ==================== */
+
+/* ==================== SECCIÓN HABITACIONES - TARJETAS ==================== */
+#lista-habitaciones {
+  padding: 0;
+  background: transparent;
+}
+
+#planta-baja,
+#planta-alta {
+  padding: 5rem 2rem 3rem;
+  background-color: var(--color-white);
+}
+
+#planta-alta {
+  background-color: var(--color-light);
+}
+
+#planta-baja h3,
+#planta-alta h3 {
+  font-size: 2rem;
+  color: var(--color-primary);
+  text-align: center;
+  margin-bottom: 2.5rem;
+  font-weight: 400;
+  font-family: "Georgia", serif;
+  position: relative;
+  padding-bottom: 1rem;
+}
+
+#planta-baja h3::after,
+#planta-alta h3::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100px;
+  height: 3px;
+  background-color: var(--color-accent);
+}
+
+/* Grid de habitaciones - Compacto */
+.habitaciones-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Tarjeta de habitación */
+.habitacion-card {
+  background-color: var(--color-white);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  transition: var(--transition);
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  padding: 1.2rem;
+}
+
+.habitacion-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.habitacion-card img {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  transition: var(--transition);
+}
+
+.habitacion-card img:hover {
+  transform: scale(1.08);
+}
+
+.habitacion-card h4 {
+  font-size: 1.1rem;
+  color: var(--color-primary);
+  margin-bottom: 0.6rem;
+  font-weight: 500;
+  font-family: "Georgia", serif;
+}
+
+.habitacion-card .precio {
+  font-size: 1.3rem;
+  color: var(--color-accent);
+  font-weight: 600;
+  margin-bottom: 1rem;
+  padding: 0.5rem 0;
+  border-top: 1px solid rgba(212, 165, 116, 0.3);
+  border-bottom: 1px solid rgba(212, 165, 116, 0.3);
+}
+
+.btn-reservar {
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  border: none;
+  padding: 0.7rem 1.5rem;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: auto;
+}
+
+.btn-reservar:hover {
+  background-color: var(--color-secondary);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(26, 77, 46, 0.3);
+}
+
+.btn-reservar:active {
+  transform: translateY(0);
+}
+
+/* ==================== RESPONSIVE - HABITACIONES ==================== */
+
+@media (max-width: 1200px) {
+  .habitaciones-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .habitaciones-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+  }
+
+  #planta-baja h3,
+  #planta-alta h3 {
+    font-size: 1.7rem;
+  }
+
+  .habitacion-card {
+    padding: 1rem;
+  }
+
+  .habitacion-card img {
+    height: 120px;
+  }
+}
+
+@media (max-width: 480px) {
+  .habitaciones-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  #planta-baja,
+  #planta-alta {
+    padding: 3rem 1rem 2rem;
+  }
+
+  #planta-baja h3,
+  #planta-alta h3 {
+    font-size: 1.4rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .habitacion-card {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    gap: 1rem;
+    text-align: left;
+    padding: 1rem;
+  }
+
+  .habitacion-card img {
+    grid-row: 1 / 4;
+    width: 100%;
+    height: 120px;
+  }
+
+  .habitacion-card h4,
+  .habitacion-card .precio,
+  .btn-reservar {
+    margin: 0;
+  }
+
+  .btn-reservar {
+    grid-column: 1 / 3;
+    margin-top: 0.5rem;
+  }
+}

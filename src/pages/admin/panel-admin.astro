@@ -1,0 +1,39 @@
+---
+// ↓ Importamos nuestra Plantilla Base para admin/
+import LayoutAdmin from "../../layouts/LayoutAdmin.astro";
+// ↓ Importamos el componente de navegación reutilizable del panel
+import NavAdmin from "../../components/NavAdmin.astro";
+---
+
+<LayoutAdmin title="Admin | Panel" favicon="/images/admin-icon.png">
+  <header class="section pb-4 pt-5 has-text-centered">
+    <h1 class="title is-3 mb-0">
+      <i class="fa-solid fa-gears has-text-info mr-2" aria-hidden="true"></i>
+      Panel de Administración
+    </h1>
+  </header>
+
+  <div class="container section pt-0">
+    <div class="columns">
+      <!-- ! Columna 1: de Navegación -->
+      <NavAdmin paginaActual="panel-admin" />
+
+      <!-- ! Columna 2: Contenido Principal -->
+      <!-- TODO: Realizar contenido principal, enfocado a tener un poco de todo y sea atractivo visualmente -->
+      <div class="column is-10">
+        <main class="box content">
+          <h2 class="title is-4">En Construcción...</h2>
+
+          <section id="vista-general">
+            <div class="box has-background-black-ter">
+              <p class="has-text-white">
+                Esta es la vista general del panel de administración. Selecciona
+                una opción del menú para continuar.
+              </p>
+            </div>
+          </section>
+        </main>
+      </div>
+    </div>
+  </div>
+</LayoutAdmin>
