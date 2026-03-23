@@ -1,0 +1,28 @@
+---
+// ↓ Importamos nuestra Plantilla Base
+import Layout from "../layouts/Layout.astro";
+import { Image } from "astro:assets";
+import habitacionImg from "../assets/images/habitacion.png";
+---
+
+<Layout title="Instalaciones - Quinta Dalam">
+  <main>
+    <!-- * <main>: Define el contenido principal y único de la página web dentro del <body> -->
+    <section>
+      <header>
+        <h2>Instalaciones</h2>
+      </header>
+      <div>
+        <p>
+          En Hotel Quinta Dalam, cada espacio está diseñado para ofrecerte una
+          experiencia de confort y tranquilidad. Desde nuestras acogedoras
+          habitaciones hasta nuestras áreas comunes, todo está pensado para tu
+          bienestar.
+        </p>
+        <img src="/images/sala.png" alt="Sala de Hotel Quinta Dalam" />
+        <br />
+        <Image src={habitacionImg} alt="Habitación 3" width={800} height={450} />
+      </div>
+    </section>
+  </main>
+</Layout>

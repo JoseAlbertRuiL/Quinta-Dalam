@@ -1,0 +1,40 @@
+---
+// ↓ Importamos el Footer específico para nuestra sección admin/
+import FooterAdmin from "../components/FooterAdmin.astro";
+import "../styles/globals.css";
+
+// ↓ Recibimos las propiedades que nos envían las páginas
+// ↓ favicon tiene valor default: usa admin-icon.png si no se especifica otro
+const { title, favicon = "/images/admin-icon.png" } = Astro.props;
+---
+
+<!doctype html>
+<html lang="es-MX">
+  <head>
+    <title>{title}</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <!-- ! IMPORTANTE - NO CAMBIAR -->
+    <!-- ! noindex: No indexamos páginas de administración a los motores de búsqueda, mayor seguridad y privacidad -->
+    <!-- ! nofollow: No permite el redireccionamiento de otras enlaces -->
+    <link rel="icon" type="image/png" href={favicon} />
+    <!-- * Icono: En este caso, estamos añadiendo nuestra 'favicon', es decir, el ícono que aparecerá al lado del título de la página web en el navegador de los cliente -->
+
+    <!-- * FontAwesome: Librería de iconos -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
+
+    <!-- ! CSS -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css"
+    />
+  </head>
+  <body>
+    <slot />
+    <FooterAdmin />
+  </body>
+</html>

@@ -1,0 +1,100 @@
+---
+import LayoutAdmin from "../../layouts/LayoutAdmin.astro";
+---
+
+<LayoutAdmin title="Admin | Dev" favicon="/images/dev-icono.png">
+  <header class="section pb-4 pt-5 has-text-centered">
+    <h1 class="title is-3 mb-0">
+      <i class="fa-solid fa-gears has-text-info mr-2"></i>
+      Panel de Administración
+    </h1>
+  </header>
+
+  <div class="container section pt-0">
+    <div class="columns">
+      <!-- ! Columna 1: de Navegación -->
+      <div class="column is-3">
+        <nav id="indice" role="navigation" class="menu box">
+          <p class="menu-label">Menú Principal</p>
+          <ul class="menu-list">
+            <li>
+              <a href="/admin/panel-admin" class="has-text-white-ter"
+                ><span class="icon is-small">
+                  <i class="fa-solid fa-house mr-2"></i>
+                </span>
+                Vista General</a
+              >
+            </li>
+            <li>
+              <a href="/admin/inbox" class="has-text-white-ter"
+                ><span class="icon is-small">
+                  <i class="fa-solid fa-inbox mr-2"></i>
+                </span>
+                Inbox</a
+              >
+            </li>
+            <li>
+              <a href="/admin/stats" class="has-text-white-ter"
+                ><span class="icon is-small">
+                  <i class="fa-solid fa-chart-column mr-2"></i>
+                </span>
+                Estadísticas</a
+              >
+            </li>
+            <li>
+              <a href="/admin/balance" class="has-text-white-ter"
+                ><span class="icon is-small">
+                  <i class="fa-solid fa-cash-register mr-2"></i>
+                </span>
+                Balance y Caja</a
+              >
+            </li>
+            <li>
+              <a href="/admin/database" class="has-text-white-ter"
+                ><span class="icon is-small">
+                  <i class="fa-solid fa-database mr-2"></i>
+                </span>
+                Base de Datos</a
+              >
+            </li>
+            <li>
+              <a href="/admin/dev" class="is-active"
+                ><span class="icon is-small">
+                  <i class="fa-solid fa-laptop-code mr-2"></i>
+                </span>
+                Desarrollo</a
+              >
+            </li>
+          </ul>
+          <a href="/admin/admin">
+            <button
+              class="button is-danger is-outlined is-rounded mt-4 is-fullwidth"
+            >
+              Cerrar Sesión
+            </button>
+          </a>
+        </nav>
+      </div>
+
+      <!-- ! Columna 2: Contenido Principal -->
+      <!-- TODO: Realizar toda la lógica de comunicación entre el dueño/admin y los devs -->
+      <div class="column is-10">
+        <main class="box content">
+          <section id="dev">
+            <details open class="box p-4 has-background-black-ter">
+              <summary class="is-clickable m-0 p-0" style="list-style: none">
+                <h3 class="title is-5 is-inline-block m-0">
+                  <i class="fa-solid fa-laptop-code has-text-info mr-2"></i>
+                  Desarrollo
+                </h3>
+              </summary>
+              <div class="mt-4 pl-4 border-left has-text-white">
+                <p>Por favor, ingrese un mensaje para los desarrolladores.</p>
+              </div>
+            </details>
+          </section>
+        </main>
+      </div>
+    </div>
+  </div>
+</LayoutAdmin>
