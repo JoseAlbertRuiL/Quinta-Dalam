@@ -2,7 +2,7 @@
 // ↓ Importamos nuestra Plantilla Base
 import Layout from "../layouts/Layout.astro";
 // ↓ Importamos nuestro componente de Reservación dentro del index.astro
-import PanelReservation from "../components/PanelReservation.astro";
+import PanelReservation from "../components/PanelReservation.jsx";
 
 // ↓ Importamos el componente Image para optimizar imágenes pesadas
 import { Image, getImage } from "astro:assets";
@@ -48,7 +48,7 @@ Al usar title="", le pasamos la variable al <head> de la página en cuestión
     <br />
     <br />
     <br />
-    <PanelReservation />
+    <PanelReservation client:load />
 
     <section id="video">
       <header>

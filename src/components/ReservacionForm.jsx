@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function ReservacionForm() {
   const [formData, setFormData] = useState({
@@ -14,6 +14,23 @@ export default function ReservacionForm() {
   });
 
   const [errors, setErrors] = useState({});
+
+  // Lee los parámetros de la URL y pre-rellena el formulario
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const checkinDate = params.get('fecha-check-in');
+    const checkoutDate = params.get('fecha-check-out');
+    const personas = params.get('personas');
+
+    if (checkinDate || checkoutDate || personas) {
+      setFormData(prev => ({
+        ...prev,
+        fechaLlegada: checkinDate || prev.fechaLlegada,
+        fechaSalida: checkoutDate || prev.fechaSalida,
+        numeroPersonas: personas ? (personas === '5' ? 5 : parseInt(personas)) : prev.numeroPersonas,
+      }));
+    }
+  }, []);
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -35,7 +52,7 @@ export default function ReservacionForm() {
     // Validacion de correo
     if (!formData.email.trim()) {
       newErrors.email = 'El email es requerido';
-    } else if (!/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.([a-zA-Z]{2,})$/.test(formData.email)) {
+    } else if (!/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/.test(formData.email)) {
       newErrors.email = 'El correo que intenta ingresar no tiene un formato correcto';
     }
 
