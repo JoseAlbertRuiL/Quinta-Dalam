@@ -28,7 +28,7 @@ const personas = Astro.url.searchParams.get("personas") ?? "";
           <legend>Información Personal</legend>
           <div>
             <label>
-              Nombre:
+              Nombre Completo:
               <input
                 type="text"
                 id="name"
@@ -167,7 +167,7 @@ const personas = Astro.url.searchParams.get("personas") ?? "";
                 name="numero-personas"
                 required
                 min="1"
-                max="6"
+                max="5"
                 value={personas}
                 title="Por favor, ingresa un número de personas"
               />
@@ -225,4 +225,164 @@ const personas = Astro.url.searchParams.get("personas") ?? "";
         </header>
       </section> -->
   </main>
+
+  <script>
+    function initReservaCompleta() {
+      // ↓ Campos a darle persistencia para mejorar la UX durante la navegación del sitio
+      const checkInInput = document.getElementById(
+        "fecha-llegada",
+      ) as HTMLInputElement;
+      const checkOutInput = document.getElementById(
+        "fecha-salida",
+      ) as HTMLInputElement;
+      const personasInput = document.getElementById(
+        "numero-personas",
+      ) as HTMLInputElement;
+      const nameInput = document.getElementById("name") as HTMLInputElement;
+      const emailInput = document.getElementById("email") as HTMLInputElement;
+      const countryCodeInput = document.getElementById(
+        "country-code",
+      ) as HTMLSelectElement;
+      const telInput = document.getElementById("tel") as HTMLInputElement;
+      const roomPreferenceInput = document.getElementById(
+        "room-preference",
+      ) as HTMLSelectElement;
+      const termsInput = document.getElementById("terms") as HTMLInputElement;
+
+      if (!checkInInput || !checkOutInput) return;
+
+      const getFormattedDate = (date: Date) => {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
+        return `${year}-${month}-${day}`;
+      };
+
+      const todayStr = getFormattedDate(new Date());
+
+      checkInInput.min = todayStr;
+      checkOutInput.min = todayStr;
+
+      function updateCheckOutMin() {
+        if (!checkInInput.value) return;
+        const checkInDate = new Date(checkInInput.value + "T00:00:00");
+        if (!isNaN(checkInDate.getTime())) {
+          const nextDay = new Date(checkInDate);
+          nextDay.setDate(nextDay.getDate() + 1);
+          const minCheckOut = getFormattedDate(nextDay);
+
+          checkOutInput.min = minCheckOut;
+
+          if (
+            checkOutInput.value &&
+            checkOutInput.value <= checkInInput.value
+          ) {
+            checkOutInput.value = minCheckOut;
+            saveData();
+          }
+        }
+      }
+
+      function saveData() {
+        sessionStorage.setItem("res_checkin", checkInInput.value || "");
+        sessionStorage.setItem("res_checkout", checkOutInput.value || "");
+        if (personasInput)
+          sessionStorage.setItem("res_personas", personasInput.value || "");
+
+        // Guardar nuevos campos
+        if (nameInput)
+          sessionStorage.setItem("res_name", nameInput.value || "");
+        if (emailInput)
+          sessionStorage.setItem("res_email", emailInput.value || "");
+        if (countryCodeInput)
+          sessionStorage.setItem(
+            "res_country_code",
+            countryCodeInput.value || "",
+          );
+        if (telInput) sessionStorage.setItem("res_tel", telInput.value || "");
+        if (roomPreferenceInput)
+          sessionStorage.setItem("res_room", roomPreferenceInput.value || "");
+        if (termsInput)
+          sessionStorage.setItem(
+            "res_terms",
+            termsInput.checked ? "true" : "false",
+          );
+      }
+
+      function loadData() {
+        const params = new URLSearchParams(window.location.search);
+
+        // Prioridad: 1. URL Params, 2. Astro envia (server) ya tiene value, 3. SessionStorage
+        const savedCheckIn =
+          params.get("fecha-check-in") || sessionStorage.getItem("res_checkin");
+        const savedCheckOut =
+          params.get("fecha-check-out") ||
+          sessionStorage.getItem("res_checkout");
+        const savedPersonas =
+          params.get("personas") || sessionStorage.getItem("res_personas");
+
+        // Rellenar si está vacío o aplicar lo guardado si existe y no hay conflicto
+        if (!checkInInput.value && savedCheckIn)
+          checkInInput.value = savedCheckIn;
+        if (!checkOutInput.value && savedCheckOut)
+          checkOutInput.value = savedCheckOut;
+        if (personasInput && !personasInput.value && savedPersonas)
+          personasInput.value = savedPersonas;
+
+        // Cargar nuevos campos persistidos
+        const savedName = sessionStorage.getItem("res_name");
+        const savedEmail = sessionStorage.getItem("res_email");
+        const savedCountryCode = sessionStorage.getItem("res_country_code");
+        const savedTel = sessionStorage.getItem("res_tel");
+        const savedRoom = sessionStorage.getItem("res_room");
+        const savedTerms = sessionStorage.getItem("res_terms");
+
+        if (nameInput && !nameInput.value && savedName)
+          nameInput.value = savedName;
+        if (emailInput && !emailInput.value && savedEmail)
+          emailInput.value = savedEmail;
+        if (countryCodeInput && savedCountryCode)
+          countryCodeInput.value = savedCountryCode;
+        if (telInput && !telInput.value && savedTel) telInput.value = savedTel;
+        if (roomPreferenceInput && savedRoom)
+          roomPreferenceInput.value = savedRoom;
+        if (termsInput && savedTerms === "true") termsInput.checked = true;
+
+        // Guardamos el estado unificado actual
+        saveData();
+        updateCheckOutMin();
+      }
+
+      checkInInput.addEventListener("change", () => {
+        updateCheckOutMin();
+        saveData();
+      });
+      checkOutInput.addEventListener("change", saveData);
+      if (personasInput) {
+        personasInput.addEventListener("change", saveData);
+      }
+
+      // Listeners de los nuevos campos
+      const extraInputs = [
+        nameInput,
+        emailInput,
+        countryCodeInput,
+        telInput,
+        roomPreferenceInput,
+        termsInput,
+      ];
+      extraInputs.forEach((input) => {
+        if (input) {
+          // 'input' capta tipeo en tiempo real, 'change' capta selects y checkboxes
+          input.addEventListener("input", saveData);
+          input.addEventListener("change", saveData);
+        }
+      });
+
+      loadData();
+    }
+
+    document.addEventListener("DOMContentLoaded", initReservaCompleta);
+    document.addEventListener("astro:page-load", initReservaCompleta);
+  </script>
 </Layout>
