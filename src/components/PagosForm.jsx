@@ -232,7 +232,7 @@ export default function PagosForm() {
 
       <main className="pagos-root">
         <div className="page-header">
-          <p className="page-logo">✦ Hacienda del Bosque ✦</p>
+          <p className="page-logo">✦ Hotel Quinta Dalam ✦</p>
           <div className="page-sep" />
         </div>
 
@@ -309,7 +309,7 @@ export default function PagosForm() {
             <h1 className="form-title">Información<br/>de Pago</h1>
             <p className="form-subtitle">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-              Conexión segura · Datos encriptados
+              Datos encriptados
             </p>
 
             <div className="form-card">
@@ -342,7 +342,7 @@ export default function PagosForm() {
                     type="text"
                     name="cardName"
                     className={`field-input${errors.cardName ? ' has-error' : ''}`}
-                    placeholder="Como aparece en la tarjeta"
+                    placeholder="Nombre del Titular"
                     value={formData.cardName}
                     onChange={handleInputChange}
                     onFocus={() => setFocused('cardName')}
@@ -417,16 +417,8 @@ export default function PagosForm() {
 
             <div className="secure-badges">
               <span className="secure-badge">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                SSL Encriptado
-              </span>
-              <span className="secure-badge">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
                 Pago Seguro
-              </span>
-              <span className="secure-badge">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                PCI Compliant
               </span>
             </div>
           </div>

@@ -8,7 +8,7 @@ export default function ReservacionForm() {
     tel: '',
     fechaLlegada: '',
     fechaSalida: '',
-    numeroPersonas: 0,
+    numeroPersonas: 1,
     roomPreference: '',
     terms: false,
   });
