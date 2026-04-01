@@ -8,6 +8,12 @@
   --color-dark: #2c3e50;
   --color-text: #333;
   --transition: all 0.3s ease;
+
+  /* ==================== SISTEMA TIPOGRÁFICO ==================== */
+  /* ? Cormorant Garamond: serif de lujo para títulos y display    */
+  /* ? Jost: sans-serif geométrica limpia para cuerpo e interfaz   */
+  --font-display: 'Cormorant Garamond', Georgia, serif;
+  --font-body:    'Jost', system-ui, sans-serif;
 }
 
 /* ==================== FONT-AWESOME ICON UTILITIES ==================== */
@@ -103,6 +109,8 @@
 .impulso-item h4 {
   margin: 0.2rem 0 0.4rem 0;
   color: var(--color-dark);
+  font-weight: 600;
+  font-family: var(--font-display);
 }
 
 .impulso-item p {
@@ -155,12 +163,13 @@
 #indice a {
   color: var(--color-white);
   font-size: 0.85rem; /* ← Reducido de 0.95rem a 0.85rem */
-  font-weight: 400;
+  font-weight: 500;
   padding: 0.4rem 0.8rem; /* ← Reducido de 0.5rem 1rem */
   border-radius: 4px;
   transition: var(--transition);
   letter-spacing: 0.5px;
   position: relative;
+  font-family: var(--font-body);
 }
 
 #indice a::after {
@@ -211,7 +220,7 @@
   font-weight: 300;
   margin-bottom: 1.5rem;
   line-height: 1.3;
-  font-family: "Georgia", serif;
+  font-family: var(--font-display);
   font-style: italic;
   max-width: 900px;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); /* ← Agregado: sombra para que el texto sea legible */
@@ -248,10 +257,10 @@ section header h2 {
   color: var(--color-primary);
   text-align: center;
   margin-bottom: 3rem;
-  font-weight: 400;
+  font-weight: 600;
   position: relative;
   padding-bottom: 1rem;
-  font-family: "Georgia", serif;
+  font-family: var(--font-display);
 }
 
 section header h2::after {
@@ -292,10 +301,10 @@ section p {
   color: var(--color-primary);
   text-align: center;
   margin-bottom: 2rem;
-  font-weight: 400;
+  font-weight: 600;
   position: relative;
   padding-bottom: 1rem;
-  font-family: "Georgia", serif;
+  font-family: var(--font-display);
 }
 
 #video header h3::after {
@@ -591,8 +600,8 @@ footer br {
   font-size: 1.8rem;
   color: var(--color-primary);
   margin-bottom: 1.5rem;
-  font-weight: 400;
-  font-family: "Georgia", serif;
+  font-weight: 600;
+  font-family: var(--font-display);
   position: relative;
   padding-bottom: 0.8rem;
 }

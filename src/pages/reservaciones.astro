@@ -1,6 +1,8 @@
 ---
 // ↓ Importamos nuestra Plantilla Base
 import Layout from "../layouts/Layout.astro";
+// ↓ Importamos el componente React de Pagos (se montará como isla interactiva)
+import PagosForm from "../components/PagosForm.jsx";
 // ↓ Leemos los parámetros que vienen de PanelReservation
 const fechaLlegada = Astro.url.searchParams.get("fecha-check-in") ?? "";
 const fechaSalida = Astro.url.searchParams.get("fecha-check-out") ?? "";
@@ -12,7 +14,9 @@ const personas = Astro.url.searchParams.get("personas") ?? "";
   <!-- ? La clase 'pagina-reservaciones' activa los estilos de reservaciones.css -->
   <main class="pagina-reservaciones">
     <!-- * <main>: Define el contenido principal y único de la página web dentro del <body> -->
-    <section>
+
+    <!-- ======================== PASO 1: FORMULARIO DE RESERVACIÓN ======================== -->
+    <section id="seccion-reservacion">
       <header>
         <h2>Reservaciones</h2>
       </header>
@@ -23,7 +27,7 @@ const personas = Astro.url.searchParams.get("personas") ?? "";
         </p>
       </div>
 
-      <form method="post" action="/reservaciones">
+      <form id="form-reservacion" method="post" action="/reservaciones">
         <fieldset id="informacion-personal">
           <legend>Información Personal</legend>
           <div>
@@ -55,7 +59,7 @@ const personas = Astro.url.searchParams.get("personas") ?? "";
             </label>
           </div>
           <div>
-            <label for="tel">Número telefónico:</label>
+            <label for="tel">Número Telefónico:</label>
             <div class="phone-input-group">
               <select
                 id="country-code"
@@ -211,19 +215,18 @@ const personas = Astro.url.searchParams.get("personas") ?? "";
             <input type="checkbox" id="terms" name="terms" required />
           </div>
         </fieldset>
-        <button type="submit">Enviar Datos de Reservación</button>
+        <button type="submit">Continuar al Pago</button>
 
         <br />
         <small>*: Sujeto a disponibilidad</small>
       </form>
     </section>
 
-    <!-- TODO (José): Incluir un formulario para reservar por WhatsApp -->
-    <!-- <section>
-        <header>
-          <h3></h3>
-        </header>
-      </section> -->
+    <!-- ======================== PASO 2: FORMULARIO DE PAGO (React Island) ======================== -->
+    <!-- ? Se monta con client:only="react" para renderizado exclusivo en el cliente -->
+    <div id="pagos-container" class="pagos-container-hidden">
+      <PagosForm client:only="react" />
+    </div>
   </main>
 
   <script>
@@ -248,6 +251,13 @@ const personas = Astro.url.searchParams.get("personas") ?? "";
         "room-preference",
       ) as HTMLSelectElement;
       const termsInput = document.getElementById("terms") as HTMLInputElement;
+
+      // ↓ Referencias a las secciones para el flujo de dos pasos
+      const seccionReservacion = document.getElementById("seccion-reservacion");
+      const pagosContainer = document.getElementById("pagos-container");
+      const formReservacion = document.getElementById(
+        "form-reservacion",
+      ) as HTMLFormElement;
 
       if (!checkInInput || !checkOutInput) return;
 
@@ -376,6 +386,63 @@ const personas = Astro.url.searchParams.get("personas") ?? "";
           // 'input' capta tipeo en tiempo real, 'change' capta selects y checkboxes
           input.addEventListener("input", saveData);
           input.addEventListener("change", saveData);
+        }
+      });
+
+      // ↓ FLUJO DE DOS PASOS: Interceptar el submit del formulario
+      if (formReservacion && seccionReservacion && pagosContainer) {
+        formReservacion.addEventListener("submit", (e: Event) => {
+          e.preventDefault();
+
+          // Verificar que el formulario HTML sea válido (validaciones nativas)
+          if (!formReservacion.checkValidity()) {
+            formReservacion.reportValidity();
+            return;
+          }
+
+          // ↓ Recopilar todos los datos y guardarlos en el formato que PagosForm espera
+          const roomSelect = roomPreferenceInput;
+          const roomText =
+            roomSelect.options[roomSelect.selectedIndex]?.text ||
+            roomSelect.value;
+
+          const reservacionData = {
+            name: nameInput.value,
+            email: emailInput.value,
+            countryCode: countryCodeInput.value,
+            tel: telInput.value,
+            fechaLlegada: checkInInput.value,
+            fechaSalida: checkOutInput.value,
+            numeroPersonas: personasInput.value,
+            roomPreference: roomText,
+          };
+
+          // ↓ Guardamos los datos de reservación para que PagosForm los lea
+          sessionStorage.setItem(
+            "reservacionData",
+            JSON.stringify(reservacionData),
+          );
+
+          // ↓ Notificamos al componente React que los datos están listos
+          document.dispatchEvent(new CustomEvent("pagos:datosListos"));
+
+          // ↓ Transición: ocultar formulario de reservación, mostrar formulario de pago
+          seccionReservacion.classList.add("reservacion-section-hidden");
+          pagosContainer.classList.remove("pagos-container-hidden");
+          pagosContainer.classList.add("pagos-container-visible");
+
+          // ↓ Scroll suave hacia arriba para ver el formulario de pago
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        });
+      }
+
+      // ↓ Escuchar el evento personalizado para volver al Paso 1 (despachado por PagosForm)
+      document.addEventListener("pagos:volver", () => {
+        if (seccionReservacion && pagosContainer) {
+          pagosContainer.classList.add("pagos-container-hidden");
+          pagosContainer.classList.remove("pagos-container-visible");
+          seccionReservacion.classList.remove("reservacion-section-hidden");
+          window.scrollTo({ top: 0, behavior: "smooth" });
         }
       });
 

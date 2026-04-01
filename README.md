@@ -108,7 +108,7 @@ Hotel_PaginaWeb/
 │   └── media/              # Multimedia y Showcase (Mapeados a /media/*)
 ├── 🧱 src/                 # Código fuente procesado por Astro
 │   ├── assets/             # Assets que Astro optimiza (Imágenes v2)
-│   ├── components/         # Piezas de IU (Header.astro, Footer.astro)
+│   ├── components/         # Piezas de IU (Astro, React Islas)
 │   ├── layouts/            # Esqueleto base (Layout.astro)
 │   └── pages/              # Sitio Web Base (acerca-de, habitaciones, etc.)
 ├── astro.config.mjs        # Configuración principal del framework Astro
@@ -135,10 +135,12 @@ Todos los comandos se corren desde la raíz del proyecto en la terminal:
 ## 💻 Entorno de Desarrollo y Convenciones
 
 ### Herramientas
+
 - **IDE**: Visual Studio Code / Antigravity
 - **Formateador**: **Prettier** para mantener indentación y claridad impecables.
 
 ### 📝 Convenciones de Comentarios (Better Comments)
+
 Utilizamos colores específicos para facilitar la lectura técnica tanto para desarrolladores como evaluadores:
 *   🔴 `!` **Crítico**: Partes esenciales del núcleo. No modificar sin conocimiento previo.
 *   🔵 `*` **Informativo**: Documentación de secciones, imágenes o bloques relevantes.
@@ -148,7 +150,9 @@ Utilizamos colores específicos para facilitar la lectura técnica tanto para de
 ---
 
 ## 🗺️ Roadmap de Implementación
+
 ### ✅ Fase 1 — Consolidación y Migración (Completada)
+
 - [x] Maquetación inicial y estructura de páginas HTML.
 - [x] Implementación de diseño responsivo.
 - [x] Optimización de recursos multimedia.
@@ -160,22 +164,30 @@ Utilizamos colores específicos para facilitar la lectura técnica tanto para de
 - [x] Eliminación de `public/pages/` (HTML duplicado), proyecto 100% en Astro.
 
 ### 🏗️ Fase 2 — Calidad y Accesibilidad (En Progreso)
+
 - [x] Corrección de error de accesibilidad WCAG en `<label>` del formulario de Reservaciones.
 - [x] **Optimización de Imágenes:** Migración de fotos pesadas (+2 MB) a `src/assets/` con `<Image />` de Astro.
 - [x] **Auditoría de accesibilidad global:** `aria-hidden` en íconos decorativos, `for` explícito en `<label>`, `aria-label` en `<nav>` y eliminación de `role` redundantes en todo `/admin`.
 - [x] **`title` y `favicon` dinámico en Layouts:** Propiedades integradas con valores default manejados eficientemente.
 - [x] **Modularización del Sidebar Admin:** Pendiente de extracción a `NavAdmin.astro`.
 
-### ⏳ Fase 3 — Estilado Moderno (Corto Plazo)
-- [ ] Refactorización progresiva a **Tailwind CSS** (reemplazar archivos `.css` manuales).
-- [ ] Unificación del sistema de variables CSS (`--color-primary`, etc.) en un solo archivo `tokens.css`.
+### ✅ Fase 3 — Estilado Moderno y Diseño Premium (Completada)
 
-### 🔜 Fase 4 — Funcionalidad e Integración (Mediano Plazo)
-- [x] **Server-Side Rendering (SSR):** Activación de `output: "server"` con adaptador `@astrojs/node` para habilitar renderizado dinámico en el servidor.
-- [x] **`PanelReservation.astro`:** Panel de búsqueda rápida (check-in, check-out, huéspedes) integrado en `index.astro`, conectado a `/reservaciones` vía query params con pre-llenado SSR.
-- [ ] Lógica de validación del formulario de reservaciones con **JavaScript/TypeScript**.
-- [ ] Protección real de rutas `/admin/*` con autenticación (middleware Astro).
-- [ ] Integración de base de datos con módulo de pagos (PayPal / Mastercard).
+- [x] **Sistema Tipográfico Unificado:** Implementación del binomio *Cormorant Garamond* (Display) y *Jost* (Cuerpo/UI) en todo el proyecto.
+- [x] **Design Tokens:** Consolidación de paleta de colores y fuentes en variables CSS nativas (`:root`) para mantenibilidad.
+- [x] **Micro-interacciones:** Animaciones de botones estilizadas con efectos de elevación (`translateY`), sombras profundas y realce de brillo.
+- [ ] Refactorización progresiva a **Tailwind CSS** (Uso híbrido actual para páginas específicas).
+
+### 🏗️ Fase 4 — Funcionalidad e Integración (En Progreso)
+
+- [x] **Server-Side Rendering (SSR):** Activación de `output: "server"` con adaptador `@astrojs/node` para renderizado dinámico.
+- [x] **Panel de Búsqueda Rápida:** Componente `PanelReservation.astro` con persistencia de parámetros via URL.
+- [x] **Flujo de Pago Multi-step:** Integración de Isla de React (`PagosForm.jsx`) en flujo nativo de Astro.
+- [x] **Persistencia y Sincronización:** Uso de `sessionStorage` y `CustomEvents` para comunicación entre Astro y React.
+- [x] **Validación y Frontend Logic:** Lógica de validación nativa (Astro) y validación de tarjetas con máscaras en tiempo real (React).
+- [x] **Confirmación Dinámica:** Página `exito.astro` que procesa y muestra el resumen final de la reservación.
+- [ ] **Protección de Rutas:** Middleware para seguridad en el panel `/admin/*`.
+- [ ] **Persistencia Permanente:** Conexión a Base de Datos para almacenamiento real de reservaciones.
 
 ---
 

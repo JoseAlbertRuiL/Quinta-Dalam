@@ -15,7 +15,8 @@
   color: var(--color-primary);
   text-align: center;
   margin-bottom: 1.5rem;
-  font-family: "Georgia", serif;
+  font-family: var(--font-display);
+  font-weight: 600;
   position: relative;
   padding-bottom: 1rem;
 }
@@ -56,10 +57,10 @@
 
 .pagina-reservaciones legend {
   font-size: 1.3rem;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--color-primary);
   padding: 0 1rem;
-  font-family: "Georgia", serif;
+  font-family: var(--font-display);
 }
 
 /* Contenedores de entradas */
@@ -71,7 +72,7 @@
 .pagina-reservaciones label {
   display: block;
   font-size: 1rem;
-  font-weight: 500;
+  font-weight: 600;
   color: var(--color-dark);
   margin-bottom: 0.5rem;
 }
@@ -171,21 +172,17 @@
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  transition: var(--transition);
-  box-shadow: 0 4px 15px rgba(26, 77, 46, 0.3);
+  box-shadow: 0 6px 20px rgba(26, 77, 46, 0.35);
+  transition: transform 0.35s ease, box-shadow 0.35s ease, filter 0.35s ease;
   margin-top: 1rem;
-  font-family: "Georgia", serif;
+  font-family: var(--font-body);
   letter-spacing: 0.5px;
 }
 
 .pagina-reservaciones button:hover {
-  background: linear-gradient(
-    135deg,
-    var(--color-secondary),
-    var(--color-primary)
-  );
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(26, 77, 46, 0.4);
+  box-shadow: 0 10px 28px rgba(26, 77, 46, 0.4);
+  filter: brightness(1.12);
 }
 
 .pagina-reservaciones button:active {
@@ -293,5 +290,34 @@
   }
   .pagina-reservaciones .phone-input-group input {
     flex: 2 0 150px;
+  }
+}
+
+/* ==================== TRANSICIÓN DE PASOS (Reservación ↔ Pago) ==================== */
+
+/* ? Estado oculto del contenedor de pagos (por defecto) */
+.pagos-container-hidden {
+  display: none;
+}
+
+/* ? Estado visible del contenedor de pagos (después de enviar el formulario) */
+.pagos-container-visible {
+  display: block;
+  animation: fadeInPagos 0.5s ease both;
+}
+
+/* ? Estado oculto del formulario de reservación (después de pasar al pago) */
+.reservacion-section-hidden {
+  display: none;
+}
+
+@keyframes fadeInPagos {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
