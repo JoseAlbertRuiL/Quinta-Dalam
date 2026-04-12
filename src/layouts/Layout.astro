@@ -3,6 +3,11 @@ import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
 import "../styles/globals.css";
 
+interface Props {
+  title: string;
+  favicon?: string;
+}
+
 // ↓ Recibimos las propiedades que nos envían las páginas
 // ↓ favicon tiene valor default: todas las páginas públicas usan el mismo icono
 const { title, favicon = "/images/Hotel_icono.png" } = Astro.props;

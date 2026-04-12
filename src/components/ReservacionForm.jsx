@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { supabase } from '../lib/supabase';
 
 export default function ReservacionForm() {
   const [formData, setFormData] = useState({
@@ -15,7 +16,6 @@ export default function ReservacionForm() {
 
   const [errors, setErrors] = useState({});
 
-  // Lee los parámetros de la URL y pre-rellena el formulario
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const checkinDate = params.get('fecha-check-in');
@@ -42,28 +42,25 @@ export default function ReservacionForm() {
 
   const validationForm = () => {
     const newErrors = {};
-    
+
     if (!formData.name.trim()) {
       newErrors.name = 'El nombre es necesario';
     } else if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ ]+$/.test(formData.name)) {
       newErrors.name = 'Nombre incorrecto, ingresa solo letras y espacios';
     }
 
-    // Validacion de correo
     if (!formData.email.trim()) {
       newErrors.email = 'El email es requerido';
     } else if (!/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/.test(formData.email)) {
       newErrors.email = 'El correo que intenta ingresar no tiene un formato correcto';
     }
 
-    // validacion de numero telefonico
-    if (!formData.tel.trim()) { // validacion para que el campo no este vacio
+    if (!formData.tel.trim()) {
       newErrors.tel = 'El teléfono es requerido';
     } else if (!/^[0-9]{10}$/.test(formData.tel)) {
       newErrors.tel = 'El numero telefonico debe tener 10 digitos';
     }
 
-    // Validar fechas
     if (!formData.fechaLlegada) {
       newErrors.fechaLlegada = 'Se necesita una fecha de llegada';
     }
@@ -78,17 +75,14 @@ export default function ReservacionForm() {
       }
     }
 
-    // Validar número de personas
     if (!formData.numeroPersonas || formData.numeroPersonas < 1 || formData.numeroPersonas > 5) {
       newErrors.numeroPersonas = 'Debes seleccionar un número de personas válido (1-5)';
     }
 
-    // Validar habitación
     if (!formData.roomPreference) {
       newErrors.roomPreference = 'Debes seleccionar una habitación';
     }
 
-    // Validar términos
     if (!formData.terms) {
       newErrors.terms = 'Debes aceptar los términos y condiciones';
     }
@@ -96,16 +90,38 @@ export default function ReservacionForm() {
     return newErrors;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     const newErrors = validationForm();
-    
-    if (Object.keys(newErrors).length === 0) { //si no hay errores en el llenado del formulario se guardan los datos y se redirige a la pagina de pagos
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
+    try {
+      // ✅ Solo verificamos disponibilidad, el INSERT se hace hasta confirmar el pago
+      const { data: conflicto, error: errorConsulta } = await supabase
+        .from('reservas')
+        .select('*')
+        .eq('habitacion', formData.roomPreference)
+        .lt('fecha_entrada', formData.fechaSalida)
+        .gt('fecha_salida', formData.fechaLlegada);
+
+      if (errorConsulta) throw errorConsulta;
+
+      if (conflicto.length > 0) {
+        alert('La habitación ya está reservada en esas fechas');
+        return;
+      }
+
+      // Guardamos los datos en sessionStorage y vamos a pagos
       sessionStorage.setItem('reservacionData', JSON.stringify(formData));
       window.location.href = '/pagos';
-    } else {
-      setErrors(newErrors);
+
+    } catch (error) {
+      console.error(error);
+      alert('Ocurrió un error al verificar la disponibilidad');
     }
   };
 
@@ -126,7 +142,7 @@ export default function ReservacionForm() {
         <form onSubmit={handleSubmit}>
           <fieldset id="informacion-personal">
             <legend>Información Personal</legend>
-            
+
             <div>
               <label>
                 Nombre:
@@ -233,7 +249,7 @@ export default function ReservacionForm() {
 
           <fieldset id="informacion-reservacion">
             <legend>Información de la Reservación</legend>
-            
+
             <div>
               <label>
                 Fecha de llegada:

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { supabase } from '../lib/supabase';
 
 const cardIcons = {
   visa: (
@@ -44,7 +45,6 @@ export default function PagosForm() {
     if (data) {
       setReservacionData(JSON.parse(data));
     } else {
-      // Demo fallback so the form is visible
       setReservacionData({
         name: 'Ana Martínez',
         email: 'ana@ejemplo.com',
@@ -53,7 +53,7 @@ export default function PagosForm() {
         fechaLlegada: '2025-08-10',
         fechaSalida: '2025-08-14',
         numeroPersonas: 2,
-        roomPreference: 'Suite Jardín',
+        roomPreference: '202',
       });
     }
   }, []);
@@ -88,14 +88,37 @@ export default function PagosForm() {
     e.preventDefault();
     const newErrors = validateForm();
     if (Object.keys(newErrors).length > 0) { setErrors(newErrors); return; }
+
     setLoading(true);
+
     try {
+      // 🔄 Simulación del pago (aquí irá la pasarela real después)
       await new Promise(r => setTimeout(r, 2200));
+
+      // ✅ Pago exitoso: ahora sí hacemos el INSERT en Supabase
+      const { error: insertError } = await supabase
+        .from('reservas')
+        .insert([
+          {
+            nombre_cliente: reservacionData.name,
+            correo: reservacionData.email,
+            telefono: `${reservacionData.countryCode}${reservacionData.tel}`,
+            fecha_entrada: reservacionData.fechaLlegada,
+            fecha_salida: reservacionData.fechaSalida,
+            personas: reservacionData.numeroPersonas,
+            habitacion: reservacionData.roomPreference,
+          }
+        ]);
+
+      if (insertError) throw insertError;
+
       setLoading(false);
       setSuccess(true);
       sessionStorage.removeItem('reservacionData');
-      setTimeout(() => { window.location.href = '/reservaciones'; }, 4000);
-    } catch {
+      setTimeout(() => { window.location.href = '/'; }, 4000);
+
+    } catch (err) {
+      console.error(err);
       setLoading(false);
       setErrors({ submit: 'Error al procesar el pago. Intenta nuevamente.' });
     }
@@ -119,7 +142,6 @@ export default function PagosForm() {
         @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Jost:wght@300;400;500&display=swap');
         @keyframes fadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes scaleIn { from { transform: scale(0.7); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        @keyframes ring { 0%,100% { transform: rotate(-8deg); } 50% { transform: rotate(8deg); } }
       `}</style>
       <main style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #f0ede6 0%, #e8e2d5 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem', fontFamily: "'Jost', sans-serif" }}>
         <div style={{ maxWidth: 520, width: '100%', textAlign: 'center', animation: 'fadeUp .7s ease both' }}>
@@ -145,10 +167,7 @@ export default function PagosForm() {
 
         @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes shimmer { 0% { background-position: -200% center; } 100% { background-position: 200% center; } }
-        @keyframes pulse-ring { 0% { box-shadow: 0 0 0 0 rgba(26,77,46,.3); } 70% { box-shadow: 0 0 0 10px rgba(26,77,46,0); } 100% { box-shadow: 0 0 0 0 rgba(26,77,46,0); } }
         @keyframes spin { to { transform: rotate(360deg); } }
-        @keyframes flip { from { transform: rotateY(0deg); } to { transform: rotateY(180deg); } }
-        @keyframes unflip { from { transform: rotateY(180deg); } to { transform: rotateY(0deg); } }
         @keyframes cardGlow { 0%,100% { box-shadow: 0 20px 60px rgba(26,77,46,.25), 0 8px 20px rgba(0,0,0,.15); } 50% { box-shadow: 0 24px 70px rgba(26,77,46,.35), 0 8px 24px rgba(0,0,0,.2); } }
 
         .pagos-root { min-height: 100vh; background: #f5f2ec; font-family: 'Jost', sans-serif; }
@@ -157,7 +176,6 @@ export default function PagosForm() {
         .pagos-inner { max-width: 960px; margin: 0 auto; padding: 3rem 1.5rem; display: grid; grid-template-columns: 1fr 1fr; gap: 2.5rem; align-items: start; }
         @media (max-width: 700px) { .pagos-inner { grid-template-columns: 1fr; } }
 
-        /* LEFT COLUMN */
         .left-col { animation: fadeUp .6s .1s ease both; }
 
         .card-visual { perspective: 1000px; margin-bottom: 1.8rem; }
@@ -179,7 +197,6 @@ export default function PagosForm() {
         .card-cvv-label { font-size: .65rem; color: #888; letter-spacing: .1em; text-transform: uppercase; }
         .card-cvv-dots { font-family: 'Courier New', monospace; color: #333; font-size: 1rem; letter-spacing: .15em; flex: 1; text-align: right; }
 
-        /* SUMMARY CARD */
         .summary-card { background: white; border-radius: 16px; padding: 1.8rem; box-shadow: 0 2px 20px rgba(0,0,0,.06); border: 1px solid rgba(0,0,0,.06); }
         .summary-header { display: flex; align-items: center; gap: .75rem; margin-bottom: 1.4rem; padding-bottom: 1.1rem; border-bottom: 1px solid #ebe8e0; }
         .summary-icon { width: 36px; height: 36px; border-radius: 10px; background: linear-gradient(135deg, #1a4d2e, #4f7942); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
@@ -192,7 +209,6 @@ export default function PagosForm() {
         .nights-label { font-family: 'Cormorant Garamond', serif; font-size: 1.05rem; color: #1a4d2e; font-style: italic; }
         .nights-badge { background: linear-gradient(135deg, #1a4d2e, #4f7942); color: white; padding: .3rem .8rem; border-radius: 20px; font-size: .8rem; font-weight: 500; letter-spacing: .04em; }
 
-        /* RIGHT COLUMN */
         .right-col { animation: fadeUp .6s .25s ease both; }
         .form-title { font-family: 'Cormorant Garamond', serif; font-size: 2.2rem; font-weight: 600; color: #1a2e1a; margin-bottom: .35rem; line-height: 1.1; }
         .form-subtitle { color: #8a9a8a; font-size: .9rem; font-weight: 300; letter-spacing: .03em; margin-bottom: 2rem; display: flex; align-items: center; gap: .4rem; }
@@ -237,11 +253,9 @@ export default function PagosForm() {
         </div>
 
         <div className="pagos-inner">
-          {/* LEFT: Card Preview + Summary */}
           <div className="left-col">
             <div className="card-visual">
               <div className={`card-inner${cardFlipped ? ' flipped' : ''}`}>
-                {/* Front */}
                 <div className="card-face card-front">
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                     <div className="card-chip" />
@@ -259,7 +273,6 @@ export default function PagosForm() {
                     </div>
                   </div>
                 </div>
-                {/* Back */}
                 <div className="card-face card-back">
                   <div className="card-magnetic" />
                   <div style={{ padding: '0 1.2rem 1.4rem' }}>
@@ -272,7 +285,6 @@ export default function PagosForm() {
               </div>
             </div>
 
-            {/* Reservation Summary */}
             <div className="summary-card">
               <div className="summary-header">
                 <div className="summary-icon">
@@ -304,7 +316,6 @@ export default function PagosForm() {
             </div>
           </div>
 
-          {/* RIGHT: Payment Form */}
           <div className="right-col">
             <h1 className="form-title">Información<br/>de Pago</h1>
             <p className="form-subtitle">
@@ -313,8 +324,7 @@ export default function PagosForm() {
             </p>
 
             <div className="form-card">
-              <div onSubmit={handleSubmit}>
-                {/* Card Number */}
+              <div>
                 <div className="field-group">
                   <label className="field-label">Número de Tarjeta</label>
                   <div className="field-wrapper">
@@ -335,7 +345,6 @@ export default function PagosForm() {
                   {errors.cardNumber && <p className="field-error"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>{errors.cardNumber}</p>}
                 </div>
 
-                {/* Card Name */}
                 <div className="field-group">
                   <label className="field-label">Nombre del Titular</label>
                   <input
