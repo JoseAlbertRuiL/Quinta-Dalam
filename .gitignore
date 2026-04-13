@@ -13,12 +13,66 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
-# environment variables
+# Variables de Entorno
 .env
+.env.*
+!.env.example
+
+# Variantes frecuentes de archivos de entorno
+.env.local
+.env.development
+.env.development.local
+.env.test
+.env.test.local
 .env.production
+.env.production.local
+.env.staging
+
+# Backups accidentales de env
+*.env.bak
+*.env.backup
+*.env.old
+*.env.orig
+*.env.save
+*.env.swp
+*.env~
+
+# Llaves privadas y certificados
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+*.cer
+*.der
+id_rsa
+id_ed25519
+*.private
+
+# Secretos de Supabase generados localmente
+supabase/.branches
+supabase/.temp
+.supabase/
+
+# Configuración local de editores e IDEs
+.idea/
+.vscode/settings.json
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
 
 # macOS-specific files
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V8
+.Trashes
+ehthumbs.db
+Thumbs.db
 
-# jetbrains setting folder
-.idea/
+# Archivos temporales de sistema
+*.tmp
+*.temp
+*.cache

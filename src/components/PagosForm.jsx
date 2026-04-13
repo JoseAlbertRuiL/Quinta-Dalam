@@ -117,12 +117,56 @@ export default function PagosForm() {
     if (Object.keys(newErrors).length > 0) { setErrors(newErrors); return; }
     setLoading(true);
     try {
-      await new Promise(r => setTimeout(r, 2200));
-      // ↓ Redirigir directo a /exito sin pantalla de confirmación intermedia
+      // ─── 1. Enviar datos de reservación al backend Supabase ────────────────
+      // Los datos de tarjeta (cardNumber, cvv, etc.) son solo para UI/validación
+      // local — nunca se envían al servidor (no tenemos procesador de pagos real).
+      // Lo que sí persiste: los datos de la reserva obtenidos del sessionStorage.
+      const payload = {
+        nombre_cliente: reservacionData.name,
+        correo:         reservacionData.email,
+        telefono:       `${reservacionData.countryCode} ${reservacionData.tel}`,
+        // roomPreference viene como "101: Tzintzunzan" — lo enviamos completo
+        habitacion:     reservacionData.roomPreference,
+        fecha_entrada:  reservacionData.fechaLlegada,
+        fecha_salida:   reservacionData.fechaSalida,
+        personas:       Number(reservacionData.numeroPersonas) || null,
+      };
+
+      const response = await fetch('/api/reservaciones', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      const result = await response.json();
+
+      // ─── 2. Manejar errores del backend ───────────────────────────────────
+      if (!response.ok) {
+        // Caso especial: habitación ya ocupada (409 Conflict)
+        if (response.status === 409 && result.codigo === 'HABITACION_NO_DISPONIBLE') {
+          setLoading(false);
+          setErrors({
+            submit: result.detalles?.mensaje
+              ?? 'Esta habitación ya está reservada en esas fechas. Por favor elige otras fechas u otra habitación.',
+          });
+          return;
+        }
+
+        // Otros errores del servidor (422, 500, etc.)
+        const mensajeError = result.detalles?.join(' ') ?? result.error ?? 'Error al procesar la reservación.';
+        setLoading(false);
+        setErrors({ submit: mensajeError });
+        return;
+      }
+
+      // ─── 3. Éxito: limpiar sessionStorage y redirigir ─────────────────────
+      sessionStorage.removeItem('reservacionData');
       window.location.href = '/exito';
-    } catch {
+
+    } catch (err) {
+      console.error('[PagosForm] Error de red:', err);
       setLoading(false);
-      setErrors({ submit: 'Error al procesar el pago. Intenta nuevamente.' });
+      setErrors({ submit: 'Error de conexión. Verifica tu internet e intenta nuevamente.' });
     }
   };
 
