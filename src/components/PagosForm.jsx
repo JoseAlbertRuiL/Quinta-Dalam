@@ -159,8 +159,9 @@ export default function PagosForm() {
         return;
       }
 
-      // ─── 3. Éxito: limpiar sessionStorage y redirigir ─────────────────────
-      sessionStorage.removeItem('reservacionData');
+      // ─── 3. Éxito: redirigir a página de confirmación ─────────────────────
+      // Nota: No limpiamos el sessionStorage aquí. exito.astro necesita los
+      // datos para mostrar el resumen, y se encargará de limpiarlos después.
       window.location.href = '/exito';
 
     } catch (err) {
@@ -295,9 +296,9 @@ export default function PagosForm() {
         .page-logo { font-family: 'Cormorant Garamond', serif; font-size: 1.05rem; letter-spacing: .25em; color: #1a4d2e; text-transform: uppercase; font-weight: 400; margin-bottom: .4rem; }
         .page-sep { width: 60px; height: 1px; background: linear-gradient(to right, transparent, #c9a96e, transparent); margin: .5rem auto; }
 
-        /* ↓ Animación suave parecida para el botón de regresar */
-        .back-btn { display: inline-flex; align-items: center; gap: .4rem; padding: .5rem 1rem; font-family: 'Jost', sans-serif; font-size: .85rem; font-weight: 600; color: #5a6a5a; background: white; border: 1.5px solid #d8d4cc; border-radius: 8px; cursor: pointer; transition: transform 0.35s ease, box-shadow 0.35s ease, background 0.35s ease; margin-bottom: 1rem; box-shadow: 0 2px 8px rgba(0,0,0,.04); }
-        .back-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,.08); background: #fdfdfc; }
+        /* ↓ Animación suave parecida para el botón de regresar (estilo unificado) */
+        .back-btn { display: inline-flex; align-items: center; gap: .4rem; padding: .6rem 1.2rem; font-family: 'Jost', sans-serif; font-size: .95rem; font-weight: 600; color: white !important; background: linear-gradient(135deg, #1a4d2e 0%, #4f7942 100%) !important; border: none; border-radius: 8px; cursor: pointer; transition: transform 0.35s ease, box-shadow 0.35s ease, filter 0.35s ease; margin-bottom: 1rem; box-shadow: 0 6px 20px rgba(26, 77, 46, 0.35); text-decoration: none; }
+        .back-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(26, 77, 46, 0.4); filter: brightness(1.12); color: white !important; }
         .back-btn:active { transform: translateY(0); }
       `}</style>
 
@@ -384,7 +385,7 @@ export default function PagosForm() {
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
               Volver a Reservación
             </button>
-            <h1 className="form-title">Información<br/>de Pago</h1>
+            <h1 className="form-title">Información de Pago</h1>
             <p className="form-subtitle">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
               Datos encriptados
