@@ -1,6 +1,53 @@
 ---
 // ↓ Importamos nuestra Plantilla Base para admin/
 import LayoutAdmin from "../../layouts/LayoutAdmin.astro";
+import { supabase } from "../../lib/supabase.js";
+
+// Si el usuario ya tiene sesión activa en cookies, redirigir directamente al panel
+const accessToken = Astro.cookies.get("sb-access-token");
+const refreshToken = Astro.cookies.get("sb-refresh-token");
+
+if (accessToken && refreshToken) {
+  return Astro.redirect("/admin/panel-admin");
+}
+
+let errorMsg = "";
+
+// Manejo del formulario vía POST (SSR)
+if (Astro.request.method === "POST") {
+  try {
+    const formData = await Astro.request.formData();
+    const email = formData.get("username")?.toString(); // Supabase usa Email para Auth
+    const password = formData.get("password")?.toString();
+
+    if (email && password) {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        errorMsg = "Credenciales inválidas. Por favor intente de nuevo.";
+      } else {
+        // Establecer cookies de sesión para persistencia en SSR y bloqueo de "atrás"
+        Astro.cookies.set("sb-access-token", data.session.access_token, {
+          path: "/",
+          httpOnly: true,
+          secure: true,
+        });
+        Astro.cookies.set("sb-refresh-token", data.session.refresh_token, {
+          path: "/",
+          httpOnly: true,
+          secure: true,
+        });
+        
+        return Astro.redirect("/admin/panel-admin");
+      }
+    }
+  } catch (e) {
+    errorMsg = "Error en el servidor al procesar la solicitud.";
+  }
+}
 ---
 
 <LayoutAdmin title="Admin Login" favicon="/images/admin-login-icon.png">
@@ -17,40 +64,53 @@ import LayoutAdmin from "../../layouts/LayoutAdmin.astro";
         Inicio de sesión
       </h2>
 
-      <div>
+      <div class="column is-4 is-offset-4">
         <form method="post" action="/admin/admin">
           <fieldset id="admin-credenciales" class="box">
             <legend class="subtitle is-5">Credenciales de Acceso</legend>
+            
+            {errorMsg && (
+              <div class="notification is-danger is-light p-2 mb-4 has-text-centered">
+                <p class="is-size-7">{errorMsg}</p>
+              </div>
+            )}
+
             <!-- ? Campos de Llenado -->
             <div class="field">
-              <!-- ? label con for="" explícito: vincula directamente con el input por id, más robusto para lectores de pantalla -->
-              <label class="label" for="username">Usuario:</label>
-              <input
-                class="control"
-                type="text"
-                id="username"
-                name="username"
-                placeholder="Ingrese su usuario"
-                required
-                pattern="^[a-zA-Z0-9_.]+$"
-                title="Por favor, ingrese un usuario válido"
-              />
+              <label class="label" for="username">Correo Electrónico:</label>
+              <div class="control has-icons-left">
+                <input
+                  class="input"
+                  type="email"
+                  id="username"
+                  name="username"
+                  placeholder="admin@hotel.com"
+                  required
+                />
+                <span class="icon is-small is-left">
+                  <i class="fa-solid fa-envelope"></i>
+                </span>
+              </div>
             </div>
 
             <div class="field">
               <label class="label" for="password">Contraseña:</label>
-              <input
-                class="control"
-                type="password"
-                id="password"
-                name="password"
-                placeholder="Ingrese su contraseña"
-                required
-                title="Por favor, ingrese su contraseña"
-              />
+              <div class="control has-icons-left">
+                <input
+                  class="input"
+                  type="password"
+                  id="password"
+                  name="password"
+                  placeholder="********"
+                  required
+                />
+                <span class="icon is-small is-left">
+                  <i class="fa-solid fa-key"></i>
+                </span>
+              </div>
             </div>
             <!-- ? Botones -->
-            <div class="buttons has-addons is-centered">
+            <div class="buttons has-addons is-centered mt-5">
               <button
                 type="submit"
                 class="button is-success is-medium is-reponsive is-outlined"
@@ -61,7 +121,7 @@ import LayoutAdmin from "../../layouts/LayoutAdmin.astro";
                 type="reset"
                 class="button is-danger is-medium is-outlined"
               >
-                Limpiar Datos
+                Limpiar
               </button>
             </div>
           </fieldset>

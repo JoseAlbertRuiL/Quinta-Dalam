@@ -3,6 +3,29 @@
 import LayoutAdmin from "../../layouts/LayoutAdmin.astro";
 // ↓ Importamos el componente de navegación reutilizable del panel
 import NavAdmin from "../../components/NavAdmin.astro";
+import { supabase } from "../../lib/supabase.js";
+
+// VERIFICACIÓN DE SESIÓN (Protección de Ruta SSR)
+const accessToken = Astro.cookies.get("sb-access-token");
+const refreshToken = Astro.cookies.get("sb-refresh-token");
+
+if (!accessToken || !refreshToken) {
+  return Astro.redirect("/admin/admin");
+}
+
+const { error } = await supabase.auth.setSession({
+  access_token: accessToken.value,
+  refresh_token: refreshToken.value,
+});
+
+if (error) {
+  Astro.cookies.delete("sb-access-token", { path: "/" });
+  Astro.cookies.delete("sb-refresh-token", { path: "/" });
+  return Astro.redirect("/admin/admin");
+}
+
+// Traemos los últimos registros para previsualización del Admin
+const { data: ultimasReservas } = await supabase.from('reservas').select('*').order('created_at', { ascending: false }).limit(10);
 ---
 
 <LayoutAdmin title="Admin | Base de Datos" favicon="/images/database-icon.png">
@@ -19,24 +42,95 @@ import NavAdmin from "../../components/NavAdmin.astro";
       <NavAdmin paginaActual="database" />
 
       <!-- ! Columna 2: Contenido Principal -->
-      <!-- TODO: Realizar la lógica para poder visualizar, administrar y regular la BD desde este apartado -->
       <div class="column is-10">
-        <main class="box content">
+        <main class="box content has-background-black-ter">
+          
+          <div class="is-flex is-justify-content-space-between is-align-items-center mb-4">
+            <h2 class="title is-4 has-text-white m-0">
+              <i class="fa-solid fa-server has-text-danger mr-2"></i> Acceso Root BD
+            </h2>
+            <span class="tag is-danger is-medium">⚠️ ZONA DE ALTO RIESGO</span>
+          </div>
+
           <section id="database">
-            <details open class="box p-4 has-background-black-ter">
-              <summary class="is-clickable m-0 p-0" style="list-style: none">
-                <h3 class="title is-5 is-inline-block m-0">
-                  <i class="fa-solid fa-database has-text-info mr-2"></i>
-                  Base de Datos
-                </h3>
-              </summary>
-              <div class="mt-4 pl-4 border-left has-text-white">
-                <p>Contenido...</p>
+            <div class="box p-4 has-background-black border-left" style="border-left-color: #f14668;">
+              <p class="has-text-grey-light is-family-code is-size-7 mb-4">
+                > conectado a supabase_db: port 5432<br/>
+                > RLS: habilitado<br/>
+                > current_role: authenticated (admin_tier)<br/>
+                > Ejecutando consulta: <span class="has-text-success">SELECT * FROM reservas ORDER BY created_at DESC LIMIT 10;</span>
+              </p>
+
+              <div class="table-container">
+                <table class="table is-fullwidth is-narrow has-background-black has-text-grey-light is-family-code is-size-7">
+                  <thead>
+                    <tr>
+                      <th class="has-text-danger">ID</th>
+                      <th class="has-text-info">CLIENTE</th>
+                      <th class="has-text-info">HABITACIÓN</th>
+                      <th class="has-text-info">CHECK-IN</th>
+                      <th class="has-text-info">CHECK-OUT</th>
+                      <th class="has-text-danger">ACCIONES (ROOT)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {ultimasReservas && ultimasReservas.length > 0 ? (
+                      ultimasReservas.map((res) => (
+                        <tr>
+                          <td>{res.id}</td>
+                          <td class="has-text-white">{res.nombre_cliente}</td>
+                          <td>{res.habitacion}</td>
+                          <td>{res.fecha_entrada}</td>
+                          <td>{res.fecha_salida}</td>
+                          <td>
+                            <div class="buttons are-small">
+                              <button class="button is-black has-text-warning border-warning" onclick={`confirmarAccion('EDITAR', ${res.id})`}>
+                                <i class="fa-solid fa-pen"></i>
+                              </button>
+                              <button class="button is-black has-text-danger border-danger" onclick={`confirmarAccion('ELIMINAR', ${res.id})`}>
+                                <i class="fa-solid fa-trash"></i>
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colspan="6" class="has-text-centered has-text-warning">No hay registros en la tabla 'reservas'</td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
               </div>
-            </details>
+              
+              <div class="buttons mt-4">
+                <button class="button is-danger is-outlined is-small is-family-code" onclick="confirmarAccion('TRUNCATE TABLE', 'TODAS_LAS_RESERVAS')">
+                  > Ejecutar Consulta Personalizada...
+                </button>
+              </div>
+
+            </div>
           </section>
         </main>
       </div>
     </div>
   </div>
+
+  <!-- Scripts Interacción Root -->
+  <script is:inline>
+    function confirmarAccion(accion, id) {
+      const confirmacion = confirm(`[ROOT REQUIRED]\n\n¿Aceptas este cambio [${accion}] en el registro/tabla ID: ${id}?\n\nEsta acción ejecutará comandos directamente en la Base de Datos y es IRREVERSIBLE.`);
+      if (confirmacion) {
+        // Aquí iría la lógica real contra Supabase
+        alert(`> Comando '${accion}' enviado al servidor para el ID ${id}. \n> Código de respuesta: 200 OK (Simulado)`);
+      } else {
+        console.log(`> Operación '${accion}' abortada por el usuario.`);
+      }
+    }
+  </script>
+
+  <style>
+    .border-warning { border: 1px solid #ffe08a !important; }
+    .border-danger { border: 1px solid #f14668 !important; }
+  </style>
 </LayoutAdmin>

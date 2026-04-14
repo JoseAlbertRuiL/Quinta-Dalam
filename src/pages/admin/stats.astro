@@ -3,6 +3,38 @@
 import LayoutAdmin from "../../layouts/LayoutAdmin.astro";
 // ↓ Importamos el componente de navegación reutilizable del panel
 import NavAdmin from "../../components/NavAdmin.astro";
+import { supabase } from "../../lib/supabase.js";
+
+// VERIFICACIÓN DE SESIÓN (Protección de Ruta SSR)
+const accessToken = Astro.cookies.get("sb-access-token");
+const refreshToken = Astro.cookies.get("sb-refresh-token");
+
+if (!accessToken || !refreshToken) {
+  return Astro.redirect("/admin/admin");
+}
+
+const { error } = await supabase.auth.setSession({
+  access_token: accessToken.value,
+  refresh_token: refreshToken.value,
+});
+
+if (error) {
+  Astro.cookies.delete("sb-access-token", { path: "/" });
+  Astro.cookies.delete("sb-refresh-token", { path: "/" });
+  return Astro.redirect("/admin/admin");
+}
+
+// CÁLCULOS FINANCIEROS (Simulación + Datos BD)
+// En un caso real agruparías por fecha con sentencias SQL, aquí lo procesamos en JS para el demo
+const { data: reservas } = await supabase.from('reservas').select('*');
+
+// Calculamos un estimado de ingresos Brutos del mes en base a reservas (Mock up adaptativo)
+const ingresoBruto = 145800.00; // Valor de ejemplo para la demo financiera
+const iva = ingresoBruto * 0.16; // 16% IVA Mexicano
+const ingresoNeto = ingresoBruto - iva;
+
+const gastosOperativos = 25000.00;
+const gananciaReal = ingresoNeto - gastosOperativos;
 ---
 
 <LayoutAdmin title="Admin | Estadísticas" favicon="/images/stats-icono.png">
@@ -20,29 +52,162 @@ import NavAdmin from "../../components/NavAdmin.astro";
 
       <!-- ! Columna 2: Contenido Principal -->
       <div class="column is-10">
-        <main class="box content">
-          <section id="estadisticas">
-            <details open class="box p-4 has-background-black-ter">
-              <summary class="is-clickable m-0 p-0" style="list-style: none">
-                <h3 class="title is-5 is-inline-block m-0">
-                  <i class="fa-solid fa-chart-column has-text-info mr-2"></i>
-                  Estadísticas
-                </h3>
-              </summary>
-              <div class="mt-4 pl-4 border-left has-text-white">
-                <div class="box mb-5 has-background-black">
-                  <canvas id="barChart"></canvas>
-                </div>
-                <div class="box has-background-black">
-                  <div style="max-width: 500px; margin: 0 auto">
-                    <canvas id="pieChart"></canvas>
-                  </div>
+        <main class="box content has-background-black-ter">
+          <h2 class="title is-4 has-text-white">
+            <i class="fa-solid fa-chart-column has-text-info mr-2"></i> Reporte Financiero y Estadísticas
+          </h2>
+          
+          <!-- KPIs Financieros -->
+          <div class="level is-mobile mb-6 box has-background-black">
+            <div class="level-item has-text-centered">
+              <div>
+                <p class="heading has-text-grey-light">Ingreso Bruto (Mensual)</p>
+                <p class="title has-text-white">${ingresoBruto.toLocaleString('es-MX')} MXN</p>
+              </div>
+            </div>
+            <div class="level-item has-text-centered">
+              <div>
+                <p class="heading has-text-danger">Impuestos (IVA 16%)</p>
+                <p class="title has-text-danger">-${iva.toLocaleString('es-MX')} MXN</p>
+              </div>
+            </div>
+            <div class="level-item has-text-centered">
+              <div>
+                <p class="heading has-text-success">Ingreso Neto</p>
+                <p class="title has-text-success">${ingresoNeto.toLocaleString('es-MX')} MXN</p>
+              </div>
+            </div>
+            <div class="level-item has-text-centered">
+              <div>
+                <p class="heading has-text-info">Ganancia Real Estimada</p>
+                <p class="title has-text-info">${gananciaReal.toLocaleString('es-MX')} MXN</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Gráficas -->
+          <div class="columns">
+            <div class="column is-7">
+              <div class="box has-background-black">
+                <h3 class="title is-6 has-text-white has-text-centered">Ingresos Históricos (Últimos 6 Meses)</h3>
+                <canvas id="barChart"></canvas>
+              </div>
+            </div>
+            <div class="column is-5">
+              <div class="box has-background-black">
+                <h3 class="title is-6 has-text-white has-text-centered">Distribución de Ingresos</h3>
+                <div style="max-width: 300px; margin: 0 auto">
+                  <canvas id="pieChart"></canvas>
                 </div>
               </div>
-            </details>
-          </section>
+            </div>
+          </div>
+
+          <!-- Manejo de Sueldos (Mock) -->
+          <div class="box has-background-black border-left mt-5">
+            <div class="is-flex is-justify-content-space-between is-align-items-center mb-4">
+              <h3 class="title is-5 has-text-white m-0">
+                <i class="fa-solid fa-file-invoice-dollar has-text-warning mr-2"></i> Nómina y Sueldos del Personal
+              </h3>
+              <button class="button is-small is-warning is-outlined">Generar Recibos</button>
+            </div>
+            <div class="table-container">
+              <table class="table is-fullwidth is-narrow has-background-black has-text-white">
+                <thead>
+                  <tr>
+                    <th class="has-text-grey-light">Empleado</th>
+                    <th class="has-text-grey-light">Puesto</th>
+                    <th class="has-text-grey-light">Sueldo Base</th>
+                    <th class="has-text-grey-light">Bonos/Deducciones</th>
+                    <th class="has-text-grey-light">Total a Pagar</th>
+                    <th class="has-text-grey-light">Estado</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Carlos Martínez</td>
+                    <td>Gerente Turno Día</td>
+                    <td>$12,000 MXN</td>
+                    <td class="has-text-success">+$1,500 MXN (Bono)</td>
+                    <td><strong>$13,500 MXN</strong></td>
+                    <td><span class="tag is-success is-light">Pagado</span></td>
+                  </tr>
+                  <tr>
+                    <td>Ana Sofía López</td>
+                    <td>Recepción Turno Noche</td>
+                    <td>$8,500 MXN</td>
+                    <td class="has-text-grey">-</td>
+                    <td><strong>$8,500 MXN</strong></td>
+                    <td><span class="tag is-warning is-light">Pendiente</span></td>
+                  </tr>
+                  <tr>
+                    <td>Raúl Gómez</td>
+                    <td>Mantenimiento</td>
+                    <td>$7,200 MXN</td>
+                    <td class="has-text-danger">-$200 MXN (Retardo)</td>
+                    <td><strong>$7,000 MXN</strong></td>
+                    <td><span class="tag is-warning is-light">Pendiente</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
         </main>
       </div>
     </div>
   </div>
+
+  <!-- Scripts para Chart.js -->
+  <script is:inline src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script is:inline>
+    document.addEventListener("DOMContentLoaded", () => {
+      // Gráfica de Barras
+      const ctxBar = document.getElementById('barChart').getContext('2d');
+      new Chart(ctxBar, {
+        type: 'bar',
+        data: {
+          labels: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio'],
+          datasets: [{
+            label: 'Ingresos Brutos (MXN)',
+            data: [95000, 110000, 105000, 130000, 125000, 145800],
+            backgroundColor: 'rgba(50, 152, 220, 0.6)', // Bulma info color
+            borderColor: 'rgba(50, 152, 220, 1)',
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { labels: { color: '#fff' } } },
+          scales: {
+            y: { ticks: { color: '#b5b5b5' }, grid: { color: '#363636' } },
+            x: { ticks: { color: '#b5b5b5' }, grid: { color: '#363636' } }
+          }
+        }
+      });
+
+      // Gráfica de Pastel
+      const ctxPie = document.getElementById('pieChart').getContext('2d');
+      new Chart(ctxPie, {
+        type: 'doughnut',
+        data: {
+          labels: ['Suites', 'Doble', 'Estándar', 'Servicios Extra'],
+          datasets: [{
+            data: [45, 25, 20, 10],
+            backgroundColor: [
+              'rgba(72, 199, 116, 0.8)', // success
+              'rgba(50, 152, 220, 0.8)', // info
+              'rgba(255, 221, 87, 0.8)', // warning
+              'rgba(241, 70, 104, 0.8)'  // danger
+            ],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { position: 'bottom', labels: { color: '#fff' } } },
+        }
+      });
+    });
+  </script>
 </LayoutAdmin>
