@@ -1,7 +1,7 @@
 ---
 // ↓ Importamos nuestra Plantilla Base para admin/
 import LayoutAdmin from "../../layouts/LayoutAdmin.astro";
-import { supabase } from "../../lib/supabase.js";
+import { supabase } from "../../lib/supabase";
 
 // Si el usuario ya tiene sesión activa en cookies, redirigir directamente al panel
 const accessToken = Astro.cookies.get("sb-access-token");
@@ -29,16 +29,17 @@ if (Astro.request.method === "POST") {
       if (error) {
         errorMsg = "Credenciales inválidas. Por favor intente de nuevo.";
       } else {
-        // Establecer cookies de sesión para persistencia en SSR y bloqueo de "atrás"
         Astro.cookies.set("sb-access-token", data.session.access_token, {
           path: "/",
           httpOnly: true,
           secure: true,
+          sameSite: "strict" // Prevents CSRF
         });
         Astro.cookies.set("sb-refresh-token", data.session.refresh_token, {
           path: "/",
           httpOnly: true,
           secure: true,
+          sameSite: "strict" // Prevents CSRF
         });
         
         return Astro.redirect("/admin/panel-admin");

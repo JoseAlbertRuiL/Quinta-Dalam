@@ -7,12 +7,24 @@
 -- Tablas:
 --   habitaciones  → catálogo de habitaciones del hotel
 --   reservas      → reservaciones de clientes
+--   roles_usuario → control de acceso RBAC
 --
 -- Características:
 --   - Restricción de unicidad por habitación+fechas (nivel BD)
---   - Row Level Security (RLS) habilitado
+--   - Row Level Security (RLS) estricto con validación de roles
 --   - Índices para búsquedas frecuentes por fecha y habitación
 -- ================================================================
+
+-- ────────────────────────────────────────────────────────────────
+-- TABLA: roles_usuario
+-- Permisos y roles para el Panel de Administración
+-- ────────────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS roles_usuario (
+  id          BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+  email       TEXT   UNIQUE NOT NULL,
+  role        TEXT   NOT NULL CHECK (role IN ('superadmin', 'admin', 'recepcion')),
+  created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
 
 -- ────────────────────────────────────────────────────────────────
 -- TABLA: habitaciones
@@ -50,8 +62,6 @@ CREATE TABLE IF NOT EXISTS reservas (
 
 -- ────────────────────────────────────────────────────────────────
 -- ÍNDICES — optimizan las búsquedas de disponibilidad
--- La query de verificación filtra por habitacion + fechas,
--- por lo que un índice compuesto acelera enormemente la consulta.
 -- ────────────────────────────────────────────────────────────────
 CREATE INDEX IF NOT EXISTS idx_reservas_habitacion
   ON reservas (habitacion);
@@ -64,45 +74,85 @@ CREATE INDEX IF NOT EXISTS idx_reservas_habitacion_fechas
 
 -- ────────────────────────────────────────────────────────────────
 -- ROW LEVEL SECURITY (RLS)
--- Política básica: cualquiera puede insertar (cliente web),
--- solo el rol autenticado (admin) puede leer y eliminar.
---
--- En producción, afina estas políticas según tus necesidades.
 -- ────────────────────────────────────────────────────────────────
-ALTER TABLE reservas ENABLE ROW LEVEL SECURITY;
+ALTER TABLE roles_usuario ENABLE ROW LEVEL SECURITY;
 ALTER TABLE habitaciones ENABLE ROW LEVEL SECURITY;
+ALTER TABLE reservas ENABLE ROW LEVEL SECURITY;
 
--- Política: permitir INSERT anónimo desde el cliente web (API pública)
--- Esto permite que el endpoint /api/reservaciones inserte con el anon key.
-CREATE POLICY "Clientes pueden crear reservaciones"
-  ON reservas FOR INSERT
-  WITH CHECK (true);
-
--- Política: solo admins autenticados pueden consultar reservas
--- (ajusta 'authenticated' a tu rol de admin cuando lo configures)
-CREATE POLICY "Admins pueden ver reservaciones"
-  ON reservas FOR SELECT
+-- > Políticas para roles_usuario: Solo los usuarios pueden ver sus propios roles
+DROP POLICY IF EXISTS "Lectura de roles propia o admins" ON roles_usuario;
+CREATE POLICY "Lectura de roles propia o admins"
+  ON roles_usuario FOR SELECT
   TO authenticated
-  USING (true);
+  USING (
+    email = (auth.jwt() ->> 'email') OR
+    EXISTS (
+      SELECT 1 FROM roles_usuario ru 
+      WHERE ru.email = (auth.jwt() ->> 'email') AND ru.role IN ('superadmin', 'admin')
+    )
+  );
 
--- Política: lectura pública del catálogo de habitaciones
+-- > Políticas para habitaciones
+DROP POLICY IF EXISTS "Lectura pública de habitaciones" ON habitaciones;
 CREATE POLICY "Lectura pública de habitaciones"
   ON habitaciones FOR SELECT
   USING (true);
 
+DROP POLICY IF EXISTS "Solo admins pueden modificar habitaciones" ON habitaciones;
+CREATE POLICY "Solo admins pueden modificar habitaciones"
+  ON habitaciones FOR ALL
+  TO authenticated
+  USING (
+    EXISTS (
+      SELECT 1 FROM roles_usuario
+      WHERE roles_usuario.email = (auth.jwt() ->> 'email')
+      AND roles_usuario.role IN ('superadmin', 'admin')
+    )
+  );
+
+-- > Políticas para reservas
+-- Inserción anónima (Cliente desde la Landing Page usando API)
+DROP POLICY IF EXISTS "Clientes pueden crear reservaciones" ON reservas;
+CREATE POLICY "Clientes pueden crear reservaciones"
+  ON reservas FOR INSERT
+  WITH CHECK (true);
+
+-- Administradores pueden gestionar (Leer, Actualizar, Eliminar)
+DROP POLICY IF EXISTS "Gestión completa por administradores" ON reservas;
+CREATE POLICY "Gestión completa por administradores"
+  ON reservas FOR ALL
+  TO authenticated
+  USING (
+    EXISTS (
+      SELECT 1 FROM roles_usuario
+      WHERE roles_usuario.email = (auth.jwt() ->> 'email')
+      AND roles_usuario.role IN ('superadmin', 'admin', 'recepcion')
+    )
+  );
+
 -- ────────────────────────────────────────────────────────────────
--- DATOS SEMILLA: Habitaciones del Hotel Quinta Dalam
--- Basado en el selector del formulario de reservaciones
+-- DATOS SEMILLA
 -- ────────────────────────────────────────────────────────────────
+
+-- 0. Activar extensión para encriptar contraseñas manualmente
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
+-- 1. Usuarios Administradores (Semilla de Permisos de Proyecto)
+-- NOTA: Crea estos usuarios primero en el Dashboard de Supabase (Authentication > Users)
+-- para que el sistema les asigne las identidades y metadatos correctos.
+INSERT INTO roles_usuario (email, role) VALUES
+  ('propietario@hotel-dalam.com', 'superadmin'),
+  ('devs@hotel-dalam.com', 'admin')
+ON CONFLICT (email) DO UPDATE SET role = EXCLUDED.role;
+
+-- 2. Habitaciones del Hotel Quinta Dalam
 INSERT INTO habitaciones (nombre, tipo, precio, disponible) VALUES
-  -- Planta Baja (Serie 100)
   ('101: Tzintzunzan',  'Estándar',  980.00,  TRUE),
   ('102: Paracho',      'Estándar',  980.00,  TRUE),
   ('103: Yunuen',       'Estándar', 1050.00,  TRUE),
   ('104: Patzcuaro',    'Doble',    1200.00,  TRUE),
   ('105: Coeneo',       'Doble',    1200.00,  TRUE),
   ('106: Janitzio',     'Doble',    1350.00,  TRUE),
-  -- Planta Alta (Serie 200)
   ('201: Suite Quencio','Suite',    2500.00,  TRUE),
   ('202: Morelia',      'Doble',    1400.00,  TRUE),
   ('203: Tacambaro',    'Doble',    1400.00,  TRUE),

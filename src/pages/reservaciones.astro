@@ -3,6 +3,8 @@
 import Layout from "../layouts/Layout.astro";
 // ↓ Importamos el componente React de Pagos (se montará como isla interactiva)
 import PagosForm from "../components/PagosForm.jsx";
+// ↓ Importamos la hoja de estilos dedicada a las reservaciones
+import "../styles/reservaciones.css";
 // ↓ Leemos los parámetros que vienen de PanelReservation
 const fechaLlegada = Astro.url.searchParams.get("fecha-check-in") ?? "";
 const fechaSalida = Astro.url.searchParams.get("fecha-check-out") ?? "";
@@ -10,7 +12,6 @@ const personas = Astro.url.searchParams.get("personas") ?? "";
 ---
 
 <Layout title="Reservaciones | Hotel Quinta Dalam">
-  <link rel="stylesheet" href="/css/reservaciones.css" />
   <!-- ? La clase 'pagina-reservaciones' activa los estilos de reservaciones.css -->
   <main class="pagina-reservaciones">
     <!-- * <main>: Define el contenido principal y único de la página web dentro del <body> -->

@@ -3,26 +3,9 @@
 import LayoutAdmin from "../../layouts/LayoutAdmin.astro";
 // ↓ Importamos el componente de navegación reutilizable del panel
 import NavAdmin from "../../components/NavAdmin.astro";
-import { supabase } from "../../lib/supabase.js";
+import { supabase } from "../../lib/supabase";
 
-// VERIFICACIÓN DE SESIÓN (Protección de Ruta SSR)
-const accessToken = Astro.cookies.get("sb-access-token");
-const refreshToken = Astro.cookies.get("sb-refresh-token");
-
-if (!accessToken || !refreshToken) {
-  return Astro.redirect("/admin/admin");
-}
-
-const { error } = await supabase.auth.setSession({
-  access_token: accessToken.value,
-  refresh_token: refreshToken.value,
-});
-
-if (error) {
-  Astro.cookies.delete("sb-access-token", { path: "/" });
-  Astro.cookies.delete("sb-refresh-token", { path: "/" });
-  return Astro.redirect("/admin/admin");
-}
+// LA AUTENTICACIÓN AHORA LA MANEJA src/middleware.ts
 
 // Traemos los últimos registros para previsualización del Admin
 const { data: ultimasReservas } = await supabase.from('reservas').select('*').order('created_at', { ascending: false }).limit(10);
@@ -36,7 +19,7 @@ const { data: ultimasReservas } = await supabase.from('reservas').select('*').or
     </h1>
   </header>
 
-  <div class="container section pt-0">
+  <div class="container is-fluid section pt-0">
     <div class="columns">
       <!-- ! Columna 1: de Navegación -->
       <NavAdmin paginaActual="database" />
@@ -103,26 +86,35 @@ const { data: ultimasReservas } = await supabase.from('reservas').select('*').or
                 </table>
               </div>
               
-              <div class="buttons mt-4">
-                <button class="button is-danger is-outlined is-small is-family-code" onclick="confirmarAccion('TRUNCATE TABLE', 'TODAS_LAS_RESERVAS')">
-                  > Ejecutar Consulta Personalizada...
-                </button>
-              </div>
-
-            </div>
+              <!-- TRUNCATE BUTTON REMOVED FOR SECURITY -->
           </section>
         </main>
       </div>
     </div>
   </div>
 
-  <!-- Scripts Interacción Root -->
   <script is:inline>
-    function confirmarAccion(accion, id) {
-      const confirmacion = confirm(`[ROOT REQUIRED]\n\n¿Aceptas este cambio [${accion}] en el registro/tabla ID: ${id}?\n\nEsta acción ejecutará comandos directamente en la Base de Datos y es IRREVERSIBLE.`);
-      if (confirmacion) {
-        // Aquí iría la lógica real contra Supabase
-        alert(`> Comando '${accion}' enviado al servidor para el ID ${id}. \n> Código de respuesta: 200 OK (Simulado)`);
+    async function confirmarAccion(accion, id) {
+      const confirmacion = confirm(`[ROOT REQUIRED]\n\n¿Aceptas este cambio [${accion}] en el registro/tabla ID: ${id}?\n\nEsta acción ejecutará comandos en la Base de Datos y es IRREVERSIBLE.`);
+      if (confirmacion && accion === 'ELIMINAR') {
+        try {
+          const res = await fetch(`/api/admin-reservas`, {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id })
+          });
+          const data = await res.json();
+          if(res.ok) {
+            alert(`> Registro ${id} eliminado con éxito.`);
+            window.location.reload();
+          } else {
+            alert(`> Error: ${data.error}`);
+          }
+        } catch (e) {
+          alert(`> Error de conexión al intentar eliminar.`);
+        }
+      } else if (confirmacion && accion === 'EDITAR') {
+        alert("La vista de edición será implementada próximamente.");
       } else {
         console.log(`> Operación '${accion}' abortada por el usuario.`);
       }

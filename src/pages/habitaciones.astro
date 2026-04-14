@@ -4,10 +4,11 @@ import Layout from "../layouts/Layout.astro";
 // ↓ Importamos el componente Image para optimizar imágenes pesadas
 import { Image } from "astro:assets";
 import habitacionImg from "../assets/images/habitacion.png";
+// ↓ Importamos nuestra hoja de estilos dedicada a nuestras habitaciones
+import "../styles/habitaciones.css";
 ---
 
 <Layout title="Habitaciones | Hotel Quinta Dalam">
-  <link rel="stylesheet" href="/css/habitaciones.css" />
   <main>
     <!-- * <main>: Define el contenido principal y único de la página web dentro del <body> -->
     <!-- TODO (Alberto): Darle estilado a la página dentro de la hoja de estilos CSS -->

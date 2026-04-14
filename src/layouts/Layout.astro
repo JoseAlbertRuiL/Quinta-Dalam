@@ -1,7 +1,11 @@
 ---
+// ↓ Importamos nuestros Componentes Base
 import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
-
+// ↓ Importamos nuestras hojas de estilos y animaciones
+import "../styles/reset.css";
+import "../styles/styles.css";
+import "../styles/responsive.css";
 // ↓ Recibimos las propiedades que nos envían las páginas
 // ↓ favicon tiene valor default: todas las páginas públicas usan el mismo icono
 const { title, favicon = "/images/Hotel_icono.png" } = Astro.props;
@@ -73,9 +77,6 @@ const { title, favicon = "/images/Hotel_icono.png" } = Astro.props;
     />
 
     <!-- ! CSS -->
-    <link rel="stylesheet" href="/css/reset.css" />
-    <link rel="stylesheet" href="/css/styles.css" />
-    <link rel="stylesheet" href="/css/responsive.css" />
   </head>
 
   <body>
