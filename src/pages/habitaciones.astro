@@ -13,7 +13,7 @@ import "../styles/habitaciones.css";
     <!-- * <main>: Define el contenido principal y único de la página web dentro del <body> -->
     <!-- TODO (Alberto): Darle estilado a la página dentro de la hoja de estilos CSS -->
     <!-- TODO (José): Terminar de crear un buen formato para la página, explicando la temática de cada habitación culturalmente -->
-    <section>
+    <section class="hidden-item">
       <header>
         <h2>Habitaciones</h2>
       </header>
@@ -30,9 +30,9 @@ import "../styles/habitaciones.css";
 
     <section id="lista-habitaciones">
       <!-- Planta Baja -->
-      <div id="planta-baja">
+      <div id="planta-baja" class="hidden-item">
         <h3>Planta Baja (Serie 100)</h3>
-        <div class="habitaciones-grid">
+        <div class="habitaciones-grid hidden">
           <div class="habitacion-card">
             <Image
               src={habitacionImg}
@@ -103,9 +103,9 @@ import "../styles/habitaciones.css";
       </div>
 
       <!-- Planta Alta -->
-      <div id="planta-alta">
+      <div id="planta-alta" class="hidden-item">
         <h3>Planta Alta (Serie 200)</h3>
-        <div class="habitaciones-grid">
+        <div class="habitaciones-grid hidden">
           <div class="habitacion-card">
             <Image
               src={habitacionImg}
@@ -187,7 +187,7 @@ import "../styles/habitaciones.css";
       </div>
     </section>
 
-    <section id="explicaciones">
+    <section id="explicaciones" class="hidden-item">
       <div>
         <header>
           <h2>¿Quieres saber un poco más sobre cada una?</h2>

@@ -21,80 +21,72 @@ const gananciaReal = ingresoNeto - gastosOperativos;
 ---
 
 <LayoutAdmin title="Admin | Estadísticas" favicon="/images/stats-icono.png">
-  <header class="section pb-4 pt-5 has-text-centered">
-    <h1 class="title is-3 mb-0">
-      <i class="fa-solid fa-gears has-text-info mr-2" aria-hidden="true"></i>
+  <header class="py-10 px-4 text-center">
+    <h1 class="text-3xl font-bold text-white flex items-center justify-center gap-3">
+      <i class="fa-solid fa-gears text-blue-500" aria-hidden="true"></i>
       Panel de Administración
     </h1>
   </header>
 
-  <div class="container is-fluid section pt-0">
-    <div class="columns">
+  <div class="w-full px-4 md:px-8 pb-10">
+    <div class="flex flex-col md:flex-row gap-6">
       <!-- ! Columna 1: de Navegación -->
       <NavAdmin paginaActual="stats" />
 
       <!-- ! Columna 2: Contenido Principal -->
-      <div class="column is-10">
-        <main class="box content has-background-black-ter">
-          <h2 class="title is-4 has-text-white">
-            <i class="fa-solid fa-chart-column has-text-info mr-2"></i> Reporte Financiero
+      <div class="flex-1">
+        <main class="bg-[#141414] p-6 lg:p-8 rounded-xl border border-neutral-800/50 shadow-lg">
+          <h2 class="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+            <i class="fa-solid fa-chart-column text-blue-500"></i> Reporte Financiero
             y Estadísticas
           </h2>
 
           <!-- KPIs Financieros -->
-          <div class="level is-mobile mb-6 box has-background-black">
-            <div class="level-item has-text-centered">
-              <div>
-                <p class="heading has-text-grey-light">
-                  Ingreso Bruto (Mensual)
-                </p>
-                <p class="title has-text-white">
-                  ${ingresoBruto.toLocaleString("es-MX")} MXN
-                </p>
-              </div>
+          <div class="flex flex-wrap justify-between gap-4 p-6 bg-[#0a0a0a] rounded-xl border border-neutral-800 mb-8">
+            <div class="flex-1 text-center min-w-[150px]">
+              <p class="text-xs uppercase tracking-widest text-neutral-400 mb-1 font-semibold">
+                Ingreso Bruto (Mensual)
+              </p>
+              <p class="text-3xl font-bold text-white">
+                ${ingresoBruto.toLocaleString("es-MX")} MXN
+              </p>
             </div>
-            <div class="level-item has-text-centered">
-              <div>
-                <p class="heading has-text-danger">Impuestos (IVA 16%)</p>
-                <p class="title has-text-danger">
-                  -${iva.toLocaleString("es-MX")} MXN
-                </p>
-              </div>
+            <div class="flex-1 text-center min-w-[150px]">
+              <p class="text-xs uppercase tracking-widest text-red-500 mb-1 font-semibold">Impuestos (IVA 16%)</p>
+              <p class="text-3xl font-bold text-red-500">
+                -${iva.toLocaleString("es-MX")} MXN
+              </p>
             </div>
-            <div class="level-item has-text-centered">
-              <div>
-                <p class="heading has-text-success">Ingreso Neto</p>
-                <p class="title has-text-success">
-                  ${ingresoNeto.toLocaleString("es-MX")} MXN
-                </p>
-              </div>
+            <div class="flex-1 text-center min-w-[150px]">
+              <p class="text-xs uppercase tracking-widest text-green-500 mb-1 font-semibold">Ingreso Neto</p>
+              <p class="text-3xl font-bold text-green-500">
+                ${ingresoNeto.toLocaleString("es-MX")} MXN
+              </p>
             </div>
-            <div class="level-item has-text-centered">
-              <div>
-                <p class="heading has-text-info">Ganancia Real Estimada</p>
-                <p class="title has-text-info">
-                  ${gananciaReal.toLocaleString("es-MX")} MXN
-                </p>
-              </div>
+            <div class="flex-1 text-center min-w-[150px]">
+              <p class="text-xs uppercase tracking-widest text-blue-400 mb-1 font-semibold">Ganancia Real Estimada</p>
+              <p class="text-3xl font-bold text-blue-400">
+                ${gananciaReal.toLocaleString("es-MX")} MXN
+              </p>
             </div>
           </div>
 
           <!-- Gráficas -->
-          <div class="columns">
-            <div class="column is-7">
-              <div class="box has-background-black">
-                <h3 class="title is-6 has-text-white has-text-centered">
+          <div class="flex flex-col xl:flex-row gap-6 mb-8">
+            <div class="flex-1 xl:w-7/12">
+              <div class="bg-[#0a0a0a] p-6 rounded-xl border border-neutral-800 h-full">
+                <h3 class="text-lg font-semibold text-white text-center mb-6">
                   Ingresos Históricos (Últimos 6 Meses)
                 </h3>
                 <canvas id="barChart"></canvas>
               </div>
             </div>
-            <div class="column is-5">
-              <div class="box has-background-black">
-                <h3 class="title is-6 has-text-white has-text-centered">
+            <div class="flex-1 xl:w-5/12">
+              <div class="bg-[#0a0a0a] p-6 rounded-xl border border-neutral-800 h-full">
+                <h3 class="text-lg font-semibold text-white text-center mb-6">
                   Distribución de Ingresos
                 </h3>
-                <div style="position: relative; height: 280px; width: 100%; display: flex; justify-content: center;">
+                <div class="relative h-[280px] w-full flex justify-center items-center">
                   <canvas id="pieChart"></canvas>
                 </div>
               </div>
@@ -102,62 +94,58 @@ const gananciaReal = ingresoNeto - gastosOperativos;
           </div>
 
           <!-- Manejo de Sueldos (Mock) -->
-          <div class="box has-background-black border-left mt-5">
-            <div
-              class="is-flex is-justify-content-space-between is-align-items-center mb-4"
-            >
-              <h3 class="title is-5 has-text-white m-0">
-                <i class="fa-solid fa-file-invoice-dollar has-text-warning mr-2"
+          <div class="bg-[#0a0a0a] p-6 rounded-xl border border-neutral-800 border-l-4 border-l-yellow-500">
+            <div class="flex justify-between items-center mb-6 flex-wrap gap-4">
+              <h3 class="text-lg font-semibold text-white flex items-center gap-2 m-0">
+                <i class="fa-solid fa-file-invoice-dollar text-yellow-500"
                 ></i> Nómina y Sueldos del Personal
               </h3>
-              <button class="button is-small is-warning is-outlined"
+              <button class="border border-yellow-500 text-yellow-500 hover:bg-yellow-500 hover:text-black px-4 py-1.5 text-sm rounded-lg transition-colors font-medium cursor-pointer"
                 >Generar Recibos</button
               >
             </div>
-            <div class="table-container">
-              <table
-                class="table is-fullwidth is-narrow has-background-black has-text-white"
-              >
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse text-sm whitespace-nowrap">
                 <thead>
                   <tr>
-                    <th class="has-text-grey-light">Empleado</th>
-                    <th class="has-text-grey-light">Puesto</th>
-                    <th class="has-text-grey-light">Sueldo Base</th>
-                    <th class="has-text-grey-light">Bonos/Deducciones</th>
-                    <th class="has-text-grey-light">Total a Pagar</th>
-                    <th class="has-text-grey-light">Estado</th>
+                    <th class="border-b border-neutral-800 py-3 px-3 text-neutral-400 font-medium">Empleado</th>
+                    <th class="border-b border-neutral-800 py-3 px-3 text-neutral-400 font-medium">Puesto</th>
+                    <th class="border-b border-neutral-800 py-3 px-3 text-neutral-400 font-medium">Sueldo Base</th>
+                    <th class="border-b border-neutral-800 py-3 px-3 text-neutral-400 font-medium">Bonos/Deducciones</th>
+                    <th class="border-b border-neutral-800 py-3 px-3 text-neutral-400 font-medium">Total a Pagar</th>
+                    <th class="border-b border-neutral-800 py-3 px-3 text-neutral-400 font-medium">Estado</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr>
-                    <td>Carlos Martínez</td>
-                    <td>Gerente Turno Día</td>
-                    <td>$12,000 MXN</td>
-                    <td class="has-text-success">+$1,500 MXN (Bono)</td>
-                    <td><strong>$13,500 MXN</strong></td>
-                    <td><span class="tag is-success is-light">Pagado</span></td>
+                  <tr class="hover:bg-neutral-900/40 transition-colors">
+                    <td class="py-3 px-3 border-b border-neutral-800/50 text-white font-medium">Carlos Martínez</td>
+                    <td class="py-3 px-3 border-b border-neutral-800/50 text-neutral-300">Gerente Turno Día</td>
+                    <td class="py-3 px-3 border-b border-neutral-800/50 text-neutral-300">$12,000 MXN</td>
+                    <td class="py-3 px-3 border-b border-neutral-800/50 text-green-500">+$1,500 MXN (Bono)</td>
+                    <td class="py-3 px-3 border-b border-neutral-800/50 text-white font-bold">$13,500 MXN</td>
+                    <td class="py-3 px-3 border-b border-neutral-800/50">
+                      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-500/10 text-green-400 border border-green-500/20">Pagado</span>
+                    </td>
                   </tr>
-                  <tr>
-                    <td>Ana Sofía López</td>
-                    <td>Recepción Turno Noche</td>
-                    <td>$8,500 MXN</td>
-                    <td class="has-text-grey">-</td>
-                    <td><strong>$8,500 MXN</strong></td>
-                    <td
-                      ><span class="tag is-warning is-light">Pendiente</span
-                      ></td
-                    >
+                  <tr class="hover:bg-neutral-900/40 transition-colors">
+                    <td class="py-3 px-3 border-b border-neutral-800/50 text-white font-medium">Ana Sofía López</td>
+                    <td class="py-3 px-3 border-b border-neutral-800/50 text-neutral-300">Recepción Turno Noche</td>
+                    <td class="py-3 px-3 border-b border-neutral-800/50 text-neutral-300">$8,500 MXN</td>
+                    <td class="py-3 px-3 border-b border-neutral-800/50 text-neutral-500">-</td>
+                    <td class="py-3 px-3 border-b border-neutral-800/50 text-white font-bold">$8,500 MXN</td>
+                    <td class="py-3 px-3 border-b border-neutral-800/50">
+                      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-500/10 text-yellow-400 border border-yellow-500/20">Pendiente</span>
+                    </td>
                   </tr>
-                  <tr>
-                    <td>Raúl Gómez</td>
-                    <td>Mantenimiento</td>
-                    <td>$7,200 MXN</td>
-                    <td class="has-text-danger">-$200 MXN (Retardo)</td>
-                    <td><strong>$7,000 MXN</strong></td>
-                    <td
-                      ><span class="tag is-warning is-light">Pendiente</span
-                      ></td
-                    >
+                  <tr class="hover:bg-neutral-900/40 transition-colors">
+                    <td class="py-3 px-3 border-b border-neutral-800/50 text-white font-medium">Raúl Gómez</td>
+                    <td class="py-3 px-3 border-b border-neutral-800/50 text-neutral-300">Mantenimiento</td>
+                    <td class="py-3 px-3 border-b border-neutral-800/50 text-neutral-300">$7,200 MXN</td>
+                    <td class="py-3 px-3 border-b border-neutral-800/50 text-red-500">-$200 MXN (Retardo)</td>
+                    <td class="py-3 px-3 border-b border-neutral-800/50 text-white font-bold">$7,000 MXN</td>
+                    <td class="py-3 px-3 border-b border-neutral-800/50">
+                      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-500/10 text-yellow-400 border border-yellow-500/20">Pendiente</span>
+                    </td>
                   </tr>
                 </tbody>
               </table>

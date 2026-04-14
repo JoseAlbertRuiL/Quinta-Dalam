@@ -12,66 +12,66 @@ const { data: ultimasReservas } = await supabase.from('reservas').select('*').or
 ---
 
 <LayoutAdmin title="Admin | Base de Datos" favicon="/images/database-icon.png">
-  <header class="section pb-4 pt-5 has-text-centered">
-    <h1 class="title is-3 mb-0">
-      <i class="fa-solid fa-gears has-text-info mr-2" aria-hidden="true"></i>
+  <header class="py-10 px-4 text-center">
+    <h1 class="text-3xl font-bold text-white flex items-center justify-center gap-3">
+      <i class="fa-solid fa-gears text-blue-500" aria-hidden="true"></i>
       Panel de Administración
     </h1>
   </header>
 
-  <div class="container is-fluid section pt-0">
-    <div class="columns">
+  <div class="w-full px-4 md:px-8 pb-10">
+    <div class="flex flex-col md:flex-row gap-6">
       <!-- ! Columna 1: de Navegación -->
       <NavAdmin paginaActual="database" />
 
       <!-- ! Columna 2: Contenido Principal -->
-      <div class="column is-10">
-        <main class="box content has-background-black-ter">
+      <div class="flex-1">
+        <main class="bg-[#141414] p-6 lg:p-8 rounded-xl border border-neutral-800/50 shadow-lg">
           
-          <div class="is-flex is-justify-content-space-between is-align-items-center mb-4">
-            <h2 class="title is-4 has-text-white m-0">
-              <i class="fa-solid fa-server has-text-danger mr-2"></i> Acceso Root BD
+          <div class="flex flex-wrap gap-4 justify-between items-center mb-6">
+            <h2 class="text-2xl font-bold text-white mb-0 flex items-center gap-3">
+              <i class="fa-solid fa-server text-red-500"></i> Acceso Root BD
             </h2>
-            <span class="tag is-danger is-medium">⚠️ ZONA DE ALTO RIESGO</span>
+            <span class="inline-flex items-center px-4 py-1.5 rounded-full bg-red-500/20 text-red-500 border border-red-500/30 text-sm font-bold tracking-wide">⚠️ ZONA DE ALTO RIESGO</span>
           </div>
 
           <section id="database">
-            <div class="box p-4 has-background-black border-left" style="border-left-color: #f14668;">
-              <p class="has-text-grey-light is-family-code is-size-7 mb-4">
+            <div class="bg-[#0a0a0a] p-6 rounded-xl border border-neutral-800 border-l-4 border-l-red-500 overflow-hidden">
+              <p class="text-neutral-400 font-mono text-sm mb-6 leading-relaxed bg-[#1a1a1a] p-4 rounded-lg border border-neutral-800/80">
                 > conectado a supabase_db: port 5432<br/>
                 > RLS: habilitado<br/>
                 > current_role: authenticated (admin_tier)<br/>
-                > Ejecutando consulta: <span class="has-text-success">SELECT * FROM reservas ORDER BY created_at DESC LIMIT 10;</span>
+                > Ejecutando consulta: <span class="text-green-400 font-semibold">SELECT * FROM reservas ORDER BY created_at DESC LIMIT 10;</span>
               </p>
 
-              <div class="table-container">
-                <table class="table is-fullwidth is-narrow has-background-black has-text-grey-light is-family-code is-size-7">
+              <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse text-sm whitespace-nowrap font-mono">
                   <thead>
                     <tr>
-                      <th class="has-text-danger">ID</th>
-                      <th class="has-text-info">CLIENTE</th>
-                      <th class="has-text-info">HABITACIÓN</th>
-                      <th class="has-text-info">CHECK-IN</th>
-                      <th class="has-text-info">CHECK-OUT</th>
-                      <th class="has-text-danger">ACCIONES (ROOT)</th>
+                      <th class="border-b border-neutral-800 py-3 px-3 text-red-400 font-semibold">ID</th>
+                      <th class="border-b border-neutral-800 py-3 px-3 text-blue-400 font-semibold">CLIENTE</th>
+                      <th class="border-b border-neutral-800 py-3 px-3 text-blue-400 font-semibold">HABITACIÓN</th>
+                      <th class="border-b border-neutral-800 py-3 px-3 text-blue-400 font-semibold">CHECK-IN</th>
+                      <th class="border-b border-neutral-800 py-3 px-3 text-blue-400 font-semibold">CHECK-OUT</th>
+                      <th class="border-b border-neutral-800 py-3 px-3 text-red-400 font-semibold text-right">ACCIONES (ROOT)</th>
                     </tr>
                   </thead>
-                  <tbody>
+                  <tbody class="text-neutral-400">
                     {ultimasReservas && ultimasReservas.length > 0 ? (
                       ultimasReservas.map((res) => (
-                        <tr>
-                          <td>{res.id}</td>
-                          <td class="has-text-white">{res.nombre_cliente}</td>
-                          <td>{res.habitacion}</td>
-                          <td>{res.fecha_entrada}</td>
-                          <td>{res.fecha_salida}</td>
-                          <td>
-                            <div class="buttons are-small">
-                              <button class="button is-black has-text-warning border-warning" onclick={`confirmarAccion('EDITAR', ${res.id})`}>
-                                <i class="fa-solid fa-pen"></i>
+                        <tr class="hover:bg-neutral-900/40 transition-colors">
+                          <td class="py-3 px-3 border-b border-neutral-800/50">{res.id}</td>
+                          <td class="py-3 px-3 border-b border-neutral-800/50 text-neutral-200">{res.nombre_cliente}</td>
+                          <td class="py-3 px-3 border-b border-neutral-800/50">{res.habitacion}</td>
+                          <td class="py-3 px-3 border-b border-neutral-800/50">{res.fecha_entrada}</td>
+                          <td class="py-3 px-3 border-b border-neutral-800/50">{res.fecha_salida}</td>
+                          <td class="py-3 px-3 border-b border-neutral-800/50 text-right">
+                            <div class="flex justify-end gap-2">
+                              <button class="bg-[#1a1a1a] border border-yellow-500/50 text-yellow-500 hover:bg-yellow-500 hover:text-black w-8 h-8 rounded flex items-center justify-center transition-colors" onclick={`confirmarAccion('EDITAR', '${res.id}')`} title="Editar">
+                                <i class="fa-solid fa-pen text-xs"></i>
                               </button>
-                              <button class="button is-black has-text-danger border-danger" onclick={`confirmarAccion('ELIMINAR', ${res.id})`}>
-                                <i class="fa-solid fa-trash"></i>
+                              <button class="bg-[#1a1a1a] border border-red-500/50 text-red-500 hover:bg-red-500 hover:text-white w-8 h-8 rounded flex items-center justify-center transition-colors" onclick={`confirmarAccion('ELIMINAR', '${res.id}')`} title="Eliminar">
+                                <i class="fa-solid fa-trash text-xs"></i>
                               </button>
                             </div>
                           </td>
@@ -79,7 +79,7 @@ const { data: ultimasReservas } = await supabase.from('reservas').select('*').or
                       ))
                     ) : (
                       <tr>
-                        <td colspan="6" class="has-text-centered has-text-warning">No hay registros en la tabla 'reservas'</td>
+                        <td colspan="6" class="py-6 text-center text-yellow-500 font-medium">No hay registros en la tabla 'reservas'</td>
                       </tr>
                     )}
                   </tbody>
@@ -87,6 +87,7 @@ const { data: ultimasReservas } = await supabase.from('reservas').select('*').or
               </div>
               
               <!-- TRUNCATE BUTTON REMOVED FOR SECURITY -->
+            </div>
           </section>
         </main>
       </div>
@@ -120,9 +121,4 @@ const { data: ultimasReservas } = await supabase.from('reservas').select('*').or
       }
     }
   </script>
-
-  <style>
-    .border-warning { border: 1px solid #ffe08a !important; }
-    .border-danger { border: 1px solid #f14668 !important; }
-  </style>
 </LayoutAdmin>

@@ -8,15 +8,152 @@
     </a>
     <!-- ! <h1>: Define el título principal de la página web, en este caso el nombre del hotel -->
   </div>
-  <div>
-    <nav id="indice">
-      <!-- ? <nav>: Nos permite tener un menú de navegación en nuestra página web, como nuestras subpáginas -->
-      <!-- ? Cuando el usuario haga click en algún enlace, se dirá a la página web que se dirija a la sección correspondiente -->
-      <a href="/acerca-de">Acerca de</a>
-      <a href="/instalaciones">Instalaciones</a>
-      <a href="/habitaciones">Habitaciones</a>
-      <a href="/servicios">Servicios</a>
-      <a href="/reservaciones">Reservar</a>
-    </nav>
-  </div>
+
+  <!-- Botón de Menú para Móvil -->
+  <button
+    id="menu-toggle"
+    class="mobile-only"
+    aria-label="Abrir menú de navegación"
+  >
+    <i class="fa-solid fa-bars"></i>
+  </button>
+
+  <nav id="indice">
+    <!-- ? <nav>: Nos permite tener un menú de navegación en nuestra página web, como nuestras subpáginas -->
+    <!-- ? Cuando el usuario haga click en algún enlace, se dirá a la página web que se dirija a la sección correspondiente -->
+    <a href="/acerca-de">Acerca de</a>
+    <a href="/instalaciones">Instalaciones</a>
+    <a href="/habitaciones">Habitaciones</a>
+    <a href="/servicios">Servicios</a>
+    <a href="/reservaciones">Reservar</a>
+  </nav>
 </header>
+
+<style>
+  /* Estilos específicos para el Toggle */
+  #menu-toggle {
+    display: none;
+    background: transparent;
+    border: none;
+    outline: none;
+    padding: 0;
+    cursor: pointer;
+    z-index: 1100;
+  }
+
+  /* Desactivamos el comportamiento hover nativo de .fa-solid en este botón 
+     para evitar que se "atore" en pantallas táctiles o emuladores. */
+  #menu-toggle i:hover {
+    background: rgba(212, 165, 116, 0.08) !important;
+    color: var(--color-accent) !important;
+    transform: none !important;
+  }
+
+  /* El botón sólo se "encenderá" (colores invertidos) cuando tenga la clase .is-active */
+  #menu-toggle.is-active i {
+    background: var(--color-accent) !important;
+    color: var(--color-dark) !important;
+    transform: scale(1.05) !important;
+  }
+
+  @media (max-width: 768px) {
+    #menu-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #indice {
+      position: fixed;
+      top: 70px;
+      left: 0;
+      width: 100%;
+      height: 0; /* Colapsado por defecto */
+      background: linear-gradient(
+        to bottom,
+        #1a4d2e,
+        #133a22
+      ); /* Verde hotel profundo */
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start !important;
+      align-items: center;
+      padding-top: 0;
+      overflow: hidden;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 999;
+      gap: 1.5rem !important;
+    }
+
+    #indice.is-active {
+      height: calc(100vh - 70px);
+      padding-top: 3rem;
+    }
+
+    #indice a {
+      font-size: 1.2rem !important;
+      opacity: 0;
+      transform: translateY(20px);
+      transition:
+        opacity 0.3s ease,
+        transform 0.3s ease;
+      width: 80%;
+      text-align: center;
+      padding: 1rem !important;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    #indice.is-active a {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Micro-animaciones en cascada para los enlaces */
+    #indice.is-active a:nth-child(1) {
+      transition-delay: 0.1s;
+    }
+    #indice.is-active a:nth-child(2) {
+      transition-delay: 0.2s;
+    }
+    #indice.is-active a:nth-child(3) {
+      transition-delay: 0.3s;
+    }
+    #indice.is-active a:nth-child(4) {
+      transition-delay: 0.4s;
+    }
+    #indice.is-active a:nth-child(5) {
+      transition-delay: 0.5s;
+    }
+  }
+</style>
+
+<script>
+  // Lógica de apertura/cierre
+  const toggle = document.getElementById("menu-toggle");
+  const nav = document.getElementById("indice");
+  const icon = toggle?.querySelector("i");
+
+  toggle?.addEventListener("click", () => {
+    const isActive = nav?.classList.toggle("is-active");
+    toggle?.classList.toggle("is-active"); // <-- Añadido: controla el color
+
+    // Cambiar icono con pequeña rotación
+    if (isActive) {
+      icon?.classList.replace("fa-bars", "fa-xmark");
+      document.body.style.overflow = "hidden"; // Evitar scroll al estar abierto
+    } else {
+      icon?.classList.replace("fa-xmark", "fa-bars");
+      document.body.style.overflow = "";
+    }
+  });
+
+  // Cerrar al hacer click en un link (útil si hay navegación interna)
+  nav?.querySelectorAll("a").forEach((link) => {
+    link.addEventListener("click", () => {
+      nav.classList.remove("is-active");
+      toggle?.classList.remove("is-active"); // <-- Apagar botón también
+      icon?.classList.replace("fa-xmark", "fa-bars");
+      document.body.style.overflow = "";
+    });
+  });
+</script>

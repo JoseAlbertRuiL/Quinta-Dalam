@@ -6,6 +6,7 @@ import Footer from "../components/Footer.astro";
 import "../styles/reset.css";
 import "../styles/styles.css";
 import "../styles/responsive.css";
+import "../styles/animations.css";
 // ↓ Recibimos las propiedades que nos envían las páginas
 // ↓ favicon tiene valor default: todas las páginas públicas usan el mismo icono
 const { title, favicon = "/images/Hotel_icono.png" } = Astro.props;
@@ -84,5 +85,25 @@ const { title, favicon = "/images/Hotel_icono.png" } = Astro.props;
     <Header />
     <slot />
     <Footer />
+
+    <script is:inline>
+      // Activa CSS para elementos ocultos (previene parpadeos si el usuario desactivó JS)
+      document.documentElement.classList.add('js-enabled');
+      
+      document.addEventListener("DOMContentLoaded", () => {
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('reveal');
+              observer.unobserve(entry.target); // Garantiza que se anime 1 sola vez
+            }
+          });
+        }, { threshold: 0.1, rootMargin: "0px 0px -50px 0px" });
+
+        document.querySelectorAll('.hidden, .hidden-item').forEach((el) => {
+          observer.observe(el);
+        });
+      });
+    </script>
   </body>
 </html>
