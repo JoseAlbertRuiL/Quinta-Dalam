@@ -3,6 +3,26 @@
 import LayoutAdmin from "../../layouts/LayoutAdmin.astro";
 // ↓ Importamos el componente de navegación reutilizable del panel
 import NavAdmin from "../../components/NavAdmin.astro";
+import { supabase } from "../../lib/supabase.js";
+
+// VERIFICACIÓN DE SESIÓN (Protección de Ruta SSR)
+const accessToken = Astro.cookies.get("sb-access-token");
+const refreshToken = Astro.cookies.get("sb-refresh-token");
+
+if (!accessToken || !refreshToken) {
+  return Astro.redirect("/admin/admin");
+}
+
+const { error } = await supabase.auth.setSession({
+  access_token: accessToken.value,
+  refresh_token: refreshToken.value,
+});
+
+if (error) {
+  Astro.cookies.delete("sb-access-token", { path: "/" });
+  Astro.cookies.delete("sb-refresh-token", { path: "/" });
+  return Astro.redirect("/admin/admin");
+}
 ---
 
 <LayoutAdmin title="Admin | Dev" favicon="/images/dev-icono.png">

@@ -3,9 +3,56 @@
 import LayoutAdmin from "../../layouts/LayoutAdmin.astro";
 // ↓ Importamos el componente de navegación reutilizable del panel
 import NavAdmin from "../../components/NavAdmin.astro";
+import { supabase } from "../../lib/supabase.js";
+
+// VERIFICACIÓN DE SESIÓN (Protección de Ruta SSR)
+const accessToken = Astro.cookies.get("sb-access-token");
+const refreshToken = Astro.cookies.get("sb-refresh-token");
+
+if (!accessToken || !refreshToken) {
+  return Astro.redirect("/admin/admin");
+}
+
+const { error: authError } = await supabase.auth.setSession({
+  access_token: accessToken.value,
+  refresh_token: refreshToken.value,
+});
+
+if (authError) {
+  Astro.cookies.delete("sb-access-token", { path: "/" });
+  Astro.cookies.delete("sb-refresh-token", { path: "/" });
+  return Astro.redirect("/admin/admin");
+}
+
+// OBTENCIÓN DE DATOS PARA EL DASHBOARD
+const { data: habitaciones } = await supabase.from('habitaciones').select('*');
+const { data: reservas } = await supabase.from('reservas').select('*');
+
+// Lógica de Habitaciones y Fechas
+const hoy = new Date();
+const reservasActivas = reservas?.filter(r => new Date(r.fecha_entrada) <= hoy && new Date(r.fecha_salida) >= hoy) || [];
+
+const habitacionesStats = habitaciones?.map(hab => {
+  const reserva = reservasActivas.find(r => r.habitacion.includes(hab.nombre));
+  return {
+    ...hab,
+    ocupada: !!reserva,
+    fecha_salida: reserva ? reserva.fecha_salida : null,
+    cliente: reserva ? reserva.nombre_cliente : null
+  };
+}).sort((a, b) => (a.ocupada === b.ocupada ? 0 : a.ocupada ? -1 : 1)) || [];
+
+// Entradas de dinero del mes (cálculo básico en base a reservas activas)
+const ingresosMes = reservasActivas.reduce((acc, curr) => {
+  const hab = habitaciones?.find(h => curr.habitacion.includes(h.nombre));
+  return acc + (hab ? Number(hab.precio) : 0);
+}, 0);
+
+const habitacionesOcupadas = habitacionesStats.filter(h => h.ocupada).length;
+const habitacionesLibres = habitacionesStats.filter(h => !h.ocupada).length;
 ---
 
-<LayoutAdmin title="Admin | Panel" favicon="/images/admin-icon.png">
+<LayoutAdmin title="Admin | Panel General" favicon="/images/admin-icon.png">
   <header class="section pb-4 pt-5 has-text-centered">
     <h1 class="title is-3 mb-0">
       <i class="fa-solid fa-gears has-text-info mr-2" aria-hidden="true"></i>
@@ -19,19 +66,110 @@ import NavAdmin from "../../components/NavAdmin.astro";
       <NavAdmin paginaActual="panel-admin" />
 
       <!-- ! Columna 2: Contenido Principal -->
-      <!-- TODO: Realizar contenido principal, enfocado a tener un poco de todo y sea atractivo visualmente -->
       <div class="column is-10">
-        <main class="box content">
-          <h2 class="title is-4">En Construcción...</h2>
-
-          <section id="vista-general">
-            <div class="box has-background-black-ter">
-              <p class="has-text-white">
-                Esta es la vista general del panel de administración. Selecciona
-                una opción del menú para continuar.
-              </p>
+        <main class="box content has-background-black-ter">
+          <h2 class="title is-4 has-text-white">Vista General del Hotel</h2>
+          
+          <div class="columns is-multiline">
+            <!-- 1. Estado de Habitaciones -->
+            <div class="column is-8">
+              <div class="box has-background-black border-left">
+                <h3 class="title is-5 has-text-white">
+                  <i class="fa-solid fa-bed has-text-info mr-2"></i> Estado de Habitaciones
+                </h3>
+                <div class="level is-mobile mb-4">
+                  <div class="level-item has-text-centered">
+                    <div>
+                      <p class="heading has-text-grey-light">Ocupadas</p>
+                      <p class="title has-text-danger">{habitacionesOcupadas}</p>
+                    </div>
+                  </div>
+                  <div class="level-item has-text-centered">
+                    <div>
+                      <p class="heading has-text-grey-light">Disponibles</p>
+                      <p class="title has-text-success">{habitacionesLibres}</p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="table-container">
+                  <table class="table is-fullwidth is-narrow has-background-black has-text-white">
+                    <thead>
+                      <tr>
+                        <th class="has-text-grey-light">Habitación</th>
+                        <th class="has-text-grey-light">Estado</th>
+                        <th class="has-text-grey-light">Ocupada hasta</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {habitacionesStats.map((hab) => (
+                        <tr>
+                          <td>{hab.nombre}</td>
+                          <td>
+                            {hab.ocupada 
+                              ? <span class="tag is-danger is-light">Ocupada</span> 
+                              : <span class="tag is-success is-light">Libre</span>}
+                          </td>
+                          <td>
+                            {hab.ocupada ? <span class="has-text-warning">{hab.fecha_salida}</span> : <span class="has-text-grey">-</span>}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
             </div>
-          </section>
+
+            <!-- 2. Entradas de Dinero -->
+            <div class="column is-4">
+              <div class="box has-background-black border-left h-100">
+                <h3 class="title is-5 has-text-white">
+                  <i class="fa-solid fa-wallet has-text-success mr-2"></i> Ingresos Actuales
+                </h3>
+                <p class="has-text-grey-light is-size-7 mb-2">Ingresos generados por las habitaciones actualmente ocupadas en este instante.</p>
+                <h1 class="title is-2 has-text-success">${ingresosMes.toLocaleString('es-MX')} <span class="is-size-5">MXN</span></h1>
+                <progress class="progress is-success is-small" value={habitacionesOcupadas} max={habitacionesStats.length || 1}></progress>
+                <p class="is-size-7 has-text-info has-text-right">Capacidad al {Math.round((habitacionesOcupadas / (habitacionesStats.length || 1)) * 100)}%</p>
+              </div>
+            </div>
+
+            <!-- 3. Roles, Personal y Cuenta -->
+            <div class="column is-12">
+              <div class="box has-background-black border-left">
+                <h3 class="title is-5 has-text-white">
+                  <i class="fa-solid fa-users-gear has-text-info mr-2"></i> Administración de Personal y Cuenta
+                </h3>
+                <div class="columns">
+                  <div class="column is-6">
+                    <article class="message is-dark has-background-black-bis">
+                      <div class="message-body has-text-white">
+                        <strong>Mi Cuenta (Admin Root)</strong><br/>
+                        <span class="has-text-grey-light is-size-7">Rol: Propietario / Superadmin</span>
+                        <div class="buttons mt-3">
+                          <button class="button is-small is-info is-outlined">Cambiar Contraseña</button>
+                          <button class="button is-small is-info is-outlined">Ajustes de Seguridad</button>
+                        </div>
+                      </div>
+                    </article>
+                  </div>
+                  <div class="column is-6">
+                    <article class="message is-dark has-background-black-bis">
+                      <div class="message-body has-text-white">
+                        <strong>Gestión de Roles</strong><br/>
+                        <span class="has-text-grey-light is-size-7">Personal Activo: 3 (1 Admin, 2 Recepción)</span>
+                        <div class="buttons mt-3">
+                          <button class="button is-small is-success is-outlined">Añadir Empleado</button>
+                          <button class="button is-small is-warning is-outlined">Modificar Permisos</button>
+                        </div>
+                      </div>
+                    </article>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
         </main>
       </div>
     </div>
