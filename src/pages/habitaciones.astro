@@ -4,6 +4,26 @@ import Layout from "../layouts/Layout.astro";
 // ↓ Importamos el componente Image para optimizar imágenes pesadas
 import { Image } from "astro:assets";
 import habitacionImg from "../assets/images/habitacion.png";
+
+// Datos de habitaciones (se usan en el carrusel)
+const plantaBaja = [
+  { num: "101", nombre: "Tzintzunzan", precio: "$1,200", desc: "Antigua capital purépecha a orillas del Lago de Pátzcuaro, cuna de la artesanía michoacana.", img: "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=1600&q=80" },
+  { num: "102", nombre: "Paracho", precio: "$1,100", desc: "El pueblo de los luthiers, famoso por sus guitarras artesanales.", img: "https://images.unsplash.com/photo-1566665797739-1674de7a421a?w=1600&q=80" },
+  { num: "103", nombre: "Yunuen", precio: "$1,150", desc: "Isla purépecha en el Lago de Pátzcuaro.", img: "https://images.unsplash.com/photo-1590490360182-c33d57733427?w=1600&q=80" },
+  { num: "104", nombre: "Pátzcuaro", precio: "$1,300", desc: "Magia colonial y lacustre de este Pueblo Mágico.", img: "https://images.unsplash.com/photo-1571508601891-ca5e7a713859?w=1600&q=80" },
+  { num: "105", nombre: "Coeneo", precio: "$1,050", desc: "Paisaje lacustre y tradición agrícola.", img: "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=1600&q=80" },
+  { num: "106", nombre: "Janitzio", precio: "$1,250", desc: "Isla símbolo de la Noche de Muertos.", img: "https://images.unsplash.com/photo-1586611292717-f828b167408c?w=1600&q=80" },
+];
+
+const plantaAlta = [
+  { num: "201", nombre: "Suite Quencio", precio: "$1,500", desc: "La suite más amplia, vistas panorámicas y decoración premium.", img: "https://images.unsplash.com/photo-1540518614846-7eded433c457?w=1600&q=80" },
+  { num: "202", nombre: "Morelia", precio: "$1,400", desc: "Capital michoacana con centro histórico colonial.", img: "https://images.unsplash.com/photo-1512918728675-ed5a9ecdebfd?w=1600&q=80" },
+  { num: "203", nombre: "Tacámbaro", precio: "$1,350", desc: "Esencia histórica entre montañas.", img: "https://images.unsplash.com/photo-1595576508898-0ad5c879a061?w=1600&q=80" },
+  { num: "204", nombre: "Uruapan", precio: "$1,450", desc: "La Ciudad de la Eterna Primavera.", img: "https://images.unsplash.com/photo-1560185007-c5ca9d2c014d?w=1600&q=80" },
+  { num: "205", nombre: "Tlalpujahua", precio: "$1,200", desc: "Pueblo Mágico de las esferas navideñas artesanales.", img: "https://images.unsplash.com/photo-1578898886225-c7c894047899?w=1600&q=80" },
+  { num: "206", nombre: "Cuitzeo", precio: "$1,300", desc: "El lago y el convento agustino.", img: "https://images.unsplash.com/photo-1549294413-26f195200c16?w=1600&q=80" },
+  { num: "207", nombre: "Cuanajo", precio: "$1,350", desc: "Capital de los muebles artesanales.", img: "https://images.unsplash.com/photo-1564078516393-cf04bd966897?w=1600&q=80" },
+];
 ---
 
 <Layout title="Habitaciones | Hotel Quinta Dalam">
@@ -28,173 +48,126 @@ import habitacionImg from "../assets/images/habitacion.png";
     </section>
 
     <section id="lista-habitaciones">
-      <!-- Planta Baja -->
-      <div id="planta-baja">
-        <h3>Planta Baja (Serie 100)</h3>
-        <div class="habitaciones-grid">
-          <div class="habitacion-card">
-            <Image
-              src={habitacionImg}
-              alt="Habitación 101 - Tzintzunzan"
-              width={400}
-              height={150}
-            />
-            <h4>101 - Tzintzunzan</h4>
-            <p class="precio">$1,200 MXN/noche</p>
-            <button class="btn-reservar">Reservar</button>
-          </div>
-          <div class="habitacion-card">
-            <Image
-              src={habitacionImg}
-              alt="Habitación 102 - Paracho"
-              width={400}
-              height={150}
-            />
-            <h4>102 - Paracho</h4>
-            <p class="precio">$1,100 MXN/noche</p>
-            <button class="btn-reservar">Reservar</button>
-          </div>
-          <div class="habitacion-card">
-            <Image
-              src={habitacionImg}
-              alt="Habitación 103 - Yunuen"
-              width={400}
-              height={150}
-            />
-            <h4>103 - Yunuen</h4>
-            <p class="precio">$1,150 MXN/noche</p>
-            <button class="btn-reservar">Reservar</button>
-          </div>
-          <div class="habitacion-card">
-            <Image
-              src={habitacionImg}
-              alt="Habitación 104 - Patzcuaro"
-              width={400}
-              height={150}
-            />
-            <h4>104 - Patzcuaro</h4>
-            <p class="precio">$1,300 MXN/noche</p>
-            <button class="btn-reservar">Reservar</button>
-          </div>
-          <div class="habitacion-card">
-            <Image
-              src={habitacionImg}
-              alt="Habitación 105 - Coeneo"
-              width={400}
-              height={150}
-            />
-            <h4>105 - Coeneo</h4>
-            <p class="precio">$1,050 MXN/noche</p>
-            <button class="btn-reservar">Reservar</button>
-          </div>
-          <div class="habitacion-card">
-            <Image
-              src={habitacionImg}
-              alt="Habitación 106 - Janitzio"
-              width={400}
-              height={150}
-            />
-            <h4>106 - Janitzio</h4>
-            <p class="precio">$1,250 MXN/noche</p>
-            <button class="btn-reservar">Reservar</button>
-          </div>
+      <div class="tabs-wrap">
+        <div class="tabs" id="tabs" role="tablist" aria-label="Seleccionar planta">
+          <button class="tab-btn tab-btn--active" role="tab" aria-selected="true" data-floor="baja">Planta Baja</button>
+          <button class="tab-btn" role="tab" aria-selected="false" data-floor="alta">Planta Alta</button>
         </div>
       </div>
 
-      <!-- Planta Alta -->
-      <div id="planta-alta">
-        <h3>Planta Alta (Serie 200)</h3>
-        <div class="habitaciones-grid">
-          <div class="habitacion-card">
-            <Image
-              src={habitacionImg}
-              alt="Habitación 201 - Suite Quencio"
-              width={400}
-              height={150}
-            />
-            <h4>201 - Suite Quencio</h4>
-            <p class="precio">$1,500 MXN/noche</p>
-            <button class="btn-reservar">Reservar</button>
+      <section id="carousel-panel" class="carousel-wrap" role="region" aria-label="Galería de habitaciones">
+        <div class="carousel-row">
+          <button class="arrow-btn" id="btn-prev" aria-label="Anterior">&#8249;</button>
+
+          <div class="carousel-main" tabindex="0">
+            <div class="carousel-img-wrap">
+              <img id="room-img" src="" alt="Habitación" class="carousel-img" />
+              <div class="badge badge--num" id="badge-num">Hab. 101</div>
+              <div class="badge badge--floor" id="badge-floor">Planta Baja</div>
+            </div>
+
+            <div class="room-panel">
+              <div class="room-panel__left">
+                <h2 class="room-name serif" id="room-name">Nombre</h2>
+                <p class="room-desc" id="room-desc">Descripción breve de la habitación.</p>
+              </div>
+              <div class="room-panel__right">
+                <p class="price-label">Por noche</p>
+                <p class="price serif" id="room-price">$0 <sup>MXN</sup></p>
+              </div>
+            </div>
+
+            <div class="dots" id="dots" aria-hidden="false"></div>
           </div>
-          <div class="habitacion-card">
-            <Image
-              src={habitacionImg}
-              alt="Habitación 202 - Morelia"
-              width={400}
-              height={150}
-            />
-            <h4>202 - Morelia</h4>
-            <p class="precio">$1,400 MXN/noche</p>
-            <button class="btn-reservar">Reservar</button>
-          </div>
-          <div class="habitacion-card">
-            <Image
-              src={habitacionImg}
-              alt="Habitación 203 - Tacambaro"
-              width={400}
-              height={150}
-            />
-            <h4>203 - Tacambaro</h4>
-            <p class="precio">$1,350 MXN/noche</p>
-            <button class="btn-reservar">Reservar</button>
-          </div>
-          <div class="habitacion-card">
-            <Image
-              src={habitacionImg}
-              alt="Habitación 204 - Uruapan"
-              width={400}
-              height={150}
-            />
-            <h4>204 - Uruapan</h4>
-            <p class="precio">$1,450 MXN/noche</p>
-            <button class="btn-reservar">Reservar</button>
-          </div>
-          <div class="habitacion-card">
-            <Image
-              src={habitacionImg}
-              alt="Habitación 205 - Tlalpujahua"
-              width={400}
-              height={150}
-            />
-            <h4>205 - Tlalpujahua</h4>
-            <p class="precio">$1,200 MXN/noche</p>
-            <button class="btn-reservar">Reservar</button>
-          </div>
-          <div class="habitacion-card">
-            <Image
-              src={habitacionImg}
-              alt="Habitación 206 - Cuitzeo"
-              width={400}
-              height={150}
-            />
-            <h4>206 - Cuitzeo</h4>
-            <p class="precio">$1,300 MXN/noche</p>
-            <button class="btn-reservar">Reservar</button>
-          </div>
-          <div class="habitacion-card">
-            <Image
-              src={habitacionImg}
-              alt="Habitación 207 - Cuanajo"
-              width={400}
-              height={150}
-            />
-            <h4>207 - Cuanajo</h4>
-            <p class="precio">$1,350 MXN/noche</p>
-            <button class="btn-reservar">Reservar</button>
-          </div>
+
+          <button class="arrow-btn" id="btn-next" aria-label="Siguiente">&#8250;</button>
         </div>
-      </div>
+
+        <div class="thumbnails" id="thumbnails" aria-label="Miniaturas"></div>
+      </section>
     </section>
 
-    <section id="explicaciones">
-      <div>
-        <header>
-          <h2>¿Quieres saber un poco más sobre cada una?</h2>
-        </header>
-        <p></p>
-        <!-- * habitacion2.png pesa solo 167KB, se queda en public/images sin necesitar optimización -->
-        <img src="/images/habitacion2.png" alt="Habitación 2" loading="lazy" />
-      </div>
-    </section>
   </main>
+  <script define:vars={{ plantaBaja, plantaAlta }}>
+    const floors = { baja: plantaBaja, alta: plantaAlta };
+    let floor = 'baja';
+    let idx = 0;
+
+    const img = document.getElementById('room-img');
+    const badgeNum = document.getElementById('badge-num');
+    const badgeFloor = document.getElementById('badge-floor');
+    const nameEl = document.getElementById('room-name');
+    const descEl = document.getElementById('room-desc');
+    const priceEl = document.getElementById('room-price');
+    const dotsEl = document.getElementById('dots');
+    const thumbsEl = document.getElementById('thumbnails');
+    const btnPrev = document.getElementById('btn-prev');
+    const btnNext = document.getElementById('btn-next');
+    const tabs = document.getElementById('tabs');
+
+    function render(animate = true) {
+      const rooms = floors[floor];
+      const r = rooms[idx];
+
+      if (animate) {
+        img.classList.add('fading');
+        setTimeout(() => { img.src = r.img; img.alt = r.nombre; img.classList.remove('fading'); }, 260);
+      } else {
+        img.src = r.img; img.alt = r.nombre;
+      }
+
+      badgeNum.textContent = `Hab. ${r.num}`;
+      badgeFloor.textContent = floor === 'baja' ? 'Planta Baja' : 'Planta Alta';
+      nameEl.textContent = r.nombre;
+      descEl.textContent = r.desc;
+      priceEl.innerHTML = `${r.precio} <sup>MXN</sup>`;
+
+      renderDots();
+      renderThumbs();
+      updateTabSelection();
+    }
+
+    function renderDots() {
+      const rooms = floors[floor];
+      dotsEl.innerHTML = rooms.map((_, i) =>
+        `<button class="dot${i===idx? ' dot--active':''}" data-i="${i}" aria-label="Habitación ${i+1}"></button>`
+      ).join('');
+      dotsEl.querySelectorAll('.dot').forEach(btn => btn.addEventListener('click', () => { idx = +btn.dataset.i; render(); }));
+    }
+
+    function renderThumbs() {
+      const rooms = floors[floor];
+      thumbsEl.innerHTML = rooms.map((r,i) =>
+        `<button class="thumb${i===idx? ' thumb--active':''}" data-i="${i}" aria-label="${r.nombre}"><img src="${r.img}" alt="${r.nombre}" loading="lazy"/></button>`
+      ).join('');
+      thumbsEl.querySelectorAll('.thumb').forEach(btn => btn.addEventListener('click', () => { idx = +btn.dataset.i; render(); }));
+    }
+
+    btnPrev.addEventListener('click', () => { idx = (idx -1 + floors[floor].length) % floors[floor].length; render(); });
+    btnNext.addEventListener('click', () => { idx = (idx +1) % floors[floor].length; render(); });
+
+    // Tabs
+    tabs.querySelectorAll('.tab-btn').forEach(btn => btn.addEventListener('click', (e) => {
+      const f = btn.dataset.floor;
+      if (f === floor) return;
+      floor = f; idx = 0; render();
+      tabs.querySelectorAll('.tab-btn').forEach(b => { b.classList.toggle('tab-btn--active', b === btn); b.setAttribute('aria-selected', b === btn); });
+    }));
+
+    function updateTabSelection() {
+      const btns = tabs.querySelectorAll('.tab-btn');
+      btns.forEach(b => b.setAttribute('aria-selected', b.dataset.floor === floor));
+    }
+
+    // Keyboard navigation: left/right to change room; space/enter on thumbnails/dots handled by buttons
+    document.addEventListener('keydown', (e) => {
+      const activeEl = document.activeElement;
+      if (activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA')) return;
+      if (e.key === 'ArrowLeft') { idx = (idx -1 + floors[floor].length) % floors[floor].length; render(); }
+      if (e.key === 'ArrowRight') { idx = (idx +1) % floors[floor].length; render(); }
+    });
+
+    // Initial render
+    render(false);
+  </script>
 </Layout>

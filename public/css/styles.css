@@ -229,8 +229,7 @@
 
 /* ==================== MAIN CONTAINER ==================== */
 main {
-  max-width: 1400px;
-  margin: 0 auto;
+  width: 100%;
 }
 
 /* ==================== SECCIONES ==================== */
@@ -408,49 +407,6 @@ section p {
   text-decoration: underline;
 }
 
-/* ===== Redes sociales compactas ===== */
-
-.social-box {
-  margin-top: 0.5rem;
-  margin-bottom: 0.8rem;
-  text-align: center;
-}
-
-.social-box h4,
-.social-box p {
-  font-size: 1.2rem;
-  margin-top: 0;
-  margin-bottom: 0.5rem;
-  font-weight: 400;
-  color: var(--color-white);
-}
-
-/* contenedor horizontal */
-.social-links {
-  display: flex;
-  justify-content: center;
-  gap: 1rem;
-  flex-wrap: wrap;
-}
-
-/* botones */
-.social-links a {
-  background: rgba(255, 255, 255, 0.15);
-  padding: 0.5rem 1.2rem;
-  border-radius: 30px; /* pill */
-  font-size: 0.9rem;
-  backdrop-filter: blur(6px);
-  transition: var(--transition);
-  color: var(--color-white);
-  font-weight: 500;
-}
-
-/* hover elegante */
-.social-links a:hover {
-  background: var(--color-accent);
-  color: var(--color-dark);
-  transform: translateY(-3px);
-}
 
 /* ==================== FOOTER ==================== */
 /* ==================== FOOTER ==================== */
@@ -508,10 +464,12 @@ footer br {
 }
 
 .social-links a {
+  padding: 0.45rem 1rem;
+  font-size: 0.85rem;
   background: rgba(255, 255, 255, 0.15);
-  padding: 0.4rem 0.9rem;
+  padding: 0.45rem 1rem;
   border-radius: 30px;
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   backdrop-filter: blur(6px);
   transition: var(--transition);
   color: var(--color-white);
