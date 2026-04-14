@@ -3,26 +3,10 @@
 import LayoutAdmin from "../../layouts/LayoutAdmin.astro";
 // ↓ Importamos el componente de navegación reutilizable del panel
 import NavAdmin from "../../components/NavAdmin.astro";
-import { supabase } from "../../lib/supabase.js";
+import { supabase } from "../../lib/supabase";
 
-// VERIFICACIÓN DE SESIÓN (Protección de Ruta SSR)
-const accessToken = Astro.cookies.get("sb-access-token");
-const refreshToken = Astro.cookies.get("sb-refresh-token");
-
-if (!accessToken || !refreshToken) {
-  return Astro.redirect("/admin/admin");
-}
-
-const { error: authError } = await supabase.auth.setSession({
-  access_token: accessToken.value,
-  refresh_token: refreshToken.value,
-});
-
-if (authError) {
-  Astro.cookies.delete("sb-access-token", { path: "/" });
-  Astro.cookies.delete("sb-refresh-token", { path: "/" });
-  return Astro.redirect("/admin/admin");
-}
+// LA AUTENTICACIÓN AHORA LA MANEJA src/middleware.ts
+// El usuario que llega aquí ya tiene una sesión validada y rol comprobado.
 
 // OBTENCIÓN DE DATOS PARA EL DASHBOARD
 const { data: habitaciones } = await supabase.from('habitaciones').select('*');
@@ -30,10 +14,16 @@ const { data: reservas } = await supabase.from('reservas').select('*');
 
 // Lógica de Habitaciones y Fechas
 const hoy = new Date();
-const reservasActivas = reservas?.filter(r => new Date(r.fecha_entrada) <= hoy && new Date(r.fecha_salida) >= hoy) || [];
+hoy.setHours(0, 0, 0, 0); // Normalizar a inicio del día para comparaciones precisas
+
+const reservasActivas = reservas?.filter(r => {
+  const entrada = new Date(r.fecha_entrada + "T00:00:00");
+  const salida = new Date(r.fecha_salida + "T00:00:00");
+  return entrada <= hoy && salida >= hoy;
+}) || [];
 
 const habitacionesStats = habitaciones?.map(hab => {
-  const reserva = reservasActivas.find(r => r.habitacion.includes(hab.nombre));
+  const reserva = reservasActivas.find(r => r.habitacion === hab.nombre);
   return {
     ...hab,
     ocupada: !!reserva,
@@ -43,10 +33,12 @@ const habitacionesStats = habitaciones?.map(hab => {
 }).sort((a, b) => (a.ocupada === b.ocupada ? 0 : a.ocupada ? -1 : 1)) || [];
 
 // Entradas de dinero del mes (cálculo básico en base a reservas activas)
-const ingresosMes = reservasActivas.reduce((acc, curr) => {
-  const hab = habitaciones?.find(h => curr.habitacion.includes(h.nombre));
-  return acc + (hab ? Number(hab.precio) : 0);
-}, 0);
+const ingresosMes = reservasActivas.length > 0 
+  ? reservasActivas.reduce((acc, curr) => {
+      const hab = habitaciones?.find(h => curr.habitacion === h.nombre);
+      return acc + (hab ? Number(hab.precio) : 0);
+    }, 0)
+  : 0;
 
 const habitacionesOcupadas = habitacionesStats.filter(h => h.ocupada).length;
 const habitacionesLibres = habitacionesStats.filter(h => !h.ocupada).length;
@@ -60,7 +52,7 @@ const habitacionesLibres = habitacionesStats.filter(h => !h.ocupada).length;
     </h1>
   </header>
 
-  <div class="container section pt-0">
+  <div class="container is-fluid section pt-0">
     <div class="columns">
       <!-- ! Columna 1: de Navegación -->
       <NavAdmin paginaActual="panel-admin" />

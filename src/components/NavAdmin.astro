@@ -4,7 +4,7 @@
 const { paginaActual } = Astro.props;
 ---
 
-<div class="column is-3">
+<div class="column is-2">
   <nav
     id="indice"
     class="menu box"
@@ -15,7 +15,9 @@ const { paginaActual } = Astro.props;
       <li>
         <a
           href="/admin/panel-admin"
-          class={paginaActual === "panel-admin" ? "is-active" : "has-text-white-ter"}
+          class={paginaActual === "panel-admin"
+            ? "is-active"
+            : "has-text-white-ter"}
         >
           <span class="icon is-small">
             <i class="fa-solid fa-house mr-2" aria-hidden="true"></i>
@@ -48,7 +50,9 @@ const { paginaActual } = Astro.props;
       <li>
         <a
           href="/admin/balance"
-          class={paginaActual === "balance" ? "is-active" : "has-text-white-ter"}
+          class={paginaActual === "balance"
+            ? "is-active"
+            : "has-text-white-ter"}
         >
           <span class="icon is-small">
             <i class="fa-solid fa-cash-register mr-2" aria-hidden="true"></i>
@@ -59,7 +63,9 @@ const { paginaActual } = Astro.props;
       <li>
         <a
           href="/admin/database"
-          class={paginaActual === "database" ? "is-active" : "has-text-white-ter"}
+          class={paginaActual === "database"
+            ? "is-active"
+            : "has-text-white-ter"}
         >
           <span class="icon is-small">
             <i class="fa-solid fa-database mr-2" aria-hidden="true"></i>
@@ -80,7 +86,10 @@ const { paginaActual } = Astro.props;
       </li>
     </ul>
     <form action="/api/logout" method="post">
-      <button type="submit" class="button is-danger is-outlined is-rounded mt-4 is-fullwidth">
+      <button
+        type="submit"
+        class="button is-danger is-outlined is-rounded mt-4 is-fullwidth"
+      >
         <span class="icon">
           <i class="fa-solid fa-sign-out" aria-hidden="true"></i>
         </span>

@@ -133,18 +133,18 @@ Actualmente, el proyecto ha escalado y ha sido migrado al poderoso ecosistema de
 
 | Tecnología          | Rol                                             | Estado |
 | :------------------ | :---------------------------------------------- | :----: |
-| **Astro**           | Framework principal (Componentes, Enrutamiento) |   ✅    |
-| **HTML5**           | Estructura semántica aplicada (SEO, Metadatos)  |   ✅    |
-| **CSS3 / Tailwind** | Estilado dinámico y utilidad moderna            |   ✅    |
-| **FontAwesome**     | Iconografía premium para la interfaz            |   ✅    |
-| **Git**             | Control de versiones (Ramas y colaboración)     |   ✅    |
+| **Astro 6.x**       | Framework principal (Componentes, Enrutamiento) |   ✅   |
+| **HTML5**           | Estructura semántica aplicada (SEO, Metadatos)  |   ✅   |
+| **CSS3 / Tailwind** | Estilado dinámico y utilidad moderna            |   ✅   |
+| **FontAwesome**     | Iconografía premium para la interfaz            |   ✅   |
+| **Git**             | Control de versiones (Ramas y colaboración)     |   ✅   |
 
 ### Tecnologías en Transición / Futuras
 
 | Tecnología                | Objetivo                                 | Estado |
 | :------------------------ | :--------------------------------------- | :----: |
-| **JavaScript/TypeScript** | Lógica de reservaciones y comprobaciones |   🏗️    |
-| **NodeJS / NestJS**       | Escalabilidad y robustez del Backend     |   ⏳    |
+| **JavaScript/TypeScript** | Lógica de reservaciones y comprobaciones |   🏗️   |
+| **Supabase**              | Integración de Backend PostgreSQL        |   🏗️   |
 
 ---
 
@@ -314,7 +314,7 @@ Utilizamos colores específicos para facilitar la lectura técnica tanto para de
 - [x] **Micro-interacciones:** Animaciones de botones estilizadas con efectos de elevación (`translateY`), sombras profundas y realce de brillo.
 - [ ] Refactorización progresiva a **Tailwind CSS** (Uso híbrido actual para páginas específicas).
 
-### 🏗️ Fase 4 — Funcionalidad e Integración (En Progreso)
+### ✅ Fase 4 — Funcionalidad e Integración (Completada)
 
 - [x] **Server-Side Rendering (SSR):** Activación de `output: "server"` con adaptador `@astrojs/node` para renderizado dinámico.
 - [x] **Panel de Búsqueda Rápida:** Componente `PanelReservation.astro` con persistencia de parámetros via URL.
@@ -322,15 +322,22 @@ Utilizamos colores específicos para facilitar la lectura técnica tanto para de
 - [x] **Persistencia y Sincronización:** Uso de `sessionStorage` y `CustomEvents` para comunicación entre Astro y React.
 - [x] **Validación y Frontend Logic:** Lógica de validación nativa (Astro) y validación de tarjetas con máscaras en tiempo real (React).
 - [x] **Confirmación Dinámica:** Página `exito.astro` que procesa y muestra el resumen final de la reservación.
-- [ ] **Protección de Rutas:** Middleware para seguridad en el panel `/admin/*`.
-- [ ] **Persistencia Permanente:** Conexión a Base de Datos para almacenamiento real de reservaciones.
+- [x] **Protección de Rutas (Middleware):** Control de acceso estricto mediante `middleware.ts` en SSR para defender el entorno de administración `/admin/*`.
+- [x] **Persistencia Permanente (Backend):** Conexión y escalabilidad migrada a **Supabase (PostgreSQL)**.
 
 ### ✅ Fase 5 — System & AI Orchestration (Completada)
 
 - [x] **SSoT de Inteligencia Artificial:** Arquitectura jerárquica unificada bajo el directorio `.agents/`.
 - [x] **Copilot Guardrails:** Restricciones técnicas rígidas aplicadas vía `.github/copilot-instructions.md`.
-- [x] **Auditoría Autónoma:** Despliegue de un protocolo escéptico de QA exclusivo para Claude.
+- [x] **Auditoría Autónoma:** Despliegue de un protocolo escéptico de QA exclusivo para Claude (SECURITY.md superado).
 - [x] **Shared Master Skills:** Centralización de las directivas críticas de Astro SSR para compartir contexto sin riesgo de alucinaciones.
+
+### 🏗️ Fase 6 — Backend Roles & Arquitectura Avanzada (En Progreso)
+
+- [x] **Arquitectura RBAC & GoTrue (Supabase Auth):** Implementación de `service_role` transversal para resolución de Deadlocks y protección de identidades. Todo operado directamente por la API sin inserciones manuales vulnerables.
+- [x] **Auditoría UI/UX Administrativa:** Redimensionamiento global asimétrico (`is-fluid`) abarcando el 100% del viewport interior y arreglo de Canvas TS para visualización de Chart.js perfecta.
+- [ ] **Caja y Transacciones (`balance.astro`):** Despliegue de vistas (Views/RPC) directas en SQL para cálculos matemáticos server-side y ahorro masivo de RAM de servidor.
+- [ ] **Terminal de Ingeniería (`dev.astro`):** Establecimiento de Webhooks privados (Canal Discord/GitHub Issues) para comunicación de soporte inmediato.
 
 ---
 
