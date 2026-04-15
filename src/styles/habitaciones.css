@@ -11,14 +11,10 @@
 
 /* ================== Hero Section ================== */
 .hero-section {
-  background: linear-gradient(
-    135deg,
-    rgba(26, 77, 46, 0.05),
-    rgba(212, 165, 116, 0.05)
-  );
   padding: 60px 20px;
   text-align: center;
   margin-bottom: 40px;
+  background-color: transparent;
 }
 
 .hero-title {
@@ -34,15 +30,19 @@
   font-size: 1.3rem;
   font-weight: 500;
   color: var(--color-primary);
-  margin: 0 0 16px;
+  max-width: 800px;
+  margin: 0 auto 16px auto;
   line-height: 1.5;
+  text-wrap: balance;
 }
 
 .hero-description {
   font-size: 1.05rem;
   color: var(--color-dark);
   line-height: 1.8;
-  margin: 0;
+  max-width: 800px;
+  margin: 0 auto;
+  text-wrap: balance;
 }
 
 .hero-description strong {
@@ -439,4 +439,16 @@ section {
     font-size: 0.75rem;
     padding: 7px 12px;
   }
+}
+
+.price sup {
+  font-size: 0.5em; /* Reducimos drásticamente su tamaño en proporción al número */
+  vertical-align: baseline; /* Lo anclamos a la línea base del texto, deja de volar */
+  margin-left: 2px;
+  font-family: var(
+    --font-body
+  ); /* Usar sans-serif (Jost) para que contraste mejor con el número serif */
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  opacity: 0.9; /* Un toque de transparencia para jerarquía visual */
 }

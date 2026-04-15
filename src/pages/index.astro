@@ -19,16 +19,27 @@ Al usar title="", le pasamos la variable al <head> de la página en cuestión
   <main>
     <!-- * <main>: Define el contenido principal y único de la página web dentro del <body> -->
     <!-- Sección Inicio / Hero -->
-    <section
-      id="inicio"
-      style="background:#ffffff;color:inherit;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:6rem 1.5rem;position:relative;min-height:400px;"
-    >
+    <section id="inicio" class="hero-section">
       <style>
         @import url("https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap");
+
+        .hero-section {
+          background: #ffffff; /* Fondo blanco forzado desde el componente */
+          color: inherit;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+          padding: 6rem 1.5rem;
+          position: relative;
+          min-height: 400px;
+        }
+
         .font-luxury {
           font-family: "Playfair Display", serif;
         }
-        /* Hero layout */
+
+        /* Hero layout general */
         .hero-row {
           display: flex;
           flex-direction: row;
@@ -41,40 +52,76 @@ Al usar title="", le pasamos la variable al <head> de la página en cuestión
           position: relative;
           z-index: 10;
         }
+
         .hero-text-group {
           flex: 1;
           display: flex;
           flex-direction: column;
           align-items: flex-start;
-          gap: 1rem;
+          gap: 1.5rem;
         }
+
+        /* Título Principal */
+        .main-title {
+          font-size: clamp(3.5rem, 7.5vw, 8.5rem);
+          font-weight: 900;
+          line-height: 1;
+          letter-spacing: -0.03em;
+          margin: 0;
+        }
+
+        /* Layout paralelo para los subtítulos */
+        .hero-inline-row {
+          display: flex;
+          flex-direction: row;
+          align-items: flex-start;
+          gap: clamp(1.5rem, 3vw, 3rem);
+          width: 100%;
+        }
+
+        .hero-subtext-box {
+          flex: 1; /* Ambos contenedores toman exactamente el 50% del espacio disponible */
+        }
+
+        /* Línea divisoria */
+        .hero-inline-row .hero-subtext-box:first-child {
+          border-right: 1px solid rgba(180, 140, 30, 0.25);
+          padding-right: clamp(1.5rem, 3vw, 3rem);
+        }
+
+        /* Clase unificada para igualar el estilo de h2 y p */
+        .hero-subtext {
+          color: #111;
+          font-size: clamp(
+            1rem,
+            1.5vw,
+            1.4rem
+          ); /* Ajustado para que no se vea gigante */
+          font-weight: 300;
+          font-style: italic;
+          line-height: 1.6;
+          margin: 0;
+        }
+
+        .hero-subtext strong {
+          font-weight: 700;
+          color: #000;
+        }
+
+        /* Configuración del Logo */
         .hero-logo-box {
           flex-shrink: 0;
           width: clamp(180px, 18vw, 320px);
           animation: float-slow 8s ease-in-out infinite;
         }
+
         .hero-logo-box img {
           width: 100%;
           height: auto;
           filter: drop-shadow(0 0 40px rgba(212, 175, 55, 0.35));
         }
-        /* Layout h2 + párrafo en paralelo (misma fila) */
-        .hero-inline-row {
-          display: flex;
-          flex-direction: row;
-          align-items: flex-start; /* Ambas columnas arrancan desde el mismo tope */
-          gap: clamp(1.5rem, 3vw, 3rem);
-          width: 100%;
-        }
-        /* El separador visual entre eslogan y descripción */
-        .hero-inline-row .title-reveal-wrapper:first-child {
-          flex-shrink: 0; /* El eslogan no se encoge */
-          border-right: 1px solid rgba(180, 140, 30, 0.25);
-          padding-right: clamp(1.5rem, 3vw, 3rem);
-        }
-        .hero-inline-row .title-reveal-wrapper:last-child {
-          flex: 1;
-        }
+
+        /* Responsive */
         @media (max-width: 768px) {
           .hero-row {
             flex-direction: column;
@@ -86,66 +133,59 @@ Al usar title="", le pasamos la variable al <head> de la página en cuestión
           }
           .hero-inline-row {
             flex-direction: column;
-            gap: 0.5rem;
+            gap: 1.5rem;
+          }
+          /* En móviles cambiamos la línea lateral por una inferior */
+          .hero-inline-row .hero-subtext-box:first-child {
+            border-right: none;
+            padding-right: 0;
+            border-bottom: 1px solid rgba(180, 140, 30, 0.25);
+            padding-bottom: 1.5rem;
           }
         }
       </style>
 
-      <!-- Layout principal: texto (título + subtítulo apilados) | logo derecha -->
       <div class="hero-row hidden-item">
-        <!-- Grupo de texto: h1 y h2 apilados verticalmente -->
         <div class="hero-text-group">
           <div class="title-reveal-wrapper">
             <h1
-              class="font-luxury text-gradient-gold title-reveal-text"
-              style="font-size: clamp(3.5rem, 7.5vw, 8.5rem); font-weight: 900; line-height: 1.0; letter-spacing: -0.03em;"
+              class="font-luxury main-title text-gradient-gold title-reveal-text"
             >
               Hotel Quinta Dalam
             </h1>
           </div>
-          <!-- h2 y descripción en paralelo (misma fila) -->
+
           <div class="hero-inline-row">
-            <!-- Eslogan: ancla vertical izquierda -->
             <div
-              class="title-reveal-wrapper"
-              style="transition-delay: 0.4s; flex-shrink: 0;"
+              class="title-reveal-wrapper hero-subtext-box"
+              style="transition-delay: 0.4s;"
             >
-              <h2
-                class="font-luxury title-reveal-text"
-                style="color: #111; font-size: clamp(1rem, 2vw, 1.75rem); font-weight: 300; font-style: italic; line-height: 1.4;"
-              >
+              <h2 class="font-luxury title-reveal-text hero-subtext">
                 Vive la magia de Michoacán en cada rincón.
               </h2>
             </div>
-            <!-- Párrafo: alineado verticalmente al tope del h2, misma fuente luxury -->
+
             <div
-              class="title-reveal-wrapper"
-              style="transition-delay: 0.7s; flex: 1;"
+              class="title-reveal-wrapper hero-subtext-box"
+              style="transition-delay: 0.7s;"
             >
-              <p
-                class="font-luxury title-reveal-text"
-                style="color: #4a4a4a; font-size: clamp(0.85rem, 1.4vw, 1rem); font-weight: 400; font-style: normal; line-height: 1.75; max-width: 560px;"
-              >
-                Bienvenido a <strong style="color: #111; font-weight: 700;"
-                  >Hotel Quinta Dalam</strong
-                >, un espacio diseñado para que vivas la experiencia de los
-                Pueblos Mágicos de Michoacán. Contamos con <strong
-                  style="color: #111;">15 habitaciones temáticas</strong
+              <p class="font-luxury title-reveal-text hero-subtext">
+                Bienvenido a <strong>Hotel Quinta Dalam</strong>, un espacio
+                diseñado para que vivas la experiencia de los Pueblos Mágicos de
+                Michoacán. Contamos con <strong
+                  >15 habitaciones temáticas</strong
                 > y todos los servicios para una estadía inolvidable.
               </p>
             </div>
           </div>
         </div>
 
-        <!-- Logo a la derecha -->
         <div class="hero-logo-box">
           <img src="/images/Hotel_icono.png" alt="Logo Hotel Quinta Dalam" />
         </div>
       </div>
     </section>
-    <br />
-    <br />
-    <br />
+
     <PanelReservation />
 
     <section id="video" class="hidden-item">
