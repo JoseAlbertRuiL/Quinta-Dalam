@@ -5,14 +5,10 @@ import Layout from "../layouts/Layout.astro";
 import PanelReservation from "../components/PanelReservation.astro";
 
 // ↓ Importamos el componente Image para optimizar imágenes pesadas
-import { Image, getImage } from "astro:assets";
+import { Image } from "astro:assets";
 import instalacionesImg from "../assets/images/Instalaciones.png";
 import habitacionImg from "../assets/images/habitacion.png";
 import serviciosImg from "../assets/images/servicios2.jpg";
-import indexImg from "../assets/images/imagenHero.png";
-
-// ↓ Le pedimos a Astro que genere una imagen optimizada
-const optimizedIndex = await getImage({ src: indexImg, format: "webp" });
 ---
 
 <!--
@@ -25,24 +21,126 @@ Al usar title="", le pasamos la variable al <head> de la página en cuestión
     <!-- Sección Inicio / Hero -->
     <section
       id="inicio"
-      style={`background-image: url(${optimizedIndex.src});`}
+      style="background:#ffffff;color:inherit;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:6rem 1.5rem;position:relative;min-height:400px;"
     >
-      <!-- ? <section>: Sirve para dividir semánticamente en partes diferentes los elementos HTML -->
-      <header>
-        <!--? <header>: Indica el título o titural de la sección -->
-        <h2>Vive la magia de Michoacán en cada rincón.</h2>
-        <!-- Eslogan o frase insignia -->
-      </header>
-      <div class="hidden">
-        <p>
-          Bienvenido a <strong>Hotel Quinta Dalam</strong>, un espacio diseñado
-          para que vivas la experiencia de los Pueblos Mágicos de Michoacán.
-        </p>
-        <p>
-          En <strong>Hotel Quinta Dalam</strong>
-          contamos con 15 habitaciones temáticas y todos los servicios para una estadía
-          inolvidable.
-        </p>
+      <style>
+        @import url("https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap");
+        .font-luxury {
+          font-family: "Playfair Display", serif;
+        }
+        /* Hero layout */
+        .hero-row {
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          justify-content: center;
+          gap: clamp(2rem, 5vw, 5rem);
+          width: 100%;
+          max-width: 1300px;
+          margin: 0 auto 2.5rem;
+          position: relative;
+          z-index: 10;
+        }
+        .hero-text-group {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 1rem;
+        }
+        .hero-logo-box {
+          flex-shrink: 0;
+          width: clamp(180px, 18vw, 320px);
+          animation: float-slow 8s ease-in-out infinite;
+        }
+        .hero-logo-box img {
+          width: 100%;
+          height: auto;
+          filter: drop-shadow(0 0 40px rgba(212, 175, 55, 0.35));
+        }
+        /* Layout h2 + párrafo en paralelo (misma fila) */
+        .hero-inline-row {
+          display: flex;
+          flex-direction: row;
+          align-items: flex-start; /* Ambas columnas arrancan desde el mismo tope */
+          gap: clamp(1.5rem, 3vw, 3rem);
+          width: 100%;
+        }
+        /* El separador visual entre eslogan y descripción */
+        .hero-inline-row .title-reveal-wrapper:first-child {
+          flex-shrink: 0; /* El eslogan no se encoge */
+          border-right: 1px solid rgba(180, 140, 30, 0.25);
+          padding-right: clamp(1.5rem, 3vw, 3rem);
+        }
+        .hero-inline-row .title-reveal-wrapper:last-child {
+          flex: 1;
+        }
+        @media (max-width: 768px) {
+          .hero-row {
+            flex-direction: column;
+            align-items: center;
+          }
+          .hero-text-group {
+            align-items: center;
+            text-align: center;
+          }
+          .hero-inline-row {
+            flex-direction: column;
+            gap: 0.5rem;
+          }
+        }
+      </style>
+
+      <!-- Layout principal: texto (título + subtítulo apilados) | logo derecha -->
+      <div class="hero-row hidden-item">
+        <!-- Grupo de texto: h1 y h2 apilados verticalmente -->
+        <div class="hero-text-group">
+          <div class="title-reveal-wrapper">
+            <h1
+              class="font-luxury text-gradient-gold title-reveal-text"
+              style="font-size: clamp(3.5rem, 7.5vw, 8.5rem); font-weight: 900; line-height: 1.0; letter-spacing: -0.03em;"
+            >
+              Hotel Quinta Dalam
+            </h1>
+          </div>
+          <!-- h2 y descripción en paralelo (misma fila) -->
+          <div class="hero-inline-row">
+            <!-- Eslogan: ancla vertical izquierda -->
+            <div
+              class="title-reveal-wrapper"
+              style="transition-delay: 0.4s; flex-shrink: 0;"
+            >
+              <h2
+                class="font-luxury title-reveal-text"
+                style="color: #111; font-size: clamp(1rem, 2vw, 1.75rem); font-weight: 300; font-style: italic; line-height: 1.4;"
+              >
+                Vive la magia de Michoacán en cada rincón.
+              </h2>
+            </div>
+            <!-- Párrafo: alineado verticalmente al tope del h2, misma fuente luxury -->
+            <div
+              class="title-reveal-wrapper"
+              style="transition-delay: 0.7s; flex: 1;"
+            >
+              <p
+                class="font-luxury title-reveal-text"
+                style="color: #4a4a4a; font-size: clamp(0.85rem, 1.4vw, 1rem); font-weight: 400; font-style: normal; line-height: 1.75; max-width: 560px;"
+              >
+                Bienvenido a <strong style="color: #111; font-weight: 700;"
+                  >Hotel Quinta Dalam</strong
+                >, un espacio diseñado para que vivas la experiencia de los
+                Pueblos Mágicos de Michoacán. Contamos con <strong
+                  style="color: #111;">15 habitaciones temáticas</strong
+                > y todos los servicios para una estadía inolvidable.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Logo a la derecha -->
+        <div class="hero-logo-box">
+          <img src="/images/Hotel_icono.png" alt="Logo Hotel Quinta Dalam" />
+        </div>
       </div>
     </section>
     <br />
