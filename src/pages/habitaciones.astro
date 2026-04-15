@@ -1,172 +1,324 @@
-    ---
-    // ↓ Importamos nuestra Plantilla Base
-    import Layout from "../layouts/Layout.astro";
-    // ↓ Importamos el componente Image para optimizar imágenes pesadas
-    import { Image } from "astro:assets";
-    import habitacionImg from "../assets/images/habitacion.png";
-    // ↓ Importamos los estilos de habitaciones
-    import "../styles/habitaciones.css";
+---
+// ↓ Importamos nuestra Plantilla Base
+import Layout from "../layouts/Layout.astro";
+// ↓ Importamos el componente Image para optimizar imágenes pesadas
+import { Image } from "astro:assets";
+import habitacionImg from "../assets/images/habitacion.png";
+// ↓ Importamos los estilos de habitaciones
+import "../styles/habitaciones.css";
 
-    // Imgagen url para el script
-    const roomImgUrl = habitacionImg.src;
+// Imgagen url para el script
+const roomImgUrl = habitacionImg.src;
 
-    // Datos de habitaciones (se usan en el carrusel)
-    const plantaBaja = [
-      { num: "101", nombre: "Tzintzunzan", precio: "$1,200", desc: "Antigua capital purépecha a orillas del Lago de Pátzcuaro, cuna de la artesanía michoacana.", img: roomImgUrl },
-      { num: "102", nombre: "Paracho", precio: "$1,100", desc: "El pueblo de los luthiers, famoso por sus guitarras artesanales.", img: roomImgUrl },
-      { num: "103", nombre: "Yunuen", precio: "$1,150", desc: "Isla purépecha en el Lago de Pátzcuaro.", img: roomImgUrl },
-      { num: "104", nombre: "Pátzcuaro", precio: "$1,300", desc: "Magia colonial y lacustre de este Pueblo Mágico.", img: roomImgUrl },
-      { num: "105", nombre: "Coeneo", precio: "$1,050", desc: "Paisaje lacustre y tradición agrícola.", img: roomImgUrl },
-      { num: "106", nombre: "Janitzio", precio: "$1,250", desc: "Isla símbolo de la Noche de Muertos.", img: roomImgUrl },
-    ];
+// Datos de habitaciones (se usan en el carrusel)
+const plantaBaja = [
+  {
+    num: "101",
+    nombre: "Tzintzunzan",
+    precio: "$1,200",
+    desc: "Antigua capital purépecha a orillas del Lago de Pátzcuaro, cuna de la artesanía michoacana.",
+    img: roomImgUrl,
+  },
+  {
+    num: "102",
+    nombre: "Paracho",
+    precio: "$1,100",
+    desc: "El pueblo de los luthiers, famoso por sus guitarras artesanales.",
+    img: roomImgUrl,
+  },
+  {
+    num: "103",
+    nombre: "Yunuen",
+    precio: "$1,150",
+    desc: "Isla purépecha en el Lago de Pátzcuaro.",
+    img: roomImgUrl,
+  },
+  {
+    num: "104",
+    nombre: "Pátzcuaro",
+    precio: "$1,300",
+    desc: "Magia colonial y lacustre de este Pueblo Mágico.",
+    img: roomImgUrl,
+  },
+  {
+    num: "105",
+    nombre: "Coeneo",
+    precio: "$1,050",
+    desc: "Paisaje lacustre y tradición agrícola.",
+    img: roomImgUrl,
+  },
+  {
+    num: "106",
+    nombre: "Janitzio",
+    precio: "$1,250",
+    desc: "Isla símbolo de la Noche de Muertos.",
+    img: roomImgUrl,
+  },
+];
 
-    const plantaAlta = [
-      { num: "201", nombre: "Suite Quencio", precio: "$1,500", desc: "La suite más amplia, vistas panorámicas y decoración premium.", img: roomImgUrl },
-      { num: "202", nombre: "Morelia", precio: "$1,400", desc: "Capital michoacana con centro histórico colonial.", img: roomImgUrl },
-      { num: "203", nombre: "Tacámbaro", precio: "$1,350", desc: "Esencia histórica entre montañas.", img: roomImgUrl },
-      { num: "204", nombre: "Uruapan", precio: "$1,450", desc: "La Ciudad de la Eterna Primavera.", img: roomImgUrl },
-      { num: "205", nombre: "Tlalpujahua", precio: "$1,200", desc: "Pueblo Mágico de las esferas navideñas artesanales.", img: roomImgUrl },
-      { num: "206", nombre: "Cuitzeo", precio: "$1,300", desc: "El lago y el convento agustino.", img: roomImgUrl },
-      { num: "207", nombre: "Cuanajo", precio: "$1,350", desc: "Capital de los muebles artesanales.", img: roomImgUrl },
-    ];
-    ---
+const plantaAlta = [
+  {
+    num: "201",
+    nombre: "Suite Quencio",
+    precio: "$1,500",
+    desc: "La suite más amplia, vistas panorámicas y decoración premium.",
+    img: roomImgUrl,
+  },
+  {
+    num: "202",
+    nombre: "Morelia",
+    precio: "$1,400",
+    desc: "Capital michoacana con centro histórico colonial.",
+    img: roomImgUrl,
+  },
+  {
+    num: "203",
+    nombre: "Tacámbaro",
+    precio: "$1,350",
+    desc: "Esencia histórica entre montañas.",
+    img: roomImgUrl,
+  },
+  {
+    num: "204",
+    nombre: "Uruapan",
+    precio: "$1,450",
+    desc: "La Ciudad de la Eterna Primavera.",
+    img: roomImgUrl,
+  },
+  {
+    num: "205",
+    nombre: "Tlalpujahua",
+    precio: "$1,200",
+    desc: "Pueblo Mágico de las esferas navideñas artesanales.",
+    img: roomImgUrl,
+  },
+  {
+    num: "206",
+    nombre: "Cuitzeo",
+    precio: "$1,300",
+    desc: "El lago y el convento agustino.",
+    img: roomImgUrl,
+  },
+  {
+    num: "207",
+    nombre: "Cuanajo",
+    precio: "$1,350",
+    desc: "Capital de los muebles artesanales.",
+    img: roomImgUrl,
+  },
+];
+---
 
-    <Layout title="Habitaciones | Hotel Quinta Dalam">
-      <main>
-      <!-- * <main>: Define el contenido principal y único de la página web dentro del <body> -->
-      <section class="hero-section">
-        <div class="hero-content">
+<Layout title="Habitaciones | Hotel Quinta Dalam">
+  <main>
+    <!-- * <main>: Define el contenido principal y único de la página web dentro del <body> -->
+    <section class="hero-section">
+      <div class="hero-content">
         <h1 class="hero-title">Habitaciones</h1>
         <p class="hero-subtitle">
-          ¿Estás listo para probar nuestras 15 experiencias únicas sobre Michoacán?
+          ¿Estás listo para probar nuestras 15 experiencias únicas sobre
+          Michoacán?
         </p>
         <p class="hero-description">
-          En Hotel Quinta Dalam, cada habitación es un refugio de relajación y comodidad,
-          pero sobre todo, de <strong>tradiciones, cultura y arte</strong>.
+          En Hotel Quinta Dalam, cada habitación es un refugio de relajación y
+          comodidad, pero sobre todo, de <strong
+            >tradiciones, cultura y arte</strong
+          >.
         </p>
-        </div>
-      </section>
+      </div>
+    </section>
 
-      <section id="lista-habitaciones">
-        <div class="tabs-wrap">
-        <div class="tabs" id="tabs" role="tablist" aria-label="Seleccionar planta">
-          <button class="tab-btn tab-btn--active" role="tab" aria-selected="true" data-floor="baja">Planta Baja</button>
-          <button class="tab-btn" role="tab" aria-selected="false" data-floor="alta">Planta Alta</button>
+    <section id="lista-habitaciones">
+      <div class="tabs-wrap">
+        <div
+          class="tabs"
+          id="tabs"
+          role="tablist"
+          aria-label="Seleccionar planta"
+        >
+          <button
+            class="tab-btn tab-btn--active"
+            role="tab"
+            aria-selected="true"
+            data-floor="baja">Planta Baja</button
+          >
+          <button
+            class="tab-btn"
+            role="tab"
+            aria-selected="false"
+            data-floor="alta">Planta Alta</button
+          >
         </div>
-        </div>
+      </div>
 
-        <section id="carousel-panel" class="carousel-wrap" role="region" aria-label="Galería de habitaciones">
+      <section
+        id="carousel-panel"
+        class="carousel-wrap"
+        role="region"
+        aria-label="Galería de habitaciones"
+      >
         <div class="carousel-row">
-          <button class="arrow-btn" id="btn-prev" aria-label="Anterior">&#8249;</button>
+          <button class="arrow-btn" id="btn-prev" aria-label="Anterior"
+            >&#8249;</button
+          >
 
           <div class="carousel-main" tabindex="0">
-          <div class="carousel-img-wrap">
-            <img id="room-img" src="" alt="Habitación" class="carousel-img" />
-            <div class="badge badge--num" id="badge-num">Hab. 101</div>
-            <div class="badge badge--floor" id="badge-floor">Planta Baja</div>
-          </div>
-
-          <div class="room-panel">
-            <div class="room-panel__left">
-            <h2 class="room-name serif" id="room-name">Nombre</h2>
-            <p class="room-desc" id="room-desc">Descripción breve de la habitación.</p>
+            <div class="carousel-img-wrap">
+              <img id="room-img" src="" alt="Habitación" class="carousel-img" />
+              <div class="badge badge--num" id="badge-num">Hab. 101</div>
+              <div class="badge badge--floor" id="badge-floor">Planta Baja</div>
             </div>
-            <div class="room-panel__right">
-            <p class="price-label">Por noche</p>
-            <p class="price serif" id="room-price">$0 <sup>MXN</sup></p>
+
+            <div class="room-panel">
+              <div class="room-panel__left">
+                <h2 class="room-name serif" id="room-name">Nombre</h2>
+                <p class="room-desc" id="room-desc">
+                  Descripción breve de la habitación.
+                </p>
+              </div>
+              <div class="room-panel__right">
+                <p class="price-label">Por noche</p>
+                <p class="price serif" id="room-price">$0 <sup>MXN</sup></p>
+              </div>
             </div>
+
+            <div class="dots" id="dots" aria-hidden="false"></div>
           </div>
 
-          <div class="dots" id="dots" aria-hidden="false"></div>
-          </div>
-
-          <button class="arrow-btn" id="btn-next" aria-label="Siguiente">&#8250;</button>
+          <button class="arrow-btn" id="btn-next" aria-label="Siguiente"
+            >&#8250;</button
+          >
         </div>
 
         <div class="thumbnails" id="thumbnails" aria-label="Miniaturas"></div>
-        </section>
       </section>
+    </section>
+  </main>
+  <script define:vars={{ plantaBaja, plantaAlta }}>
+    const floors = { baja: plantaBaja, alta: plantaAlta };
+    let floor = "baja";
+    let idx = 0;
 
-      </main>
-      <script define:vars={{ plantaBaja, plantaAlta }}>
-      const floors = { baja: plantaBaja, alta: plantaAlta };
-      let floor = 'baja';
-      let idx = 0;
+    const img = document.getElementById("room-img");
+    const badgeNum = document.getElementById("badge-num");
+    const badgeFloor = document.getElementById("badge-floor");
+    const nameEl = document.getElementById("room-name");
+    const descEl = document.getElementById("room-desc");
+    const priceEl = document.getElementById("room-price");
+    const dotsEl = document.getElementById("dots");
+    const thumbsEl = document.getElementById("thumbnails");
+    const btnPrev = document.getElementById("btn-prev");
+    const btnNext = document.getElementById("btn-next");
+    const tabs = document.getElementById("tabs");
 
-      const img = document.getElementById('room-img');
-      const badgeNum = document.getElementById('badge-num');
-      const badgeFloor = document.getElementById('badge-floor');
-      const nameEl = document.getElementById('room-name');
-      const descEl = document.getElementById('room-desc');
-      const priceEl = document.getElementById('room-price');
-      const dotsEl = document.getElementById('dots');
-      const thumbsEl = document.getElementById('thumbnails');
-      const btnPrev = document.getElementById('btn-prev');
-      const btnNext = document.getElementById('btn-next');
-      const tabs = document.getElementById('tabs');
+    function render(animate = true) {
+      const rooms = floors[floor];
+      const r = rooms[idx];
 
-      function render(animate = true) {
-        const rooms = floors[floor];
-        const r = rooms[idx];
-
-        if (animate) {
-        img.classList.add('fading');
-        setTimeout(() => { img.src = r.img; img.alt = r.nombre; img.classList.remove('fading'); }, 260);
-        } else {
-        img.src = r.img; img.alt = r.nombre;
-        }
-
-        badgeNum.textContent = `Hab. ${r.num}`;
-        badgeFloor.textContent = floor === 'baja' ? 'Planta Baja' : 'Planta Alta';
-        nameEl.textContent = r.nombre;
-        descEl.textContent = r.desc;
-        priceEl.innerHTML = `${r.precio} <sup>MXN</sup>`;
-
-        renderDots();
-        renderThumbs();
-        updateTabSelection();
+      if (animate) {
+        img.classList.add("fading");
+        setTimeout(() => {
+          img.src = r.img;
+          img.alt = r.nombre;
+          img.classList.remove("fading");
+        }, 260);
+      } else {
+        img.src = r.img;
+        img.alt = r.nombre;
       }
 
-      function renderDots() {
-        const rooms = floors[floor];
-        dotsEl.innerHTML = rooms.map((_, i) =>
-        `<button class="dot${i===idx? ' dot--active':''}" data-i="${i}" aria-label="Habitación ${i+1}"></button>`
-        ).join('');
-        dotsEl.querySelectorAll('.dot').forEach(btn => btn.addEventListener('click', () => { idx = +btn.dataset.i; render(); }));
-      }
+      badgeNum.textContent = `Hab. ${r.num}`;
+      badgeFloor.textContent = floor === "baja" ? "Planta Baja" : "Planta Alta";
+      nameEl.textContent = r.nombre;
+      descEl.textContent = r.desc;
+      priceEl.innerHTML = `${r.precio} <sup>MXN</sup>`;
 
-      function renderThumbs() {
-        const rooms = floors[floor];
-        thumbsEl.innerHTML = rooms.map((r,i) =>
-        `<button class="thumb${i===idx? ' thumb--active':''}" data-i="${i}" aria-label="${r.nombre}"><img src="${r.img}" alt="${r.nombre}" loading="lazy"/></button>`
-        ).join('');
-        thumbsEl.querySelectorAll('.thumb').forEach(btn => btn.addEventListener('click', () => { idx = +btn.dataset.i; render(); }));
-      }
+      renderDots();
+      renderThumbs();
+      updateTabSelection();
+    }
 
-      btnPrev.addEventListener('click', () => { idx = (idx -1 + floors[floor].length) % floors[floor].length; render(); });
-      btnNext.addEventListener('click', () => { idx = (idx +1) % floors[floor].length; render(); });
+    function renderDots() {
+      const rooms = floors[floor];
+      dotsEl.innerHTML = rooms
+        .map(
+          (_, i) =>
+            `<button class="dot${i === idx ? " dot--active" : ""}" data-i="${i}" aria-label="Habitación ${i + 1}"></button>`,
+        )
+        .join("");
+      dotsEl.querySelectorAll(".dot").forEach((btn) =>
+        btn.addEventListener("click", () => {
+          idx = +btn.dataset.i;
+          render();
+        }),
+      );
+    }
 
-      // Tabs
-      tabs.querySelectorAll('.tab-btn').forEach(btn => btn.addEventListener('click', (e) => {
+    function renderThumbs() {
+      const rooms = floors[floor];
+      thumbsEl.innerHTML = rooms
+        .map(
+          (r, i) =>
+            `<button class="thumb${i === idx ? " thumb--active" : ""}" data-i="${i}" aria-label="${r.nombre}"><img src="${r.img}" alt="${r.nombre}" loading="lazy"/></button>`,
+        )
+        .join("");
+      thumbsEl.querySelectorAll(".thumb").forEach((btn) =>
+        btn.addEventListener("click", () => {
+          idx = +btn.dataset.i;
+          render();
+        }),
+      );
+    }
+
+    btnPrev.addEventListener("click", () => {
+      idx = (idx - 1 + floors[floor].length) % floors[floor].length;
+      render();
+    });
+    btnNext.addEventListener("click", () => {
+      idx = (idx + 1) % floors[floor].length;
+      render();
+    });
+
+    // Tabs
+    tabs.querySelectorAll(".tab-btn").forEach((btn) =>
+      btn.addEventListener("click", (e) => {
         const f = btn.dataset.floor;
         if (f === floor) return;
-        floor = f; idx = 0; render();
-        tabs.querySelectorAll('.tab-btn').forEach(b => { b.classList.toggle('tab-btn--active', b === btn); b.setAttribute('aria-selected', b === btn); });
-      }));
+        floor = f;
+        idx = 0;
+        render();
+        tabs.querySelectorAll(".tab-btn").forEach((b) => {
+          b.classList.toggle("tab-btn--active", b === btn);
+          b.setAttribute("aria-selected", b === btn);
+        });
+      }),
+    );
 
-      function updateTabSelection() {
-        const btns = tabs.querySelectorAll('.tab-btn');
-        btns.forEach(b => b.setAttribute('aria-selected', b.dataset.floor === floor));
+    function updateTabSelection() {
+      const btns = tabs.querySelectorAll(".tab-btn");
+      btns.forEach((b) =>
+        b.setAttribute("aria-selected", b.dataset.floor === floor),
+      );
+    }
+
+    document.addEventListener("keydown", (e) => {
+      const activeEl = document.activeElement;
+      if (
+        activeEl &&
+        (activeEl.tagName === "INPUT" || activeEl.tagName === "TEXTAREA")
+      )
+        return;
+      if (e.key === "ArrowLeft") {
+        idx = (idx - 1 + floors[floor].length) % floors[floor].length;
+        render();
       }
+      if (e.key === "ArrowRight") {
+        idx = (idx + 1) % floors[floor].length;
+        render();
+      }
+    });
 
-      document.addEventListener('keydown', (e) => {
-        const activeEl = document.activeElement;
-        if (activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA')) return;
-        if (e.key === 'ArrowLeft') { idx = (idx -1 + floors[floor].length) % floors[floor].length; render(); }
-        if (e.key === 'ArrowRight') { idx = (idx +1) % floors[floor].length; render(); }
-      });
-
-      // Initial render
-      render(false);
-      </script>
-    </Layout>
+    // Initial render
+    render(false);
+  </script>
+</Layout>

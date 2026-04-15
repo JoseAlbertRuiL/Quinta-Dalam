@@ -1,4 +1,4 @@
-<section id="panel-reservacion" class="reservation-bar">
+<section id="panel-reservacion" class="reservation-bar hidden">
   <form method="get" action="/reservaciones" class="reservation-form">
     <div class="input-group">
       <label for="fecha-check-in">
@@ -151,22 +151,28 @@
 
 <script>
   function initPanelReservation() {
-    const checkInInput = document.getElementById("fecha-check-in") as HTMLInputElement;
-    const checkOutInput = document.getElementById("fecha-check-out") as HTMLInputElement;
-    const personasInput = document.getElementById("personas") as HTMLSelectElement;
+    const checkInInput = document.getElementById(
+      "fecha-check-in",
+    ) as HTMLInputElement;
+    const checkOutInput = document.getElementById(
+      "fecha-check-out",
+    ) as HTMLInputElement;
+    const personasInput = document.getElementById(
+      "personas",
+    ) as HTMLSelectElement;
 
     if (!checkInInput || !checkOutInput) return;
 
     // Función para obtener fecha en formato YYYY-MM-DD local
     const getFormattedDate = (date: Date) => {
       const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, '0');
-      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const day = String(date.getDate()).padStart(2, "0");
       return `${year}-${month}-${day}`;
     };
 
     const todayStr = getFormattedDate(new Date());
-    
+
     // Restringir fechas pasadas (no puede ser menor a hoy)
     checkInInput.min = todayStr;
     checkOutInput.min = todayStr;
@@ -174,22 +180,22 @@
     // Actualizar fecha mínima de salida (check-out)
     function updateCheckOutMin() {
       if (!checkInInput.value) return;
-      
+
       // 'T00:00:00' para evitar desfases de zona horaria
       const checkInDate = new Date(checkInInput.value + "T00:00:00");
       if (!isNaN(checkInDate.getTime())) {
-          // Check-out debe ser al menos 1 día después del check-in
-          const nextDay = new Date(checkInDate);
-          nextDay.setDate(nextDay.getDate() + 1);
-          const minCheckOut = getFormattedDate(nextDay);
-          
-          checkOutInput.min = minCheckOut;
-          
-          // Si el check-out actual es inválido (antes del check-in o igual), actualizarlo
-          if (checkOutInput.value && checkOutInput.value <= checkInInput.value) {
-              checkOutInput.value = minCheckOut;
-              saveData();
-          }
+        // Check-out debe ser al menos 1 día después del check-in
+        const nextDay = new Date(checkInDate);
+        nextDay.setDate(nextDay.getDate() + 1);
+        const minCheckOut = getFormattedDate(nextDay);
+
+        checkOutInput.min = minCheckOut;
+
+        // Si el check-out actual es inválido (antes del check-in o igual), actualizarlo
+        if (checkOutInput.value && checkOutInput.value <= checkInInput.value) {
+          checkOutInput.value = minCheckOut;
+          saveData();
+        }
       }
     }
 
@@ -211,7 +217,7 @@
       if (savedCheckIn) checkInInput.value = savedCheckIn;
       if (savedCheckOut) checkOutInput.value = savedCheckOut;
       if (personasInput && savedPersonas) personasInput.value = savedPersonas;
-      
+
       updateCheckOutMin();
     }
 

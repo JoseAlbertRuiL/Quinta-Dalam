@@ -24,19 +24,118 @@
 .js-enabled .reveal > * {
   opacity: 1;
   transform: translateY(0);
+  filter: blur(0);
 }
 
 /* ? ↓ Los hijos dentro de la sección 'hidden' van apareciendo poco a poco */
-.reveal > *:nth-child(1) { transition-delay: 0.1s; }
-.reveal > *:nth-child(2) { transition-delay: 0.2s; }
-.reveal > *:nth-child(3) { transition-delay: 0.3s; }
-.reveal > *:nth-child(4) { transition-delay: 0.4s; }
-.reveal > *:nth-child(5) { transition-delay: 0.5s; }
-.reveal > *:nth-child(6) { transition-delay: 0.6s; }
-.reveal > *:nth-child(7) { transition-delay: 0.7s; }
-.reveal > *:nth-child(8) { transition-delay: 0.8s; }
-.reveal > *:nth-child(9) { transition-delay: 0.9s; }
-.reveal > *:nth-child(10) { transition-delay: 1s; }
+.reveal > *:nth-child(1) {
+  transition-delay: 0.1s;
+}
+.reveal > *:nth-child(2) {
+  transition-delay: 0.2s;
+}
+.reveal > *:nth-child(3) {
+  transition-delay: 0.3s;
+}
+.reveal > *:nth-child(4) {
+  transition-delay: 0.4s;
+}
+.reveal > *:nth-child(5) {
+  transition-delay: 0.5s;
+}
+.reveal > *:nth-child(6) {
+  transition-delay: 0.6s;
+}
+.reveal > *:nth-child(7) {
+  transition-delay: 0.7s;
+}
+.reveal > *:nth-child(8) {
+  transition-delay: 0.8s;
+}
+.reveal > *:nth-child(9) {
+  transition-delay: 0.9s;
+}
+.reveal > *:nth-child(10) {
+  transition-delay: 1s;
+}
+
+/* ─── Premium Text Animations & Effects ─── */
+.title-reveal-wrapper {
+  overflow: hidden;
+  display: inline-block;
+  vertical-align: top;
+}
+
+.title-reveal-text {
+  display: inline-block;
+  transform: translateY(110%);
+  opacity: 0;
+  transition:
+    transform 1.2s cubic-bezier(0.85, 0, 0.15, 1),
+    opacity 1.2s ease;
+}
+
+.reveal .title-reveal-text {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.delay-\\[400ms\\] .title-reveal-text {
+  transition-delay: 0.4s;
+}
+
+/* ─── Animación de Texto Camaleón Premium ─── */
+.text-gradient-gold {
+  /* Usamos un gradiente complejo con múltiples tonos sofisticados fluyendo */
+  background-image: linear-gradient(
+    to right,
+    #aa7c11 0%,
+    /* Dorado base */ #cc9933 15%,
+    /* Dorado más claro */ var(--color-accent) 30%,
+    /* Tu accent cobrizo */ #d4a574 45%,
+    /* Tono arena/bronce suave */ #aa7c11 60%,
+    /* Vuelta al dorado base */ var(--color-accent) 75%,
+    #cc9933 90%,
+    #aa7c11 100%
+  );
+
+  /* Hacemos el fondo MUY grande para que el flujo sea suave y complejo */
+  background-size: 400% auto;
+  color: transparent;
+  -webkit-background-clip: text;
+  background-clip: text;
+
+  /* Animación infinita, lineal y lenta para máxima elegancia (12s) */
+  animation: cameleonFlow 15s linear infinite;
+
+  /* Mejora de renderizado */
+  -webkit-print-color-adjust: exact;
+}
+
+@keyframes cameleonFlow {
+  0% {
+    background-position: 0% center;
+  }
+  100% {
+    background-position: 400% center; /* Debe coincidir con background-size */
+  }
+}
+
+@keyframes float-slow {
+  0% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-15px) rotate(2deg);
+  }
+  100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+}
+
+.animate-float-slow {
+  animation: float-slow 8s ease-in-out infinite;
+}
 
 a {
   position: relative;

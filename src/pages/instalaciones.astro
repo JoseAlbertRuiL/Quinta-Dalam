@@ -1,4 +1,5 @@
 ---
+// ↓ Importamos nuestra Plantilla Base
 import Layout from "../layouts/Layout.astro";
 ---
 
@@ -19,7 +20,6 @@ import Layout from "../layouts/Layout.astro";
       <div class="carousel-wrapper">
         <div class="carousel-track-container">
           <div class="carousel-track" id="carouselTrack">
-
             <div class="carousel-slide">
               <img src="/images/sala.png" alt="Sala principal" />
               <div class="carousel-caption">
@@ -28,31 +28,34 @@ import Layout from "../layouts/Layout.astro";
             </div>
 
             <div class="carousel-slide">
-              <img src="/images/instalaciones2.jpeg" alt="Instalaciones" />
+              <img src="/images/mesas-instalaciones.jpeg" alt="Instalaciones" />
               <div class="carousel-caption">
                 <h3>Instalaciones</h3>
               </div>
             </div>
 
             <div class="carousel-slide">
-              <img src="/images/instalciones3.jpeg" alt="Instalaciones" />
+              <img src="/images/areas-comunes.jpeg" alt="Instalaciones" />
               <div class="carousel-caption">
                 <h3>Áreas Comunes</h3>
               </div>
             </div>
 
             <div class="carousel-slide">
-              <img src="/images/instalaciones4.jpeg" alt="Instalaciones" />
+              <img src="/images/esp-descanso.jpeg" alt="Instalaciones" />
               <div class="carousel-caption">
                 <h3>Espacios de Descanso</h3>
               </div>
             </div>
-
           </div>
         </div>
 
-        <button class="carousel-btn prev" id="prevBtn" aria-label="Anterior">&#8592;</button>
-        <button class="carousel-btn next" id="nextBtn" aria-label="Siguiente">&#8594;</button>
+        <button class="carousel-btn prev" id="prevBtn" aria-label="Anterior"
+          >&#8592;</button
+        >
+        <button class="carousel-btn next" id="nextBtn" aria-label="Siguiente"
+          >&#8594;</button
+        >
 
         <div class="carousel-dots" id="carouselDots"></div>
       </div>
@@ -80,9 +83,9 @@ import Layout from "../layouts/Layout.astro";
   function goTo(index: number) {
     current = (index + total) % total;
     track.style.transform = `translateX(-${current * 100}%)`;
-    dotsContainer.querySelectorAll(".carousel-dot").forEach((d, i) =>
-      d.classList.toggle("active", i === current)
-    );
+    dotsContainer
+      .querySelectorAll(".carousel-dot")
+      .forEach((d, i) => d.classList.toggle("active", i === current));
   }
 
   function startAuto() {
@@ -106,7 +109,9 @@ import Layout from "../layouts/Layout.astro";
 
   // Swipe en móvil
   let startX = 0;
-  track.addEventListener("touchstart", (e) => { startX = e.touches[0].clientX; });
+  track.addEventListener("touchstart", (e) => {
+    startX = e.touches[0].clientX;
+  });
   track.addEventListener("touchend", (e) => {
     const diff = startX - e.changedTouches[0].clientX;
     if (Math.abs(diff) > 40) {
@@ -125,7 +130,7 @@ import Layout from "../layouts/Layout.astro";
         }
       });
     },
-    { threshold: 0.1 }
+    { threshold: 0.1 },
   );
   const section = document.getElementById("carouselSection");
   if (section) observer.observe(section);
