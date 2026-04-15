@@ -15,7 +15,15 @@ function getSupabaseClient() {
 
 function getAdminClient() {
   const url = import.meta.env.PUBLIC_SUPABASE_URL;
-  const key = import.meta.env.SUPABASE_SERVICE_ROLE_KEY ?? import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
+  const key = import.meta.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  if (!url || !key) {
+    throw new Error(
+      '[Middleware] SUPABASE_SERVICE_ROLE_KEY es obligatoria para validación de roles. ' +
+      'Verifica tu archivo .env — NUNCA se debe hacer fallback a la clave anónima.'
+    );
+  }
+
   return createClient<Database>(url, key);
 }
 

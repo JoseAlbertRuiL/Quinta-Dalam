@@ -32,7 +32,7 @@ CREATE TABLE IF NOT EXISTS roles_usuario (
 -- ────────────────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS habitaciones (
   id          BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-  nombre      TEXT   NOT NULL,
+  nombre      TEXT   UNIQUE NOT NULL,          -- UNIQUE: previene duplicados al re-ejecutar el schema
   tipo        TEXT   NOT NULL,              -- ej: "Suite", "Estándar", "Doble"
   precio      NUMERIC(10, 2) NOT NULL,      -- precio por noche en MXN
   disponible  BOOLEAN NOT NULL DEFAULT TRUE
@@ -47,7 +47,7 @@ CREATE TABLE IF NOT EXISTS reservas (
   nombre_cliente  TEXT        NOT NULL,
   correo          TEXT        NOT NULL,
   telefono        TEXT,                     -- nullable: el campo es opcional
-  habitacion      TEXT        NOT NULL,     -- ej: "101: Tzintzunzan"
+  habitacion      TEXT        NOT NULL,     -- ATÓMICO: debe coincidir exactamente con habitaciones.nombre (ej: "101: Tzintzunzan")
   fecha_entrada   DATE        NOT NULL,
   fecha_salida    DATE        NOT NULL,
   personas        INTEGER     CHECK (personas >= 1 AND personas <= 20),

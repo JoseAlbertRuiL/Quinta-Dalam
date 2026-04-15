@@ -1,0 +1,64 @@
+/* ! Hoja de estilos para Animaciones & Transiciones */
+
+/* ? ↓ Clase para ocultar elementos enteros (sin importar sus hijos) */
+.js-enabled .hidden-item {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ? ↓ Al revelar, reaparece el elemento individual a su estado normal */
+.js-enabled .hidden-item.reveal {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ? ↓ Clase para ocultar los hijos (efecto cascada o staggering) */
+.js-enabled .hidden > * {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ? ↓ Clase para revelar o que aparezcan los hijos en cascada */
+.js-enabled .reveal > * {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ? ↓ Los hijos dentro de la sección 'hidden' van apareciendo poco a poco */
+.reveal > *:nth-child(1) { transition-delay: 0.1s; }
+.reveal > *:nth-child(2) { transition-delay: 0.2s; }
+.reveal > *:nth-child(3) { transition-delay: 0.3s; }
+.reveal > *:nth-child(4) { transition-delay: 0.4s; }
+.reveal > *:nth-child(5) { transition-delay: 0.5s; }
+.reveal > *:nth-child(6) { transition-delay: 0.6s; }
+.reveal > *:nth-child(7) { transition-delay: 0.7s; }
+.reveal > *:nth-child(8) { transition-delay: 0.8s; }
+.reveal > *:nth-child(9) { transition-delay: 0.9s; }
+.reveal > *:nth-child(10) { transition-delay: 1s; }
+
+a {
+  position: relative;
+  /* ? Mantenemos el color definido en styles.css */
+}
+
+a::after {
+  content: "";
+  position: absolute;
+  left: 5%; /* Empieza con un pequeño margen interno para no tocar el borde */
+  bottom: -4px; /* Un pelín más abajo para que "respire" más el icono */
+  width: 90%; /* No llega al 100% para no cruzar toda el área con el icono */
+  height: 2px;
+  background-color: currentColor;
+  transform: scaleX(0); /* Lo achicoteamos al 0% en escala */
+  transform-origin: center; /* Para que cuando crezca, lo haga desde el puro centro, modo premium */
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 2px; /* Un redondeo sutil de las puntas */
+}
+
+a:hover::after {
+  transform: scaleX(
+    1
+  ); /* Regresa a su 100% (del 90% definido arriba) en hover */
+}
