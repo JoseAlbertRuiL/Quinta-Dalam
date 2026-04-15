@@ -187,21 +187,21 @@ const personas = Astro.url.searchParams.get("personas") ?? "";
               </option>
               <optgroup label="Planta Baja (Serie 100)">
                 <!-- ? Mediante label podemos agregar un título al grupo, el cual el usuario podrá ver y facilitar más su UX -->
-                <option value="101">101: Tzintzunzan</option>
-                <option value="102">102: Paracho</option>
-                <option value="103">103: Yunuen</option>
-                <option value="104">104: Patzcuaro</option>
-                <option value="105">105: Coeneo</option>
-                <option value="106">106: Janitzio</option>
+                <option value="101: Tzintzunzan">101: Tzintzunzan</option>
+                <option value="102: Paracho">102: Paracho</option>
+                <option value="103: Yunuen">103: Yunuen</option>
+                <option value="104: Patzcuaro">104: Patzcuaro</option>
+                <option value="105: Coeneo">105: Coeneo</option>
+                <option value="106: Janitzio">106: Janitzio</option>
               </optgroup>
               <optgroup label="Planta Alta (Serie 200)">
-                <option value="201">201: Suite Quencio</option>
-                <option value="202">202: Morelia</option>
-                <option value="203">203: Tacambaro</option>
-                <option value="204">204: Uruapan</option>
-                <option value="205">205: Tlalpujahua</option>
-                <option value="206">206: Cuitzeo</option>
-                <option value="207">207: Cuanajo</option>
+                <option value="201: Suite Quencio">201: Suite Quencio</option>
+                <option value="202: Morelia">202: Morelia</option>
+                <option value="203: Tacambaro">203: Tacambaro</option>
+                <option value="204: Uruapan">204: Uruapan</option>
+                <option value="205: Tlalpujahua">205: Tlalpujahua</option>
+                <option value="206: Cuitzeo">206: Cuitzeo</option>
+                <option value="207: Cuanajo">207: Cuanajo</option>
               </optgroup>
             </select>
           </div>
@@ -415,7 +415,7 @@ const personas = Astro.url.searchParams.get("personas") ?? "";
             fechaLlegada: checkInInput.value,
             fechaSalida: checkOutInput.value,
             numeroPersonas: personasInput.value,
-            roomPreference: roomText,
+            roomPreference: roomPreferenceInput.value, // Capturamos el value atómico
           };
 
           // ↓ Guardamos los datos de reservación para que PagosForm los lea

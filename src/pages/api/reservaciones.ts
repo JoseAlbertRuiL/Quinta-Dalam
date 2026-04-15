@@ -8,13 +8,22 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from '../../lib/database.types';
 
+/**
+ * Crea un cliente Supabase con privilegios de administrador (service_role).
+ * NUNCA hace fallback a la clave anónima — si falta, explota ruidosamente.
+ */
 function getAdminClient() {
   const url = import.meta.env.PUBLIC_SUPABASE_URL;
-  const key = import.meta.env.SUPABASE_SERVICE_ROLE_KEY
-    ?? import.meta.env.PUBLIC_SUPABASE_ANON_KEY; 
+  const key = import.meta.env.SUPABASE_SERVICE_ROLE_KEY;
 
-  if (!url || !key) {
-    throw new Error('[API] Faltan credenciales de Supabase en las variables de entorno.');
+  if (!url) {
+    throw new Error('[API] Falta PUBLIC_SUPABASE_URL en las variables de entorno.');
+  }
+  if (!key) {
+    throw new Error(
+      '[API] Falta SUPABASE_SERVICE_ROLE_KEY en las variables de entorno. ' +
+      'Este endpoint requiere la clave de servicio — NUNCA uses la clave anónima aquí.'
+    );
   }
 
   return createClient<Database>(url, key);
@@ -51,7 +60,7 @@ async function verificarDisponibilidad(supabase: ReturnType<typeof getAdminClien
 
   if (error) {
     console.error("Error BD verificando:", error.message);
-    throw new Error("Service Unavailable"); // Menos verbosidad como fue requerido en SECURITY.md
+    throw new Error("Service Unavailable");
   }
 
   return {
@@ -60,14 +69,22 @@ async function verificarDisponibilidad(supabase: ReturnType<typeof getAdminClien
   };
 }
 
-export const POST = async ({ request }: { request: Request }) => {
-  // CORS Dinámico para entornos mixtos recomendando variable local de .env si existe.
-  const allowOrigin = import.meta.env.PUBLIC_SITE_URL || '*'; // En producción, define PUBLIC_SITE_URL.
-  
-  const headers = {
+/**
+ * Genera headers de respuesta seguros.
+ * CORS: usa PUBLIC_SITE_URL si existe, sino fallback a localhost:4321 (dev).
+ * NUNCA usa wildcard '*' — eso permitiría requests desde cualquier dominio.
+ */
+function getResponseHeaders(): Record<string, string> {
+  const allowOrigin = import.meta.env.PUBLIC_SITE_URL || 'http://localhost:4321';
+  return {
     'Content-Type': 'application/json',
     'Access-Control-Allow-Origin': allowOrigin,
+    'X-Content-Type-Options': 'nosniff',
   };
+}
+
+export const POST = async ({ request }: { request: Request }) => {
+  const headers = getResponseHeaders();
 
   let body: any;
   try {
@@ -111,6 +128,7 @@ export const POST = async ({ request }: { request: Request }) => {
   try {
     supabaseAdmin = getAdminClient();
   } catch (err) {
+    console.error('[API reservaciones] Error de configuración:', (err as Error).message);
     return new Response(
       JSON.stringify({ ok: false, error: 'Error de configuración del servidor.' }),
       { status: 500, headers }
@@ -128,7 +146,6 @@ export const POST = async ({ request }: { request: Request }) => {
   }
 
   if (!disponibilidad.disponible && disponibilidad.conflicto) {
-    const c = disponibilidad.conflicto;
     return new Response(
       JSON.stringify({
         ok: false,
@@ -154,6 +171,7 @@ export const POST = async ({ request }: { request: Request }) => {
     .single();
 
   if (insertError) {
+    console.error('[API reservaciones] Error al insertar:', insertError.message);
     return new Response(
       JSON.stringify({ ok: false, error: 'No se pudo guardar la reservación. Intenta nuevamente.' }),
       { status: 500, headers }
@@ -171,7 +189,7 @@ export const POST = async ({ request }: { request: Request }) => {
 };
 
 export const OPTIONS = async () => {
-  const allowOrigin = import.meta.env.PUBLIC_SITE_URL || '*';
+  const allowOrigin = import.meta.env.PUBLIC_SITE_URL || 'http://localhost:4321';
   return new Response(null, {
     status: 204,
     headers: {

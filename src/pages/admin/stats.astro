@@ -3,26 +3,153 @@
 import LayoutAdmin from "../../layouts/LayoutAdmin.astro";
 // ↓ Importamos el componente de navegación reutilizable del panel
 import NavAdmin from "../../components/NavAdmin.astro";
-import { supabase } from "../../lib/supabase";
+import { createClient } from "@supabase/supabase-js";
+import type { Database } from "../../lib/database.types";
 
 // LA AUTENTICACIÓN AHORA LA MANEJA src/middleware.ts
 
-// CÁLCULOS FINANCIEROS (Simulación + Datos BD)
-// En un caso real agruparías por fecha con sentencias SQL, aquí lo procesamos en JS para el demo
-const { data: reservas } = await supabase.from("reservas").select("*");
+// ─── Cliente Admin SSR ─────────────────────────────────────────────────
+const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL;
+const supabaseKey = import.meta.env.SUPABASE_SERVICE_ROLE_KEY;
+if (!supabaseUrl || !supabaseKey) {
+  throw new Error("[stats] Faltan credenciales de servicio en .env");
+}
+const supabaseAdmin = createClient<Database>(supabaseUrl, supabaseKey);
 
-// Calculamos un estimado de ingresos Brutos del mes en base a reservas (Mock up adaptativo)
-const ingresoBruto = 145800.0; // Valor de ejemplo para la demo financiera
+// ─── Datos reales de BD ────────────────────────────────────────────────
+const { data: reservas } = await supabaseAdmin.from("reservas").select("*");
+const { data: habitaciones } = await supabaseAdmin
+  .from("habitaciones")
+  .select("*");
+
+const hoy = new Date();
+hoy.setHours(0, 0, 0, 0);
+
+// ─── Matching atómico: reservas.habitacion === habitaciones.nombre ────
+
+// ─── Cálculos por mes (últimos 6 meses) ────────────────────────────────
+function calcularIngresosMes(año: number, mes: number): number {
+  const primerDia = new Date(año, mes, 1);
+  const ultimoDia = new Date(año, mes + 1, 0);
+
+  const reservasMes =
+    reservas?.filter((r) => {
+      const entrada = new Date(r.fecha_entrada + "T00:00:00");
+      const salida = new Date(r.fecha_salida + "T00:00:00");
+      return entrada <= ultimoDia && salida >= primerDia;
+    }) || [];
+
+  return reservasMes.reduce((acc, curr) => {
+    const hab = habitaciones?.find((h) => h.nombre === curr.habitacion);
+    if (!hab) return acc;
+    const inicioEfectivo = new Date(
+      Math.max(
+        new Date(curr.fecha_entrada + "T00:00:00").getTime(),
+        primerDia.getTime(),
+      ),
+    );
+    const finEfectivo = new Date(
+      Math.min(
+        new Date(curr.fecha_salida + "T00:00:00").getTime(),
+        ultimoDia.getTime(),
+      ),
+    );
+    const noches = Math.max(
+      0,
+      Math.ceil((finEfectivo.getTime() - inicioEfectivo.getTime()) / 86400000),
+    );
+    return acc + Number(hab.precio) * noches;
+  }, 0);
+}
+
+// Generar datos de los últimos 6 meses
+const mesesData: { label: string; ingreso: number }[] = [];
+for (let i = 5; i >= 0; i--) {
+  const fecha = new Date(hoy.getFullYear(), hoy.getMonth() - i, 1);
+  const label = fecha
+    .toLocaleDateString("es-MX", { month: "short" })
+    .replace(".", "");
+  const ingreso = calcularIngresosMes(fecha.getFullYear(), fecha.getMonth());
+  mesesData.push({
+    label: label.charAt(0).toUpperCase() + label.slice(1),
+    ingreso,
+  });
+}
+
+// ─── KPIs del mes actual ───────────────────────────────────────────────
+const ingresoBruto = mesesData[5].ingreso; // Mes actual = último en el array
 const iva = ingresoBruto * 0.16; // 16% IVA Mexicano
 const ingresoNeto = ingresoBruto - iva;
 
-const gastosOperativos = 25000.0;
+// Gastos operativos: estimación basada en el total de personal (mock para nómina)
+// TODO: migrar a tabla `gastos` en Supabase para no tener datos quemados en código
+const gastosOperativos = 37500;
 const gananciaReal = ingresoNeto - gastosOperativos;
+
+// ─── Distribución por tipo de habitación ───────────────────────────────
+const primerDiaMesActual = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+const ultimoDiaMesActual = new Date(hoy.getFullYear(), hoy.getMonth() + 1, 0);
+
+const reservasMesActual =
+  reservas?.filter((r) => {
+    const entrada = new Date(r.fecha_entrada + "T00:00:00");
+    const salida = new Date(r.fecha_salida + "T00:00:00");
+    return entrada <= ultimoDiaMesActual && salida >= primerDiaMesActual;
+  }) || [];
+
+// Agrupar ingresos por tipo de habitación
+const ingresosPorTipo: Record<string, number> = {};
+reservasMesActual.forEach((r) => {
+  const hab = habitaciones?.find((h) => h.nombre === r.habitacion);
+  if (!hab) return;
+  const tipo = hab.tipo || "Otro";
+  const inicioEfectivo = new Date(
+    Math.max(
+      new Date(r.fecha_entrada + "T00:00:00").getTime(),
+      primerDiaMesActual.getTime(),
+    ),
+  );
+  const finEfectivo = new Date(
+    Math.min(
+      new Date(r.fecha_salida + "T00:00:00").getTime(),
+      ultimoDiaMesActual.getTime(),
+    ),
+  );
+  const noches = Math.max(
+    0,
+    Math.ceil((finEfectivo.getTime() - inicioEfectivo.getTime()) / 86400000),
+  );
+  ingresosPorTipo[tipo] =
+    (ingresosPorTipo[tipo] || 0) + Number(hab.precio) * noches;
+});
+
+// Preparar datos para la gráfica de pastel
+const tiposLabels =
+  Object.keys(ingresosPorTipo).length > 0
+    ? Object.keys(ingresosPorTipo)
+    : ["Sin datos"];
+const tiposValores =
+  Object.values(ingresosPorTipo).length > 0
+    ? Object.values(ingresosPorTipo)
+    : [1];
+
+// Serializar datos para el script del cliente
+const chartLabels = JSON.stringify(mesesData.map((m) => m.label));
+const chartValues = JSON.stringify(mesesData.map((m) => m.ingreso));
+const pieLabels = JSON.stringify(tiposLabels);
+const pieValues = JSON.stringify(tiposValores);
+const totalReservasMes = reservasMesActual.length;
+const nombreMes = hoy.toLocaleDateString("es-MX", {
+  month: "long",
+  year: "numeric",
+});
 ---
 
 <LayoutAdmin title="Admin | Estadísticas" favicon="/images/stats-icono.png">
   <header class="py-10 px-4 text-center">
-    <h1 class="text-3xl font-bold text-white flex items-center justify-center gap-3">
+    <h1
+      class="text-3xl font-bold text-white flex items-center justify-center gap-3"
+    >
       <i class="fa-solid fa-gears text-blue-500" aria-hidden="true"></i>
       Panel de Administración
     </h1>
@@ -35,16 +162,29 @@ const gananciaReal = ingresoNeto - gastosOperativos;
 
       <!-- ! Columna 2: Contenido Principal -->
       <div class="flex-1">
-        <main class="bg-[#141414] p-6 lg:p-8 rounded-xl border border-neutral-800/50 shadow-lg">
-          <h2 class="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+        <main
+          class="bg-[#141414] p-6 lg:p-8 rounded-xl border border-neutral-800/50 shadow-lg"
+        >
+          <h2
+            class="text-2xl font-bold text-white mb-2 flex items-center gap-3"
+          >
             <i class="fa-solid fa-chart-column text-blue-500"></i> Reporte Financiero
             y Estadísticas
           </h2>
+          <p class="text-neutral-500 text-sm mb-6">
+            Datos calculados en tiempo real desde la base de datos — <span
+              class="text-neutral-400 capitalize font-medium">{nombreMes}</span
+            > · {totalReservasMes} reserva(s)
+          </p>
 
           <!-- KPIs Financieros -->
-          <div class="flex flex-wrap justify-between gap-4 p-6 bg-[#0a0a0a] rounded-xl border border-neutral-800 mb-8">
+          <div
+            class="flex flex-wrap justify-between gap-4 p-6 bg-[#0a0a0a] rounded-xl border border-neutral-800 mb-8"
+          >
             <div class="flex-1 text-center min-w-[150px]">
-              <p class="text-xs uppercase tracking-widest text-neutral-400 mb-1 font-semibold">
+              <p
+                class="text-xs uppercase tracking-widest text-neutral-400 mb-1 font-semibold"
+              >
                 Ingreso Bruto (Mensual)
               </p>
               <p class="text-3xl font-bold text-white">
@@ -52,19 +192,31 @@ const gananciaReal = ingresoNeto - gastosOperativos;
               </p>
             </div>
             <div class="flex-1 text-center min-w-[150px]">
-              <p class="text-xs uppercase tracking-widest text-red-500 mb-1 font-semibold">Impuestos (IVA 16%)</p>
+              <p
+                class="text-xs uppercase tracking-widest text-red-500 mb-1 font-semibold"
+              >
+                Impuestos (IVA 16%)
+              </p>
               <p class="text-3xl font-bold text-red-500">
                 -${iva.toLocaleString("es-MX")} MXN
               </p>
             </div>
             <div class="flex-1 text-center min-w-[150px]">
-              <p class="text-xs uppercase tracking-widest text-green-500 mb-1 font-semibold">Ingreso Neto</p>
+              <p
+                class="text-xs uppercase tracking-widest text-green-500 mb-1 font-semibold"
+              >
+                Ingreso Neto
+              </p>
               <p class="text-3xl font-bold text-green-500">
                 ${ingresoNeto.toLocaleString("es-MX")} MXN
               </p>
             </div>
             <div class="flex-1 text-center min-w-[150px]">
-              <p class="text-xs uppercase tracking-widest text-blue-400 mb-1 font-semibold">Ganancia Real Estimada</p>
+              <p
+                class="text-xs uppercase tracking-widest text-blue-400 mb-1 font-semibold"
+              >
+                Ganancia Real Estimada
+              </p>
               <p class="text-3xl font-bold text-blue-400">
                 ${gananciaReal.toLocaleString("es-MX")} MXN
               </p>
@@ -74,7 +226,9 @@ const gananciaReal = ingresoNeto - gastosOperativos;
           <!-- Gráficas -->
           <div class="flex flex-col xl:flex-row gap-6 mb-8">
             <div class="flex-1 xl:w-7/12">
-              <div class="bg-[#0a0a0a] p-6 rounded-xl border border-neutral-800 h-full">
+              <div
+                class="bg-[#0a0a0a] p-6 rounded-xl border border-neutral-800 h-full"
+              >
                 <h3 class="text-lg font-semibold text-white text-center mb-6">
                   Ingresos Históricos (Últimos 6 Meses)
                 </h3>
@@ -82,69 +236,152 @@ const gananciaReal = ingresoNeto - gastosOperativos;
               </div>
             </div>
             <div class="flex-1 xl:w-5/12">
-              <div class="bg-[#0a0a0a] p-6 rounded-xl border border-neutral-800 h-full">
+              <div
+                class="bg-[#0a0a0a] p-6 rounded-xl border border-neutral-800 h-full"
+              >
                 <h3 class="text-lg font-semibold text-white text-center mb-6">
-                  Distribución de Ingresos
+                  Distribución por Tipo de Habitación
                 </h3>
-                <div class="relative h-[280px] w-full flex justify-center items-center">
+                <div
+                  class="relative h-[280px] w-full flex justify-center items-center"
+                >
                   <canvas id="pieChart"></canvas>
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- Manejo de Sueldos (Mock) -->
-          <div class="bg-[#0a0a0a] p-6 rounded-xl border border-neutral-800 border-l-4 border-l-yellow-500">
+          <!-- Manejo de Sueldos (Estático — datos de nómina no están en BD) -->
+          <div
+            class="bg-[#0a0a0a] p-6 rounded-xl border border-neutral-800 border-l-4 border-l-yellow-500"
+          >
             <div class="flex justify-between items-center mb-6 flex-wrap gap-4">
-              <h3 class="text-lg font-semibold text-white flex items-center gap-2 m-0">
-                <i class="fa-solid fa-file-invoice-dollar text-yellow-500"
-                ></i> Nómina y Sueldos del Personal
+              <h3
+                class="text-lg font-semibold text-white flex items-center gap-2 m-0"
+              >
+                <i class="fa-solid fa-file-invoice-dollar text-yellow-500"></i> Nómina
+                y Sueldos del Personal
               </h3>
-              <button class="border border-yellow-500 text-yellow-500 hover:bg-yellow-500 hover:text-black px-4 py-1.5 text-sm rounded-lg transition-colors font-medium cursor-pointer"
+              <button
+                class="border border-yellow-500 text-yellow-500 hover:bg-yellow-500 hover:text-black px-4 py-1.5 text-sm rounded-lg transition-colors font-medium cursor-pointer"
                 >Generar Recibos</button
               >
             </div>
             <div class="overflow-x-auto">
-              <table class="w-full text-left border-collapse text-sm whitespace-nowrap">
+              <table
+                class="w-full text-left border-collapse text-sm whitespace-nowrap"
+              >
                 <thead>
                   <tr>
-                    <th class="border-b border-neutral-800 py-3 px-3 text-neutral-400 font-medium">Empleado</th>
-                    <th class="border-b border-neutral-800 py-3 px-3 text-neutral-400 font-medium">Puesto</th>
-                    <th class="border-b border-neutral-800 py-3 px-3 text-neutral-400 font-medium">Sueldo Base</th>
-                    <th class="border-b border-neutral-800 py-3 px-3 text-neutral-400 font-medium">Bonos/Deducciones</th>
-                    <th class="border-b border-neutral-800 py-3 px-3 text-neutral-400 font-medium">Total a Pagar</th>
-                    <th class="border-b border-neutral-800 py-3 px-3 text-neutral-400 font-medium">Estado</th>
+                    <th
+                      class="border-b border-neutral-800 py-3 px-3 text-neutral-400 font-medium"
+                      >Empleado</th
+                    >
+                    <th
+                      class="border-b border-neutral-800 py-3 px-3 text-neutral-400 font-medium"
+                      >Puesto</th
+                    >
+                    <th
+                      class="border-b border-neutral-800 py-3 px-3 text-neutral-400 font-medium"
+                      >Sueldo Base</th
+                    >
+                    <th
+                      class="border-b border-neutral-800 py-3 px-3 text-neutral-400 font-medium"
+                      >Bonos/Deducciones</th
+                    >
+                    <th
+                      class="border-b border-neutral-800 py-3 px-3 text-neutral-400 font-medium"
+                      >Total a Pagar</th
+                    >
+                    <th
+                      class="border-b border-neutral-800 py-3 px-3 text-neutral-400 font-medium"
+                      >Estado</th
+                    >
                   </tr>
                 </thead>
                 <tbody>
                   <tr class="hover:bg-neutral-900/40 transition-colors">
-                    <td class="py-3 px-3 border-b border-neutral-800/50 text-white font-medium">Carlos Martínez</td>
-                    <td class="py-3 px-3 border-b border-neutral-800/50 text-neutral-300">Gerente Turno Día</td>
-                    <td class="py-3 px-3 border-b border-neutral-800/50 text-neutral-300">$12,000 MXN</td>
-                    <td class="py-3 px-3 border-b border-neutral-800/50 text-green-500">+$1,500 MXN (Bono)</td>
-                    <td class="py-3 px-3 border-b border-neutral-800/50 text-white font-bold">$13,500 MXN</td>
+                    <td
+                      class="py-3 px-3 border-b border-neutral-800/50 text-white font-medium"
+                      >Carlos Martínez</td
+                    >
+                    <td
+                      class="py-3 px-3 border-b border-neutral-800/50 text-neutral-300"
+                      >Gerente Turno Día</td
+                    >
+                    <td
+                      class="py-3 px-3 border-b border-neutral-800/50 text-neutral-300"
+                      >$12,000 MXN</td
+                    >
+                    <td
+                      class="py-3 px-3 border-b border-neutral-800/50 text-green-500"
+                      >+$1,500 MXN (Bono)</td
+                    >
+                    <td
+                      class="py-3 px-3 border-b border-neutral-800/50 text-white font-bold"
+                      >$13,500 MXN</td
+                    >
                     <td class="py-3 px-3 border-b border-neutral-800/50">
-                      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-500/10 text-green-400 border border-green-500/20">Pagado</span>
+                      <span
+                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-500/10 text-green-400 border border-green-500/20"
+                        >Pagado</span
+                      >
                     </td>
                   </tr>
                   <tr class="hover:bg-neutral-900/40 transition-colors">
-                    <td class="py-3 px-3 border-b border-neutral-800/50 text-white font-medium">Ana Sofía López</td>
-                    <td class="py-3 px-3 border-b border-neutral-800/50 text-neutral-300">Recepción Turno Noche</td>
-                    <td class="py-3 px-3 border-b border-neutral-800/50 text-neutral-300">$8,500 MXN</td>
-                    <td class="py-3 px-3 border-b border-neutral-800/50 text-neutral-500">-</td>
-                    <td class="py-3 px-3 border-b border-neutral-800/50 text-white font-bold">$8,500 MXN</td>
+                    <td
+                      class="py-3 px-3 border-b border-neutral-800/50 text-white font-medium"
+                      >Ana Sofía López</td
+                    >
+                    <td
+                      class="py-3 px-3 border-b border-neutral-800/50 text-neutral-300"
+                      >Recepción Turno Noche</td
+                    >
+                    <td
+                      class="py-3 px-3 border-b border-neutral-800/50 text-neutral-300"
+                      >$8,500 MXN</td
+                    >
+                    <td
+                      class="py-3 px-3 border-b border-neutral-800/50 text-neutral-500"
+                      >-</td
+                    >
+                    <td
+                      class="py-3 px-3 border-b border-neutral-800/50 text-white font-bold"
+                      >$8,500 MXN</td
+                    >
                     <td class="py-3 px-3 border-b border-neutral-800/50">
-                      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-500/10 text-yellow-400 border border-yellow-500/20">Pendiente</span>
+                      <span
+                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-500/10 text-yellow-400 border border-yellow-500/20"
+                        >Pendiente</span
+                      >
                     </td>
                   </tr>
                   <tr class="hover:bg-neutral-900/40 transition-colors">
-                    <td class="py-3 px-3 border-b border-neutral-800/50 text-white font-medium">Raúl Gómez</td>
-                    <td class="py-3 px-3 border-b border-neutral-800/50 text-neutral-300">Mantenimiento</td>
-                    <td class="py-3 px-3 border-b border-neutral-800/50 text-neutral-300">$7,200 MXN</td>
-                    <td class="py-3 px-3 border-b border-neutral-800/50 text-red-500">-$200 MXN (Retardo)</td>
-                    <td class="py-3 px-3 border-b border-neutral-800/50 text-white font-bold">$7,000 MXN</td>
+                    <td
+                      class="py-3 px-3 border-b border-neutral-800/50 text-white font-medium"
+                      >Raúl Gómez</td
+                    >
+                    <td
+                      class="py-3 px-3 border-b border-neutral-800/50 text-neutral-300"
+                      >Mantenimiento</td
+                    >
+                    <td
+                      class="py-3 px-3 border-b border-neutral-800/50 text-neutral-300"
+                      >$7,200 MXN</td
+                    >
+                    <td
+                      class="py-3 px-3 border-b border-neutral-800/50 text-red-500"
+                      >-$200 MXN (Retardo)</td
+                    >
+                    <td
+                      class="py-3 px-3 border-b border-neutral-800/50 text-white font-bold"
+                      >$7,000 MXN</td
+                    >
                     <td class="py-3 px-3 border-b border-neutral-800/50">
-                      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-500/10 text-yellow-400 border border-yellow-500/20">Pendiente</span>
+                      <span
+                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-500/10 text-yellow-400 border border-yellow-500/20"
+                        >Pendiente</span
+                      >
                     </td>
                   </tr>
                 </tbody>
@@ -156,68 +393,100 @@ const gananciaReal = ingresoNeto - gastosOperativos;
     </div>
   </div>
 
-  <!-- Scripts para Chart.js cargados de NPM (Vite bundle) -->
+  <!-- Datos serializados desde el servidor para las gráficas -->
+  <div
+    id="chart-data"
+    data-bar-labels={chartLabels}
+    data-bar-values={chartValues}
+    data-pie-labels={pieLabels}
+    data-pie-values={pieValues}
+    class="hidden"
+  ></div>
+
+  <!-- Script de módulo  — import funciona correctamente aquí -->
   <script>
     import Chart from "chart.js/auto";
 
     document.addEventListener("DOMContentLoaded", () => {
-      // Gráfica de Barras
-      const barEl = document.getElementById("barChart") as HTMLCanvasElement | null;
-      if (!barEl) return;
-      
-      new Chart(barEl, {
-        type: "bar",
-        data: {
-          labels: ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio"],
-          datasets: [
-            {
-              label: "Ingresos Brutos (MXN)",
-              data: [95000, 110000, 105000, 130000, 125000, 145800],
-              backgroundColor: "rgba(50, 152, 220, 0.6)", // Bulma info color
-              borderColor: "rgba(50, 152, 220, 1)",
-              borderWidth: 1,
-            },
-          ],
-        },
-        options: {
-          responsive: true,
-          plugins: { legend: { labels: { color: "#fff" } } },
-          scales: {
-            y: { ticks: { color: "#b5b5b5" }, grid: { color: "#363636" } },
-            x: { ticks: { color: "#b5b5b5" }, grid: { color: "#363636" } },
-          },
-        },
-      });
+      const dataEl = document.getElementById("chart-data");
+      if (!dataEl) return;
 
-      // Gráfica de Pastel
-      const pieEl = document.getElementById("pieChart") as HTMLCanvasElement | null;
-      if (!pieEl) return;
-      
-      new Chart(pieEl, {
-        type: "doughnut",
-        data: {
-          labels: ["Suites", "Doble", "Estándar", "Servicios Extra"],
-          datasets: [
-            {
-              data: [45, 25, 20, 10],
-              backgroundColor: [
-                "rgba(72, 199, 116, 0.8)", // success
-                "rgba(50, 152, 220, 0.8)", // info
-                "rgba(255, 221, 87, 0.8)", // warning
-                "rgba(241, 70, 104, 0.8)", // danger
-              ],
-              borderWidth: 0,
-            },
-          ],
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: { position: "bottom", labels: { color: "#fff" } },
+      const labels = JSON.parse(dataEl.dataset.barLabels || "[]");
+      const values = JSON.parse(dataEl.dataset.barValues || "[]");
+      const pLabels = JSON.parse(dataEl.dataset.pieLabels || "[]");
+      const pValues = JSON.parse(dataEl.dataset.pieValues || "[]");
+
+      // ─── Gráfica de Barras — Ingresos Históricos ────────────────────
+      const barEl = document.getElementById("barChart") as HTMLCanvasElement;
+      if (barEl) {
+        new Chart(barEl, {
+          type: "bar",
+          data: {
+            labels: labels,
+            datasets: [
+              {
+                label: "Ingresos Brutos (MXN)",
+                data: values,
+                backgroundColor: "rgba(50, 152, 220, 0.6)",
+                borderColor: "rgba(50, 152, 220, 1)",
+                borderWidth: 1,
+                borderRadius: 6,
+              },
+            ],
           },
-        },
-      });
+          options: {
+            responsive: true,
+            plugins: { legend: { labels: { color: "#fff" } } },
+            scales: {
+              y: {
+                ticks: {
+                  color: "#b5b5b5",
+                  callback: (v) => "$" + Number(v).toLocaleString("es-MX"),
+                },
+                grid: { color: "#262626" },
+              },
+              x: { ticks: { color: "#b5b5b5" }, grid: { color: "#262626" } },
+            },
+          },
+        });
+      }
+
+      // ─── Gráfica de Pastel — Distribución por Tipo ──────────────────
+      const pieEl = document.getElementById("pieChart") as HTMLCanvasElement;
+      if (pieEl) {
+        const colors = [
+          "rgba(72, 199, 116, 0.8)",
+          "rgba(50, 152, 220, 0.8)",
+          "rgba(255, 221, 87, 0.8)",
+          "rgba(241, 70, 104, 0.8)",
+          "rgba(155, 89, 182, 0.8)",
+          "rgba(230, 126, 34, 0.8)",
+        ];
+
+        new Chart(pieEl, {
+          type: "doughnut",
+          data: {
+            labels: pLabels,
+            datasets: [
+              {
+                data: pValues,
+                backgroundColor: colors.slice(0, pValues.length),
+                borderWidth: 0,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                position: "bottom",
+                labels: { color: "#fff", padding: 16 },
+              },
+            },
+          },
+        });
+      }
     });
   </script>
 </LayoutAdmin>

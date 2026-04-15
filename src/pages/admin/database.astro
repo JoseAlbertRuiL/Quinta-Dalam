@@ -3,12 +3,23 @@
 import LayoutAdmin from "../../layouts/LayoutAdmin.astro";
 // ↓ Importamos el componente de navegación reutilizable del panel
 import NavAdmin from "../../components/NavAdmin.astro";
-import { supabase } from "../../lib/supabase";
+import { createClient } from "@supabase/supabase-js";
+import type { Database } from "../../lib/database.types";
 
 // LA AUTENTICACIÓN AHORA LA MANEJA src/middleware.ts
 
+// ─── Cliente Admin con service_role (bypasea RLS) ─────────────────────
+// BUG FIX: el cliente anónimo importado de lib/supabase.ts era bloqueado
+// por RLS de Supabase, causando que la tabla apareciera vacía.
+const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL;
+const supabaseKey = import.meta.env.SUPABASE_SERVICE_ROLE_KEY;
+if (!supabaseUrl || !supabaseKey) {
+  throw new Error('[database] Faltan credenciales de servicio en .env');
+}
+const supabaseAdmin = createClient<Database>(supabaseUrl, supabaseKey);
+
 // Traemos los últimos registros para previsualización del Admin
-const { data: ultimasReservas } = await supabase.from('reservas').select('*').order('created_at', { ascending: false }).limit(10);
+const { data: ultimasReservas } = await supabaseAdmin.from('reservas').select('*').order('created_at', { ascending: false }).limit(10);
 ---
 
 <LayoutAdmin title="Admin | Base de Datos" favicon="/images/database-icon.png">

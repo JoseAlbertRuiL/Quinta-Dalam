@@ -3,14 +3,15 @@
 import LayoutAdmin from "../../layouts/LayoutAdmin.astro";
 // ↓ Importamos el componente de navegación reutilizable del panel
 import NavAdmin from "../../components/NavAdmin.astro";
-import { supabase } from "../../lib/supabase";
 
 // LA AUTENTICACIÓN AHORA LA MANEJA src/middleware.ts
 ---
 
 <LayoutAdmin title="Admin | Inbox" favicon="/images/inbox-icono.png">
   <header class="py-10 px-4 text-center">
-    <h1 class="text-3xl font-bold text-white flex items-center justify-center gap-3">
+    <h1
+      class="text-3xl font-bold text-white flex items-center justify-center gap-3"
+    >
       <i class="fa-solid fa-gears text-blue-500" aria-hidden="true"></i>
       Panel de Administración
     </h1>
@@ -23,34 +24,222 @@ import { supabase } from "../../lib/supabase";
 
       <!-- ! Columna 2: Contenido Principal -->
       <div class="flex-1">
-        <main class="bg-[#141414] p-6 lg:p-8 rounded-xl border border-neutral-800/50 shadow-lg">
-          <section id="inbox">
-            <!-- ? Box de Mensajes -->
-            <details open class="bg-[#0a0a0a] rounded-xl border border-neutral-800 p-6">
-              <summary class="cursor-pointer list-none m-0 p-0 focus:outline-none">
-                <h3 class="text-xl font-bold text-white inline-flex items-center gap-3 m-0">
-                  <i class="fa-solid fa-inbox text-blue-500"></i>
-                  Mensajes
-                </h3>
-              </summary>
-              <div class="mt-6 pl-5 border-l-4 border-l-blue-600">
-                <p class="text-neutral-300 font-medium mb-4">¡Tienes 2 mensajes nuevos!</p>
-                <div class="bg-[#141414] rounded-lg border border-neutral-800 p-5 space-y-4">
-                  <blockquote class="text-neutral-400 pl-4 border-l-2 border-neutral-700 italic">
-                    "¡Buenas tarde! Espero esté disfrutando de la página web,
-                    cualquier cosa que necesite avísenos a la brevedad y le
-                    daremos solución lo más rápido posible"
-                    <footer class="text-neutral-500 mt-2 not-italic font-semibold">- <cite>José Luis</cite></footer>
-                  </blockquote>
-                  <blockquote class="text-neutral-400 pl-4 border-l-2 border-neutral-700 italic">
-                    "La página ya quedó lista y funcional, pero aún podemos
-                    seguir mejorándola."
-                    <footer class="text-neutral-500 mt-2 not-italic font-semibold">- <cite>José Alberto</cite></footer>
-                  </blockquote>
+        <main
+          class="bg-[#141414] p-6 lg:p-8 rounded-xl border border-neutral-800/50 shadow-lg"
+        >
+          <!-- Header con contador de mensajes -->
+          <div class="flex flex-wrap gap-4 justify-between items-center mb-6">
+            <div>
+              <h2
+                class="text-2xl font-bold text-white mb-1 flex items-center gap-3"
+              >
+                <i class="fa-solid fa-inbox text-blue-500"></i> Bandeja de Entrada
+              </h2>
+              <p class="text-neutral-500 text-sm">
+                Centro de comunicaciones del hotel
+              </p>
+            </div>
+            <span
+              class="inline-flex items-center px-3 py-1.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20 text-sm font-semibold"
+            >
+              <i class="fa-solid fa-envelope mr-2"></i> 2 mensajes
+            </span>
+            <span
+              class="inline-flex items-center px-3 py-1.5 rounded-full bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 text-xs font-semibold uppercase tracking-wider"
+            >
+              <i class="fa-solid fa-flask mr-2"></i> Prototipo
+            </span>
+          </div>
+
+          <!-- Contenedor de mensajes tipo chat -->
+          <div
+            class="bg-[#0a0a0a] rounded-xl border border-neutral-800 overflow-hidden"
+          >
+            <!-- Barra de búsqueda -->
+            <div class="p-4 border-b border-neutral-800">
+              <div class="relative">
+                <i
+                  class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-neutral-600 text-sm"
+                ></i>
+                <input
+                  type="text"
+                  placeholder="Buscar en mensajes..."
+                  class="w-full bg-[#141414] border border-neutral-800 rounded-lg pl-10 pr-4 py-2.5 text-white placeholder-neutral-600 text-sm focus:outline-none focus:border-blue-500/50 transition-colors"
+                />
+              </div>
+            </div>
+
+            <!-- Lista de conversaciones -->
+            <div class="divide-y divide-neutral-800/50">
+              <!-- Mensaje 1 — José Luis (leído) -->
+              <div
+                class="group hover:bg-neutral-900/50 transition-all duration-200 cursor-pointer"
+              >
+                <div class="p-5 flex gap-4">
+                  <!-- Avatar -->
+                  <div class="shrink-0">
+                    <div
+                      class="w-11 h-11 rounded-full bg-linear-to-br from-blue-500 to-blue-700 flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-blue-500/10"
+                    >
+                      JL
+                    </div>
+                  </div>
+                  <!-- Contenido -->
+                  <div class="flex-1 min-w-0">
+                    <div class="flex justify-between items-start mb-1.5">
+                      <div class="flex items-center gap-2">
+                        <h4 class="text-white font-semibold text-sm">
+                          José Luis
+                        </h4>
+                        <span
+                          class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wider bg-green-500/10 text-green-400 border border-green-500/20"
+                          >Soporte</span
+                        >
+                      </div>
+                      <span class="text-neutral-600 text-xs shrink-0 ml-2"
+                        >Hace 2 días</span
+                      >
+                    </div>
+                    <p
+                      class="text-neutral-400 text-sm leading-relaxed line-clamp-2"
+                    >
+                      ¡Buenas tarde! Espero esté disfrutando de la página web,
+                      cualquier cosa que necesite avísenos a la brevedad y le
+                      daremos solución lo más rápido posible.
+                    </p>
+                    <!-- Acciones al hover -->
+                    <div
+                      class="flex gap-2 mt-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                    >
+                      <button
+                        class="text-xs text-blue-400 hover:text-blue-300 transition-colors flex items-center gap-1.5 bg-blue-500/5 hover:bg-blue-500/10 px-3 py-1.5 rounded-lg border border-blue-500/10"
+                      >
+                        <i class="fa-solid fa-reply text-[10px]"></i> Responder
+                      </button>
+                      <button
+                        class="text-xs text-neutral-500 hover:text-neutral-300 transition-colors flex items-center gap-1.5 bg-neutral-500/5 hover:bg-neutral-500/10 px-3 py-1.5 rounded-lg border border-neutral-800"
+                      >
+                        <i class="fa-solid fa-bookmark text-[10px]"></i> Archivar
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
-            </details>
-          </section>
+
+              <!-- Mensaje 2 — José Alberto (nuevo) -->
+              <div
+                class="group hover:bg-neutral-900/50 transition-all duration-200 cursor-pointer relative"
+              >
+                <!-- Indicador de nuevo -->
+                <div
+                  class="absolute left-1.5 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-blue-500 shadow-lg shadow-blue-500/30"
+                >
+                </div>
+                <div class="p-5 pl-6 flex gap-4">
+                  <!-- Avatar -->
+                  <div class="shrink-0">
+                    <div
+                      class="w-11 h-11 rounded-full bg-linear-to-br from-purple-500 to-purple-700 flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-purple-500/10"
+                    >
+                      JA
+                    </div>
+                  </div>
+                  <!-- Contenido -->
+                  <div class="flex-1 min-w-0">
+                    <div class="flex justify-between items-start mb-1.5">
+                      <div class="flex items-center gap-2">
+                        <h4 class="text-white font-semibold text-sm">
+                          José Alberto
+                        </h4>
+                        <span
+                          class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wider bg-purple-500/10 text-purple-400 border border-purple-500/20"
+                          >Dev Lead</span
+                        >
+                      </div>
+                      <span
+                        class="text-blue-400 text-xs font-semibold shrink-0 ml-2"
+                        >Nuevo</span
+                      >
+                    </div>
+                    <p
+                      class="text-neutral-300 text-sm leading-relaxed font-medium line-clamp-2"
+                    >
+                      La página ya quedó lista y funcional, pero aún podemos
+                      seguir mejorándola.
+                    </p>
+                    <!-- Acciones al hover -->
+                    <div
+                      class="flex gap-2 mt-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                    >
+                      <button
+                        class="text-xs text-blue-400 hover:text-blue-300 transition-colors flex items-center gap-1.5 bg-blue-500/5 hover:bg-blue-500/10 px-3 py-1.5 rounded-lg border border-blue-500/10"
+                      >
+                        <i class="fa-solid fa-reply text-[10px]"></i> Responder
+                      </button>
+                      <button
+                        class="text-xs text-neutral-500 hover:text-neutral-300 transition-colors flex items-center gap-1.5 bg-neutral-500/5 hover:bg-neutral-500/10 px-3 py-1.5 rounded-lg border border-neutral-800"
+                      >
+                        <i class="fa-solid fa-bookmark text-[10px]"></i> Archivar
+                      </button>
+                      <button
+                        class="text-xs text-neutral-500 hover:text-neutral-300 transition-colors flex items-center gap-1.5 bg-neutral-500/5 hover:bg-neutral-500/10 px-3 py-1.5 rounded-lg border border-neutral-800"
+                      >
+                        <i class="fa-solid fa-check-double text-[10px]"></i> Marcar
+                        leído
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Barra de nuevo mensaje -->
+            <div class="p-4 border-t border-neutral-800 bg-[#0d0d0d]">
+              <div class="flex gap-3">
+                <input
+                  type="text"
+                  placeholder="Escribe un mensaje..."
+                  class="flex-1 bg-[#141414] border border-neutral-800 rounded-lg px-4 py-2.5 text-white placeholder-neutral-600 text-sm focus:outline-none focus:border-blue-500/50 transition-colors"
+                />
+                <button
+                  class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2.5 rounded-lg transition-colors flex items-center gap-2 text-sm font-medium shrink-0"
+                >
+                  <i class="fa-solid fa-paper-plane text-xs"></i>
+                  <span class="hidden sm:inline">Enviar</span>
+                </button>
+              </div>
+              <div class="flex gap-3 mt-2">
+                <button
+                  class="text-neutral-600 hover:text-neutral-400 transition-colors text-xs flex items-center gap-1"
+                >
+                  <i class="fa-solid fa-paperclip"></i> Adjuntar
+                </button>
+                <button
+                  class="text-neutral-600 hover:text-neutral-400 transition-colors text-xs flex items-center gap-1"
+                >
+                  <i class="fa-solid fa-at"></i> Mencionar
+                </button>
+              </div>
+            </div>
+          </div>
+          <!-- Nota de prototipo -->
+          <div
+            class="mt-4 p-4 bg-yellow-500/5 border border-yellow-500/20 rounded-xl flex items-start gap-3"
+          >
+            <i class="fa-solid fa-triangle-exclamation text-yellow-500 mt-0.5"
+            ></i>
+            <div>
+              <p class="text-yellow-400 font-semibold text-sm mb-1">
+                Prototipo Visual
+              </p>
+              <p class="text-neutral-500 text-xs leading-relaxed">
+                Esta vista es una previsualización del sistema de bandeja de
+                entrada planificado. La funcionalidad de envío, búsqueda e
+                integración con la base de datos será implementada en una fase
+                futura.
+              </p>
+            </div>
+          </div>
         </main>
       </div>
     </div>

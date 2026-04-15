@@ -396,13 +396,14 @@ export default function PagosForm() {
             </p>
 
             <div className="form-card">
-              <div onSubmit={handleSubmit}>
+              <form onSubmit={handleSubmit}>
                 {/* Card Number */}
                 <div className="field-group">
-                  <label className="field-label">Número de Tarjeta</label>
+                  <label htmlFor="cardNumber" className="field-label">Número de Tarjeta</label>
                   <div className="field-wrapper">
                     <input
                       type="text"
+                      id="cardNumber"
                       name="cardNumber"
                       className={`field-input card-number-input${errors.cardNumber ? ' has-error' : ''}`}
                       placeholder="1234  5678  9012  3456"
@@ -420,9 +421,10 @@ export default function PagosForm() {
 
                 {/* Card Name — solo mayúsculas */}
                 <div className="field-group">
-                  <label className="field-label">Nombre del Titular</label>
+                  <label htmlFor="cardName" className="field-label">Nombre del Titular</label>
                   <input
                     type="text"
+                    id="cardName"
                     name="cardName"
                     className={`field-input${errors.cardName ? ' has-error' : ''}`}
                     placeholder="Nombre del Titular"
@@ -438,9 +440,10 @@ export default function PagosForm() {
 
                 <div className="two-col">
                   <div className="field-group">
-                    <label className="field-label">Vencimiento</label>
+                    <label htmlFor="expiryDate" className="field-label">Vencimiento</label>
                     <input
                       type="text"
+                      id="expiryDate"
                       name="expiryDate"
                       className={`field-input${errors.expiryDate ? ' has-error' : ''}`}
                       placeholder="MM / YY"
@@ -457,9 +460,10 @@ export default function PagosForm() {
 
                   {/* ↓ CVV censurado: type=password con fuente de puntos elegantes */}
                   <div className="field-group">
-                    <label className="field-label">CVV</label>
+                    <label htmlFor="cvv" className="field-label">CVV</label>
                     <input
                       type="password"
+                      id="cvv"
                       name="cvv"
                       className={`field-input${errors.cvv ? ' has-error' : ''}`}
                       placeholder="•••"
@@ -489,7 +493,7 @@ export default function PagosForm() {
                   ))}
                 </div>
 
-                <button type="button" className="submit-btn" disabled={loading} onClick={handleSubmit}>
+                <button type="submit" className="submit-btn" disabled={loading}>
                   <span className="submit-btn-inner">
                     {loading ? (
                       <><div className="spinner" />Procesando pago…</>
@@ -498,7 +502,7 @@ export default function PagosForm() {
                     )}
                   </span>
                 </button>
-              </div>
+              </form>
             </div>
 
 
