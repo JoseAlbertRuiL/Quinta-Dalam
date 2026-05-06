@@ -27,7 +27,15 @@ function getAdminClient() {
   return createClient<Database>(url, key);
 }
 
-export const onRequest = defineMiddleware(async ({ locals, cookies, redirect, url }, next) => {
+export const onRequest = defineMiddleware(async ({ locals, cookies, redirect, url, request }, next) => {
+  // ─── REDIRECCIÓN HTTPS (Paso 4 de los requisitos) ──────────────────────
+  // En producción, si la cabecera indica que el protocolo es inseguro (http),
+  // redirigimos automáticamente a la versión segura (https).
+  const forwardedProto = request.headers.get('x-forwarded-proto');
+  if (import.meta.env.PROD && forwardedProto === 'http') {
+    return redirect(url.href.replace('http:', 'https:'), 301);
+  }
+
   // Proteger rutas de /admin (excepto el login en /admin/admin)
   if (url.pathname.startsWith('/admin') && !url.pathname.startsWith('/admin/admin')) {
     const accessToken = cookies.get("sb-access-token");
