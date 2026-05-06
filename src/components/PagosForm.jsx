@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '../lib/supabase';
 
 const cardIcons = {
   visa: (
@@ -36,26 +35,25 @@ export default function PagosForm() {
   const [formData, setFormData] = useState({ cardNumber: '', cardName: '', expiryDate: '', cvv: '' });
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
   const [focused, setFocused] = useState(null);
   const [cardFlipped, setCardFlipped] = useState(false);
 
   useEffect(() => {
-    const data = sessionStorage.getItem('reservacionData');
-    if (data) {
-      setReservacionData(JSON.parse(data));
-    } else {
-      setReservacionData({
-        name: 'Ana Martínez',
-        email: 'ana@ejemplo.com',
-        countryCode: '+52',
-        tel: '443 123 4567',
-        fechaLlegada: '2025-08-10',
-        fechaSalida: '2025-08-14',
-        numeroPersonas: 2,
-        roomPreference: '202',
-      });
-    }
+    // ↓ Intentar leer datos al montar (por si ya existen en sessionStorage)
+    const readData = () => {
+      const data = sessionStorage.getItem('reservacionData');
+      if (data) {
+        setReservacionData(JSON.parse(data));
+      }
+    };
+
+    readData();
+
+    // ↓ Escuchar el evento que dispara reservaciones.astro cuando el usuario envía el formulario
+    // Esto es necesario porque client:only="react" monta el componente al cargar la página,
+    // antes de que el usuario llene y envíe el formulario de reservación.
+    document.addEventListener('pagos:datosListos', readData);
+    return () => document.removeEventListener('pagos:datosListos', readData);
   }, []);
 
   const nights = reservacionData
@@ -71,6 +69,8 @@ export default function PagosForm() {
       if (v.length >= 2) v = v.slice(0, 2) + '/' + v.slice(2, 4);
     }
     if (name === 'cvv') v = value.replace(/\D/g, '').slice(0, 4);
+    // ↓ Forzar MAYÚSCULAS en el nombre del titular (compatibilidad con proveedores)
+    if (name === 'cardName') v = value.toUpperCase();
     setFormData(prev => ({ ...prev, [name]: v }));
     if (errors[name]) setErrors(prev => ({ ...prev, [name]: null }));
   };
@@ -79,48 +79,95 @@ export default function PagosForm() {
     const e = {};
     if (!formData.cardNumber || formData.cardNumber.length !== 16) e.cardNumber = 'El número debe tener 16 dígitos';
     if (!formData.cardName.trim()) e.cardName = 'El nombre del titular es requerido';
-    if (!formData.expiryDate || formData.expiryDate.length !== 5) e.expiryDate = 'Formato MM/YY requerido';
+
+    // ↓ Validación de fecha de caducidad
+    if (!formData.expiryDate || formData.expiryDate.length !== 5) {
+      e.expiryDate = 'Formato MM/YY requerido';
+    } else {
+      const [monthStr, yearStr] = formData.expiryDate.split('/');
+      const month = parseInt(monthStr, 10);
+      const year = parseInt(yearStr, 10);
+
+      if (month < 1 || month > 12) {
+        e.expiryDate = 'Mes inválido (01-12)';
+      } else {
+        // ↓ Comparar contra la fecha actual para detectar tarjetas vencidas
+        const now = new Date();
+        const currentMonth = now.getMonth() + 1; // getMonth() es 0-indexed
+        const currentYear = now.getFullYear() % 100; // Obtener los últimos 2 dígitos
+
+        if (year < currentYear || (year === currentYear && month < currentMonth)) {
+          e.expiryDate = 'La tarjeta ha expirado';
+        }
+      }
+    }
+
     if (!formData.cvv || formData.cvv.length < 3) e.cvv = 'CVV de 3 o 4 dígitos';
     return e;
+  };
+
+  // ↓ Función para volver al formulario de reservación (Paso 1)
+  const handleVolver = () => {
+    document.dispatchEvent(new CustomEvent('pagos:volver'));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     const newErrors = validateForm();
     if (Object.keys(newErrors).length > 0) { setErrors(newErrors); return; }
-
     setLoading(true);
-
     try {
-      // 🔄 Simulación del pago (aquí irá la pasarela real después)
-      await new Promise(r => setTimeout(r, 2200));
+      // ─── 1. Enviar datos de reservación al backend Supabase ────────────────
+      // Los datos de tarjeta (cardNumber, cvv, etc.) son solo para UI/validación
+      // local — nunca se envían al servidor (no tenemos procesador de pagos real).
+      // Lo que sí persiste: los datos de la reserva obtenidos del sessionStorage.
+      const payload = {
+        nombre_cliente: reservacionData.name,
+        correo:         reservacionData.email,
+        telefono:       `${reservacionData.countryCode} ${reservacionData.tel}`,
+        // roomPreference viene como "101: Tzintzunzan" — lo enviamos completo
+        habitacion:     reservacionData.roomPreference,
+        fecha_entrada:  reservacionData.fechaLlegada,
+        fecha_salida:   reservacionData.fechaSalida,
+        personas:       Number(reservacionData.numeroPersonas) || null,
+      };
 
-      // ✅ Pago exitoso: ahora sí hacemos el INSERT en Supabase
-      const { error: insertError } = await supabase
-        .from('reservas')
-        .insert([
-          {
-            nombre_cliente: reservacionData.name,
-            correo: reservacionData.email,
-            telefono: `${reservacionData.countryCode}${reservacionData.tel}`,
-            fecha_entrada: reservacionData.fechaLlegada,
-            fecha_salida: reservacionData.fechaSalida,
-            personas: reservacionData.numeroPersonas,
-            habitacion: reservacionData.roomPreference,
-          }
-        ]);
+      const response = await fetch('/api/reservaciones', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
 
-      if (insertError) throw insertError;
+      const result = await response.json();
 
-      setLoading(false);
-      setSuccess(true);
-      sessionStorage.removeItem('reservacionData');
-      setTimeout(() => { window.location.href = '/'; }, 4000);
+      // ─── 2. Manejar errores del backend ───────────────────────────────────
+      if (!response.ok) {
+        // Caso especial: habitación ya ocupada (409 Conflict)
+        if (response.status === 409 && result.codigo === 'HABITACION_NO_DISPONIBLE') {
+          setLoading(false);
+          setErrors({
+            submit: result.detalles?.mensaje
+              ?? 'Esta habitación ya está reservada en esas fechas. Por favor elige otras fechas u otra habitación.',
+          });
+          return;
+        }
+
+        // Otros errores del servidor (422, 500, etc.)
+        const mensajeError = result.detalles?.join(' ') ?? result.error ?? 'Error al procesar la reservación.';
+        setLoading(false);
+        setErrors({ submit: mensajeError });
+        return;
+      }
+
+      // ─── 3. Éxito: redirigir a página de confirmación ─────────────────────
+      // Nota: No limpiamos el sessionStorage aquí. exito.astro necesita los
+      // datos para mostrar el resumen, y se encargará de limpiarlos después.
+      window.location.href = '/exito';
 
     } catch (err) {
-      console.error(err);
+      console.error('[PagosForm] Error de red:', err);
       setLoading(false);
-      setErrors({ submit: 'Error al procesar el pago. Intenta nuevamente.' });
+      setErrors({ submit: 'Error de conexión. Verifica tu internet e intenta nuevamente.' });
     }
   };
 
@@ -129,53 +176,57 @@ export default function PagosForm() {
     ? formData.cardNumber.replace(/(\d{4})/g, '$1 ').trim().padEnd(19, '·')
     : '···· ···· ···· ····';
 
+  // ↓ Sin datos de reservación: mostrar mensaje con botón para volver al Paso 1
   if (!reservacionData) return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', background: '#f4f1eb' }}>
-      <div style={{ width: 40, height: 40, border: '3px solid #1a4d2e', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
-      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-    </div>
-  );
-
-  if (success) return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Jost:wght@300;400;500&display=swap');
         @keyframes fadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes scaleIn { from { transform: scale(0.7); opacity: 0; } to { transform: scale(1); opacity: 1; } }
       `}</style>
-      <main style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #f0ede6 0%, #e8e2d5 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem', fontFamily: "'Jost', sans-serif" }}>
-        <div style={{ maxWidth: 520, width: '100%', textAlign: 'center', animation: 'fadeUp .7s ease both' }}>
-          <div style={{ width: 80, height: 80, borderRadius: '50%', background: 'linear-gradient(135deg, #1a4d2e, #4f7942)', margin: '0 auto 2rem', display: 'flex', alignItems: 'center', justifyContent: 'center', animation: 'scaleIn .5s .3s ease both', boxShadow: '0 12px 32px rgba(26,77,46,.35)' }}>
-            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+      <div style={{ minHeight: '40vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem', fontFamily: "'Jost', sans-serif" }}>
+        <div style={{ maxWidth: 480, width: '100%', textAlign: 'center', animation: 'fadeUp .6s ease both' }}>
+          <div style={{ width: 64, height: 64, borderRadius: '50%', background: 'linear-gradient(135deg, #c9a96e, #dbc28e)', margin: '0 auto 1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 8px 24px rgba(201,169,110,.3)' }}>
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
           </div>
-          <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '2.8rem', fontWeight: 600, color: '#1a2e1a', margin: '0 0 1rem', lineHeight: 1.1 }}>¡Reservación Confirmada!</h2>
-          <p style={{ color: '#5a6b5a', fontSize: '1.05rem', fontWeight: 300, lineHeight: 1.7, margin: '0 0 .6rem' }}>Tu pago ha sido procesado exitosamente.</p>
-          <p style={{ color: '#5a6b5a', fontSize: '1.05rem', fontWeight: 300, lineHeight: 1.7, margin: '0 0 2rem' }}>Recibirás un correo de confirmación en breve.</p>
-          <div style={{ height: 2, background: 'linear-gradient(to right, transparent, #c9a96e, transparent)', margin: '2rem auto', width: '60%' }} />
-          <p style={{ color: '#9aaa9a', fontSize: '.85rem', letterSpacing: '.05em', textTransform: 'uppercase' }}>Redirigiendo en unos momentos…</p>
+          <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '1.8rem', fontWeight: 700, color: '#1a2e1a', margin: '0 0 .75rem' }}>Datos no encontrados</h2>
+          <p style={{ color: '#5a6b5a', fontSize: '1rem', fontWeight: 500, lineHeight: 1.7, margin: '0 0 1.5rem' }}>
+            Por favor, completa primero tu información personal y de reservación.
+          </p>
+          <button
+            onClick={handleVolver}
+            style={{ padding: '.75rem 2rem', fontFamily: "'Jost', sans-serif", fontSize: '1.05rem', fontWeight: 600, color: 'white', background: 'linear-gradient(135deg, #1a4d2e, #4f7942)', border: 'none', borderRadius: 10, cursor: 'pointer', boxShadow: '0 6px 20px rgba(26, 77, 46, 0.35)', transition: 'transform 0.35s ease, box-shadow 0.35s ease, filter 0.35s ease' }}
+            onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 10px 28px rgba(26, 77, 46, 0.4)'; e.currentTarget.style.filter = 'brightness(1.12)'; }}
+            onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 6px 20px rgba(26, 77, 46, 0.35)'; e.currentTarget.style.filter = 'brightness(1)'; }}
+            onMouseDown={e => { e.currentTarget.style.transform = 'translateY(0)'; }}
+            onMouseUp={e => { e.currentTarget.style.transform = 'translateY(-2px)'; }}
+          >
+            ← Volver al formulario
+          </button>
         </div>
-      </main>
+      </div>
     </>
   );
+
 
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Jost:wght@300;400;500;600&display=swap');
-
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        *, *::before, *::after { box-sizing: border-box; }
 
         @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes shimmer { 0% { background-position: -200% center; } 100% { background-position: 200% center; } }
+        @keyframes pulse-ring { 0% { box-shadow: 0 0 0 0 rgba(26,77,46,.3); } 70% { box-shadow: 0 0 0 10px rgba(26,77,46,0); } 100% { box-shadow: 0 0 0 0 rgba(26,77,46,0); } }
         @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes flip { from { transform: rotateY(0deg); } to { transform: rotateY(180deg); } }
+        @keyframes unflip { from { transform: rotateY(180deg); } to { transform: rotateY(0deg); } }
         @keyframes cardGlow { 0%,100% { box-shadow: 0 20px 60px rgba(26,77,46,.25), 0 8px 20px rgba(0,0,0,.15); } 50% { box-shadow: 0 24px 70px rgba(26,77,46,.35), 0 8px 24px rgba(0,0,0,.2); } }
 
-        .pagos-root { min-height: 100vh; background: #f5f2ec; font-family: 'Jost', sans-serif; }
-        .pagos-root::before { content: ''; position: fixed; inset: 0; background: radial-gradient(ellipse at 20% 20%, rgba(79,121,66,.06) 0%, transparent 60%), radial-gradient(ellipse at 80% 80%, rgba(201,169,110,.07) 0%, transparent 60%); pointer-events: none; }
+        .pagos-root { min-height: auto; background: transparent; font-family: 'Jost', sans-serif; padding: 2rem 0; }
+        .pagos-root::before { content: ''; position: fixed; inset: 0; background: radial-gradient(ellipse at 20% 20%, rgba(79,121,66,.06) 0%, transparent 60%), radial-gradient(ellipse at 80% 80%, rgba(201,169,110,.07) 0%, transparent 60%); pointer-events: none; z-index: -1; }
 
-        .pagos-inner { max-width: 960px; margin: 0 auto; padding: 3rem 1.5rem; display: grid; grid-template-columns: 1fr 1fr; gap: 2.5rem; align-items: start; }
+        .pagos-inner { max-width: 960px; margin: 0 auto; padding: 1rem 1.5rem 3rem; display: grid; grid-template-columns: 1fr 1fr; gap: 2.5rem; align-items: start; }
         @media (max-width: 700px) { .pagos-inner { grid-template-columns: 1fr; } }
 
+        /* LEFT COLUMN */
         .left-col { animation: fadeUp .6s .1s ease both; }
 
         .card-visual { perspective: 1000px; margin-bottom: 1.8rem; }
@@ -197,6 +248,7 @@ export default function PagosForm() {
         .card-cvv-label { font-size: .65rem; color: #888; letter-spacing: .1em; text-transform: uppercase; }
         .card-cvv-dots { font-family: 'Courier New', monospace; color: #333; font-size: 1rem; letter-spacing: .15em; flex: 1; text-align: right; }
 
+        /* SUMMARY CARD */
         .summary-card { background: white; border-radius: 16px; padding: 1.8rem; box-shadow: 0 2px 20px rgba(0,0,0,.06); border: 1px solid rgba(0,0,0,.06); }
         .summary-header { display: flex; align-items: center; gap: .75rem; margin-bottom: 1.4rem; padding-bottom: 1.1rem; border-bottom: 1px solid #ebe8e0; }
         .summary-icon { width: 36px; height: 36px; border-radius: 10px; background: linear-gradient(135deg, #1a4d2e, #4f7942); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
@@ -209,6 +261,7 @@ export default function PagosForm() {
         .nights-label { font-family: 'Cormorant Garamond', serif; font-size: 1.05rem; color: #1a4d2e; font-style: italic; }
         .nights-badge { background: linear-gradient(135deg, #1a4d2e, #4f7942); color: white; padding: .3rem .8rem; border-radius: 20px; font-size: .8rem; font-weight: 500; letter-spacing: .04em; }
 
+        /* RIGHT COLUMN */
         .right-col { animation: fadeUp .6s .25s ease both; }
         .form-title { font-family: 'Cormorant Garamond', serif; font-size: 2.2rem; font-weight: 600; color: #1a2e1a; margin-bottom: .35rem; line-height: 1.1; }
         .form-subtitle { color: #8a9a8a; font-size: .9rem; font-weight: 300; letter-spacing: .03em; margin-bottom: 2rem; display: flex; align-items: center; gap: .4rem; }
@@ -230,20 +283,23 @@ export default function PagosForm() {
         .form-divider::before, .form-divider::after { content: ''; flex: 1; height: 1px; background: #ebe8e0; }
         .form-divider-text { font-size: .7rem; color: #b0b0a8; letter-spacing: .1em; text-transform: uppercase; white-space: nowrap; }
 
-        .submit-btn { width: 100%; padding: 1rem 2rem; font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 600; letter-spacing: .06em; color: white; background: linear-gradient(135deg, #1a4d2e 0%, #4f7942 100%); border: none; border-radius: 12px; cursor: pointer; transition: transform .15s, box-shadow .15s, opacity .15s; box-shadow: 0 6px 20px rgba(26,77,46,.35); margin-top: .5rem; position: relative; overflow: hidden; }
-        .submit-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(26,77,46,.4); }
+        /* ↓ Animación suave como en exito.astro */
+        .submit-btn { width: 100%; padding: 1rem 2rem; font-family: 'Jost', sans-serif; font-size: 1.1rem; font-weight: 600; letter-spacing: 0.5px; color: white; background: linear-gradient(135deg, #1a4d2e 0%, #4f7942 100%); border: none; border-radius: 8px; cursor: pointer; transition: transform 0.35s ease, box-shadow 0.35s ease, filter 0.35s ease; box-shadow: 0 6px 20px rgba(26, 77, 46, 0.35); margin-top: .5rem; position: relative; overflow: hidden; }
+        .submit-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(26, 77, 46, 0.4); filter: brightness(1.12); }
         .submit-btn:active:not(:disabled) { transform: translateY(0); }
         .submit-btn:disabled { opacity: .75; cursor: not-allowed; }
-        .submit-btn::before { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,.1) 50%, transparent 100%); background-size: 200% auto; animation: shimmer 2.5s linear infinite; }
+        .submit-btn::before { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,.08) 50%, transparent 100%); background-size: 200% auto; animation: shimmer 3s linear infinite; }
         .submit-btn-inner { display: flex; align-items: center; justify-content: center; gap: .6rem; position: relative; z-index: 1; }
         .spinner { width: 18px; height: 18px; border: 2px solid rgba(255,255,255,.4); border-top-color: white; border-radius: 50%; animation: spin .7s linear infinite; }
 
-        .secure-badges { display: flex; align-items: center; justify-content: center; gap: 1.5rem; margin-top: 1.2rem; }
-        .secure-badge { display: flex; align-items: center; gap: .35rem; font-size: .7rem; color: #9aaa9a; font-weight: 400; letter-spacing: .04em; }
-
-        .page-header { text-align: center; padding: 2.5rem 1.5rem 0; animation: fadeUp .5s ease both; }
+        .page-header { text-align: center; padding: 1rem 1.5rem 0; animation: fadeUp .5s ease both; }
         .page-logo { font-family: 'Cormorant Garamond', serif; font-size: 1.05rem; letter-spacing: .25em; color: #1a4d2e; text-transform: uppercase; font-weight: 400; margin-bottom: .4rem; }
         .page-sep { width: 60px; height: 1px; background: linear-gradient(to right, transparent, #c9a96e, transparent); margin: .5rem auto; }
+
+        /* ↓ Animación suave parecida para el botón de regresar (estilo unificado) */
+        .back-btn { display: inline-flex; align-items: center; gap: .4rem; padding: .6rem 1.2rem; font-family: 'Jost', sans-serif; font-size: .95rem; font-weight: 600; color: white !important; background: linear-gradient(135deg, #1a4d2e 0%, #4f7942 100%) !important; border: none; border-radius: 8px; cursor: pointer; transition: transform 0.35s ease, box-shadow 0.35s ease, filter 0.35s ease; margin-bottom: 1rem; box-shadow: 0 6px 20px rgba(26, 77, 46, 0.35); text-decoration: none; }
+        .back-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(26, 77, 46, 0.4); filter: brightness(1.12); color: white !important; }
+        .back-btn:active { transform: translateY(0); }
       `}</style>
 
       <main className="pagos-root">
@@ -253,9 +309,11 @@ export default function PagosForm() {
         </div>
 
         <div className="pagos-inner">
+          {/* LEFT: Card Preview + Summary */}
           <div className="left-col">
             <div className="card-visual">
               <div className={`card-inner${cardFlipped ? ' flipped' : ''}`}>
+                {/* Front */}
                 <div className="card-face card-front">
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                     <div className="card-chip" />
@@ -273,18 +331,22 @@ export default function PagosForm() {
                     </div>
                   </div>
                 </div>
+                {/* Back */}
                 <div className="card-face card-back">
                   <div className="card-magnetic" />
                   <div style={{ padding: '0 1.2rem 1.4rem' }}>
                     <div className="card-cvv-band">
                       <span className="card-cvv-label">CVV</span>
-                      <span className="card-cvv-dots">{'•'.repeat(formData.cvv.length || 3)}</span>
+                      <span className="card-cvv-dots">
+                        {formData.cvv.length > 0 ? '•'.repeat(formData.cvv.length) : <span style={{ opacity: 0.35, letterSpacing: '.08em', fontSize: '.75rem', fontStyle: 'italic' }}>CVV</span>}
+                      </span>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
 
+            {/* Reservation Summary */}
             <div className="summary-card">
               <div className="summary-header">
                 <div className="summary-icon">
@@ -296,8 +358,8 @@ export default function PagosForm() {
                 ['Huésped', reservacionData.name],
                 ['Correo', reservacionData.email],
                 ['Teléfono', `${reservacionData.countryCode} ${reservacionData.tel}`],
-                ['Llegada', new Date(reservacionData.fechaLlegada).toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' })],
-                ['Salida', new Date(reservacionData.fechaSalida).toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' })],
+                ['Llegada', new Date(reservacionData.fechaLlegada + 'T00:00:00').toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' })],
+                ['Salida', new Date(reservacionData.fechaSalida + 'T00:00:00').toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' })],
                 ['Personas', reservacionData.numeroPersonas],
                 ['Habitación', reservacionData.roomPreference],
               ].map(([label, value], i) => (
@@ -316,20 +378,32 @@ export default function PagosForm() {
             </div>
           </div>
 
+          {/* RIGHT: Payment Form */}
           <div className="right-col">
-            <h1 className="form-title">Información<br/>de Pago</h1>
+            {/* ↓ Botón para volver al formulario de reservación */}
+            <button type="button" className="back-btn" onClick={handleVolver}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+              Volver a Reservación
+            </button>
+            <h1 className="form-title">Información de Pago</h1>
             <p className="form-subtitle">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
               Datos encriptados
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '.3rem', marginLeft: '.6rem', paddingLeft: '.6rem', borderLeft: '1px solid #e0ddd6' }}>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                Pago Seguro
+              </span>
             </p>
 
             <div className="form-card">
-              <div>
+              <form onSubmit={handleSubmit}>
+                {/* Card Number */}
                 <div className="field-group">
-                  <label className="field-label">Número de Tarjeta</label>
+                  <label htmlFor="cardNumber" className="field-label">Número de Tarjeta</label>
                   <div className="field-wrapper">
                     <input
                       type="text"
+                      id="cardNumber"
                       name="cardNumber"
                       className={`field-input card-number-input${errors.cardNumber ? ' has-error' : ''}`}
                       placeholder="1234  5678  9012  3456"
@@ -345,10 +419,12 @@ export default function PagosForm() {
                   {errors.cardNumber && <p className="field-error"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>{errors.cardNumber}</p>}
                 </div>
 
+                {/* Card Name — solo mayúsculas */}
                 <div className="field-group">
-                  <label className="field-label">Nombre del Titular</label>
+                  <label htmlFor="cardName" className="field-label">Nombre del Titular</label>
                   <input
                     type="text"
+                    id="cardName"
                     name="cardName"
                     className={`field-input${errors.cardName ? ' has-error' : ''}`}
                     placeholder="Nombre del Titular"
@@ -357,15 +433,17 @@ export default function PagosForm() {
                     onFocus={() => setFocused('cardName')}
                     onBlur={() => setFocused(null)}
                     autoComplete="cc-name"
+                    style={{ textTransform: 'uppercase', letterSpacing: '.06em' }}
                   />
                   {errors.cardName && <p className="field-error"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>{errors.cardName}</p>}
                 </div>
 
                 <div className="two-col">
                   <div className="field-group">
-                    <label className="field-label">Vencimiento</label>
+                    <label htmlFor="expiryDate" className="field-label">Vencimiento</label>
                     <input
                       type="text"
+                      id="expiryDate"
                       name="expiryDate"
                       className={`field-input${errors.expiryDate ? ' has-error' : ''}`}
                       placeholder="MM / YY"
@@ -380,13 +458,15 @@ export default function PagosForm() {
                     {errors.expiryDate && <p className="field-error" style={{ fontSize: '.7rem' }}>{errors.expiryDate}</p>}
                   </div>
 
+                  {/* ↓ CVV censurado: type=password con fuente de puntos elegantes */}
                   <div className="field-group">
-                    <label className="field-label">CVV</label>
+                    <label htmlFor="cvv" className="field-label">CVV</label>
                     <input
-                      type="text"
+                      type="password"
+                      id="cvv"
                       name="cvv"
                       className={`field-input${errors.cvv ? ' has-error' : ''}`}
-                      placeholder="···"
+                      placeholder="•••"
                       value={formData.cvv}
                       onChange={handleInputChange}
                       onFocus={() => { setFocused('cvv'); setCardFlipped(true); }}
@@ -394,6 +474,7 @@ export default function PagosForm() {
                       maxLength="4"
                       inputMode="numeric"
                       autoComplete="cc-csc"
+                      style={{ letterSpacing: '.2em', fontFamily: 'Courier New, monospace' }}
                     />
                     {errors.cvv && <p className="field-error" style={{ fontSize: '.7rem' }}>{errors.cvv}</p>}
                   </div>
@@ -412,24 +493,19 @@ export default function PagosForm() {
                   ))}
                 </div>
 
-                <button type="button" className="submit-btn" disabled={loading} onClick={handleSubmit}>
+                <button type="submit" className="submit-btn" disabled={loading}>
                   <span className="submit-btn-inner">
                     {loading ? (
                       <><div className="spinner" />Procesando pago…</>
                     ) : (
-                      <><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>Confirmar Pago</>
+                      <><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>Reservar Ahora</>
                     )}
                   </span>
                 </button>
-              </div>
+              </form>
             </div>
 
-            <div className="secure-badges">
-              <span className="secure-badge">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                Pago Seguro
-              </span>
-            </div>
+
           </div>
         </div>
       </main>

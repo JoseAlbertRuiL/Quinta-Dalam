@@ -1,0 +1,11 @@
+/* src/styles/global.css */
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #1a4d2e; /* Verde oscuro elegante */
+  --color-secondary: #4f7942; /* Verde medio */
+  --color-accent: #d4a574; /* Dorado beige */
+  --color-dark: #2c3e50;
+  --color-light: #f8f9fa;
+  --color-text: #333;
+}

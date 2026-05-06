@@ -1,7 +1,7 @@
 ---
 // ↓ Importamos el Footer específico para nuestra sección admin/
 import FooterAdmin from "../components/FooterAdmin.astro";
-import "../styles/globals.css";
+import "../styles/global.css";
 
 // ↓ Recibimos las propiedades que nos envían las páginas
 // ↓ favicon tiene valor default: usa admin-icon.png si no se especifica otro
@@ -26,14 +26,8 @@ const { title, favicon = "/images/admin-icon.png" } = Astro.props;
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
     />
-
-    <!-- ! CSS -->
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css"
-    />
   </head>
-  <body>
+  <body class="bg-[#0a0a0a] text-white min-h-screen flex flex-col font-sans">
     <slot />
     <FooterAdmin />
   </body>

@@ -2,17 +2,13 @@
 // ↓ Importamos nuestra Plantilla Base
 import Layout from "../layouts/Layout.astro";
 // ↓ Importamos nuestro componente de Reservación dentro del index.astro
-import PanelReservation from "../components/PanelReservation.jsx";
+import PanelReservation from "../components/PanelReservation.astro";
 
 // ↓ Importamos el componente Image para optimizar imágenes pesadas
-import { Image, getImage } from "astro:assets";
+import { Image } from "astro:assets";
 import instalacionesImg from "../assets/images/Instalaciones.png";
 import habitacionImg from "../assets/images/habitacion.png";
 import serviciosImg from "../assets/images/servicios2.jpg";
-import indexImg from "../assets/images/imagenHero.png";
-
-// ↓ Le pedimos a Astro que genere una imagen optimizada
-const optimizedIndex = await getImage({ src: indexImg, format: "webp" });
 ---
 
 <!--
@@ -23,34 +19,176 @@ Al usar title="", le pasamos la variable al <head> de la página en cuestión
   <main>
     <!-- * <main>: Define el contenido principal y único de la página web dentro del <body> -->
     <!-- Sección Inicio / Hero -->
-    <section
-      id="inicio"
-      style={`background-image: url(${optimizedIndex.src});`}
-    >
-      <!-- ? <section>: Sirve para dividir semánticamente en partes diferentes los elementos HTML -->
-      <header>
-        <!--? <header>: Indica el título o titural de la sección -->
-        <h2>Vive la magia de Michoacán en cada rincón.</h2>
-        <!-- Eslogan o frase insignia -->
-      </header>
-      <div>
-        <p>
-          Bienvenido a <strong>Hotel Quinta Dalam</strong>, un espacio diseñado
-          para que vivas la experiencia de los Pueblos Mágicos de Michoacán.
-        </p>
-        <p>
-          En <strong>Hotel Quinta Dalam</strong>
-          contamos con 15 habitaciones temáticas y todos los servicios para una estadía
-          inolvidable.
-        </p>
+    <section id="inicio" class="hero-section">
+      <style>
+        @import url("https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap");
+
+        .hero-section {
+          background: #ffffff; /* Fondo blanco forzado desde el componente */
+          color: inherit;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+          padding: 6rem 1.5rem;
+          position: relative;
+          min-height: 400px;
+        }
+
+        .font-luxury {
+          font-family: "Playfair Display", serif;
+        }
+
+        /* Hero layout general */
+        .hero-row {
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          justify-content: center;
+          gap: clamp(2rem, 5vw, 5rem);
+          width: 100%;
+          max-width: 1300px;
+          margin: 0 auto 2.5rem;
+          position: relative;
+          z-index: 10;
+        }
+
+        .hero-text-group {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 1.5rem;
+        }
+
+        /* Título Principal */
+        .main-title {
+          font-size: clamp(3.5rem, 7.5vw, 8.5rem);
+          font-weight: 900;
+          line-height: 1;
+          letter-spacing: -0.03em;
+          margin: 0;
+        }
+
+        /* Layout paralelo para los subtítulos */
+        .hero-inline-row {
+          display: flex;
+          flex-direction: row;
+          align-items: flex-start;
+          gap: clamp(1.5rem, 3vw, 3rem);
+          width: 100%;
+        }
+
+        .hero-subtext-box {
+          flex: 1; /* Ambos contenedores toman exactamente el 50% del espacio disponible */
+        }
+
+        /* Línea divisoria */
+        .hero-inline-row .hero-subtext-box:first-child {
+          border-right: 1px solid rgba(180, 140, 30, 0.25);
+          padding-right: clamp(1.5rem, 3vw, 3rem);
+        }
+
+        /* Clase unificada para igualar el estilo de h2 y p */
+        .hero-subtext {
+          color: #111;
+          font-size: clamp(
+            1rem,
+            1.5vw,
+            1.4rem
+          ); /* Ajustado para que no se vea gigante */
+          font-weight: 300;
+          font-style: italic;
+          line-height: 1.6;
+          margin: 0;
+        }
+
+        .hero-subtext strong {
+          font-weight: 700;
+          color: #000;
+        }
+
+        /* Configuración del Logo */
+        .hero-logo-box {
+          flex-shrink: 0;
+          width: clamp(180px, 18vw, 320px);
+          animation: float-slow 8s ease-in-out infinite;
+        }
+
+        .hero-logo-box img {
+          width: 100%;
+          height: auto;
+          filter: drop-shadow(0 0 40px rgba(212, 175, 55, 0.35));
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+          .hero-row {
+            flex-direction: column;
+            align-items: center;
+          }
+          .hero-text-group {
+            align-items: center;
+            text-align: center;
+          }
+          .hero-inline-row {
+            flex-direction: column;
+            gap: 1.5rem;
+          }
+          /* En móviles cambiamos la línea lateral por una inferior */
+          .hero-inline-row .hero-subtext-box:first-child {
+            border-right: none;
+            padding-right: 0;
+            border-bottom: 1px solid rgba(180, 140, 30, 0.25);
+            padding-bottom: 1.5rem;
+          }
+        }
+      </style>
+
+      <div class="hero-row hidden-item">
+        <div class="hero-text-group">
+          <div class="title-reveal-wrapper">
+            <h1
+              class="font-luxury main-title text-gradient-gold title-reveal-text"
+            >
+              Hotel Quinta Dalam
+            </h1>
+          </div>
+
+          <div class="hero-inline-row">
+            <div
+              class="title-reveal-wrapper hero-subtext-box"
+              style="transition-delay: 0.4s;"
+            >
+              <h2 class="font-luxury title-reveal-text hero-subtext">
+                Vive la magia de Michoacán en cada rincón.
+              </h2>
+            </div>
+
+            <div
+              class="title-reveal-wrapper hero-subtext-box"
+              style="transition-delay: 0.7s;"
+            >
+              <p class="font-luxury title-reveal-text hero-subtext">
+                Bienvenido a <strong>Hotel Quinta Dalam</strong>, un espacio
+                diseñado para que vivas la experiencia de los Pueblos Mágicos de
+                Michoacán. Contamos con <strong
+                  >15 habitaciones temáticas</strong
+                > y todos los servicios para una estadía inolvidable.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-logo-box">
+          <img src="/images/Hotel_icono.png" alt="Logo Hotel Quinta Dalam" />
+        </div>
       </div>
     </section>
-    <br />
-    <br />
-    <br />
-    <PanelReservation client:load />
 
-    <section id="video">
+    <PanelReservation />
+
+    <section id="video" class="hidden-item">
       <header>
         <h3 style="display: none">Bienvenido</h3>
       </header>
@@ -66,7 +204,7 @@ Al usar title="", le pasamos la variable al <head> de la página en cuestión
 
     <section id="features">
       <!-- * Contenedor Grid para las 3 secciones -->
-      <div class="seccion-grid">
+      <div class="seccion-grid hidden">
         <!-- Instalaciones -->
         <div class="seccion-item">
           <h2>Instalaciones</h2>
@@ -124,8 +262,31 @@ Al usar title="", le pasamos la variable al <head> de la página en cuestión
       </div>
     </section>
 
+    <!-- Sección Ubicación -->
+    <section id="ubicacion" class="hidden-item">
+      <header>
+        <h2>Nuestra ubicación</h2>
+      </header>
+
+  <p>
+    Por el momento solo pondremos la ubicacion de Tec
+  </p>
+
+  <div>
+    <iframe
+      src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d30046.038694760467!2d-101.187584!3d19.723059199999998!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x842d0e40be8f4d3b%3A0xf001c256ae856856!2sInstituto%20Tecnol%C3%B3gico%20de%20Morelia!5e0!3m2!1ses!2smx!4v1776265880492!5m2!1ses!2smx"
+      width="100%"
+      height="400"
+      allowfullscreen=""
+      loading="lazy"
+      referrerpolicy="no-referrer-when-downgrade"
+      title="Mapa ubicación ITM Morelia"
+    ></iframe>
+  </div>
+</section>
+
     <!-- Sección Reservar -->
-    <section id="reservar">
+    <section id="reservar" class="hidden-item">
       <header>
         <h2>Reservar</h2>
       </header>

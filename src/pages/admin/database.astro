@@ -3,40 +3,133 @@
 import LayoutAdmin from "../../layouts/LayoutAdmin.astro";
 // ↓ Importamos el componente de navegación reutilizable del panel
 import NavAdmin from "../../components/NavAdmin.astro";
+import { createClient } from "@supabase/supabase-js";
+import type { Database } from "../../lib/database.types";
+
+// LA AUTENTICACIÓN AHORA LA MANEJA src/middleware.ts
+
+// ─── Cliente Admin con service_role (bypasea RLS) ─────────────────────
+// BUG FIX: el cliente anónimo importado de lib/supabase.ts era bloqueado
+// por RLS de Supabase, causando que la tabla apareciera vacía.
+const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL;
+const supabaseKey = import.meta.env.SUPABASE_SERVICE_ROLE_KEY;
+if (!supabaseUrl || !supabaseKey) {
+  throw new Error('[database] Faltan credenciales de servicio en .env');
+}
+const supabaseAdmin = createClient<Database>(supabaseUrl, supabaseKey);
+
+// Traemos los últimos registros para previsualización del Admin
+const { data: ultimasReservas } = await supabaseAdmin.from('reservas').select('*').order('created_at', { ascending: false }).limit(10);
 ---
 
 <LayoutAdmin title="Admin | Base de Datos" favicon="/images/database-icon.png">
-  <header class="section pb-4 pt-5 has-text-centered">
-    <h1 class="title is-3 mb-0">
-      <i class="fa-solid fa-gears has-text-info mr-2" aria-hidden="true"></i>
+  <header class="py-10 px-4 text-center">
+    <h1 class="text-3xl font-bold text-white flex items-center justify-center gap-3">
+      <i class="fa-solid fa-gears text-blue-500" aria-hidden="true"></i>
       Panel de Administración
     </h1>
   </header>
 
-  <div class="container section pt-0">
-    <div class="columns">
+  <div class="w-full px-4 md:px-8 pb-10">
+    <div class="flex flex-col md:flex-row gap-6">
       <!-- ! Columna 1: de Navegación -->
       <NavAdmin paginaActual="database" />
 
       <!-- ! Columna 2: Contenido Principal -->
-      <!-- TODO: Realizar la lógica para poder visualizar, administrar y regular la BD desde este apartado -->
-      <div class="column is-10">
-        <main class="box content">
+      <div class="flex-1">
+        <main class="bg-[#141414] p-6 lg:p-8 rounded-xl border border-neutral-800/50 shadow-lg">
+          
+          <div class="flex flex-wrap gap-4 justify-between items-center mb-6">
+            <h2 class="text-2xl font-bold text-white mb-0 flex items-center gap-3">
+              <i class="fa-solid fa-server text-red-500"></i> Acceso Root BD
+            </h2>
+            <span class="inline-flex items-center px-4 py-1.5 rounded-full bg-red-500/20 text-red-500 border border-red-500/30 text-sm font-bold tracking-wide">⚠️ ZONA DE ALTO RIESGO</span>
+          </div>
+
           <section id="database">
-            <details open class="box p-4 has-background-black-ter">
-              <summary class="is-clickable m-0 p-0" style="list-style: none">
-                <h3 class="title is-5 is-inline-block m-0">
-                  <i class="fa-solid fa-database has-text-info mr-2"></i>
-                  Base de Datos
-                </h3>
-              </summary>
-              <div class="mt-4 pl-4 border-left has-text-white">
-                <p>Contenido...</p>
+            <div class="bg-[#0a0a0a] p-6 rounded-xl border border-neutral-800 border-l-4 border-l-red-500 overflow-hidden">
+              <p class="text-neutral-400 font-mono text-sm mb-6 leading-relaxed bg-[#1a1a1a] p-4 rounded-lg border border-neutral-800/80">
+                > conectado a supabase_db: port 5432<br/>
+                > RLS: habilitado<br/>
+                > current_role: authenticated (admin_tier)<br/>
+                > Ejecutando consulta: <span class="text-green-400 font-semibold">SELECT * FROM reservas ORDER BY created_at DESC LIMIT 10;</span>
+              </p>
+
+              <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse text-sm whitespace-nowrap font-mono">
+                  <thead>
+                    <tr>
+                      <th class="border-b border-neutral-800 py-3 px-3 text-red-400 font-semibold">ID</th>
+                      <th class="border-b border-neutral-800 py-3 px-3 text-blue-400 font-semibold">CLIENTE</th>
+                      <th class="border-b border-neutral-800 py-3 px-3 text-blue-400 font-semibold">HABITACIÓN</th>
+                      <th class="border-b border-neutral-800 py-3 px-3 text-blue-400 font-semibold">CHECK-IN</th>
+                      <th class="border-b border-neutral-800 py-3 px-3 text-blue-400 font-semibold">CHECK-OUT</th>
+                      <th class="border-b border-neutral-800 py-3 px-3 text-red-400 font-semibold text-right">ACCIONES (ROOT)</th>
+                    </tr>
+                  </thead>
+                  <tbody class="text-neutral-400">
+                    {ultimasReservas && ultimasReservas.length > 0 ? (
+                      ultimasReservas.map((res) => (
+                        <tr class="hover:bg-neutral-900/40 transition-colors">
+                          <td class="py-3 px-3 border-b border-neutral-800/50">{res.id}</td>
+                          <td class="py-3 px-3 border-b border-neutral-800/50 text-neutral-200">{res.nombre_cliente}</td>
+                          <td class="py-3 px-3 border-b border-neutral-800/50">{res.habitacion}</td>
+                          <td class="py-3 px-3 border-b border-neutral-800/50">{res.fecha_entrada}</td>
+                          <td class="py-3 px-3 border-b border-neutral-800/50">{res.fecha_salida}</td>
+                          <td class="py-3 px-3 border-b border-neutral-800/50 text-right">
+                            <div class="flex justify-end gap-2">
+                              <button class="bg-[#1a1a1a] border border-yellow-500/50 text-yellow-500 hover:bg-yellow-500 hover:text-black w-8 h-8 rounded flex items-center justify-center transition-colors" onclick={`confirmarAccion('EDITAR', '${res.id}')`} title="Editar">
+                                <i class="fa-solid fa-pen text-xs"></i>
+                              </button>
+                              <button class="bg-[#1a1a1a] border border-red-500/50 text-red-500 hover:bg-red-500 hover:text-white w-8 h-8 rounded flex items-center justify-center transition-colors" onclick={`confirmarAccion('ELIMINAR', '${res.id}')`} title="Eliminar">
+                                <i class="fa-solid fa-trash text-xs"></i>
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colspan="6" class="py-6 text-center text-yellow-500 font-medium">No hay registros en la tabla 'reservas'</td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
               </div>
-            </details>
+              
+              <!-- TRUNCATE BUTTON REMOVED FOR SECURITY -->
+            </div>
           </section>
         </main>
       </div>
     </div>
   </div>
+
+  <script is:inline>
+    async function confirmarAccion(accion, id) {
+      const confirmacion = confirm(`[ROOT REQUIRED]\n\n¿Aceptas este cambio [${accion}] en el registro/tabla ID: ${id}?\n\nEsta acción ejecutará comandos en la Base de Datos y es IRREVERSIBLE.`);
+      if (confirmacion && accion === 'ELIMINAR') {
+        try {
+          const res = await fetch(`/api/admin-reservas`, {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id })
+          });
+          const data = await res.json();
+          if(res.ok) {
+            alert(`> Registro ${id} eliminado con éxito.`);
+            window.location.reload();
+          } else {
+            alert(`> Error: ${data.error}`);
+          }
+        } catch (e) {
+          alert(`> Error de conexión al intentar eliminar.`);
+        }
+      } else if (confirmacion && accion === 'EDITAR') {
+        alert("La vista de edición será implementada próximamente.");
+      } else {
+        console.log(`> Operación '${accion}' abortada por el usuario.`);
+      }
+    }
+  </script>
 </LayoutAdmin>

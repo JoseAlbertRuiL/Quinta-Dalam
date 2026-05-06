@@ -3,78 +3,211 @@
 import LayoutAdmin from "../../layouts/LayoutAdmin.astro";
 // ↓ Importamos el componente de navegación reutilizable del panel
 import NavAdmin from "../../components/NavAdmin.astro";
+import { createClient } from '@supabase/supabase-js';
+import type { Database } from '../../lib/database.types';
+
+// LA AUTENTICACIÓN AHORA LA MANEJA src/middleware.ts
+
+// ─── Cliente Admin SSR ─────────────────────────────────────────────────
+const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL;
+const supabaseKey = import.meta.env.SUPABASE_SERVICE_ROLE_KEY;
+if (!supabaseUrl || !supabaseKey) {
+  throw new Error('[balance] Faltan credenciales de servicio en .env');
+}
+const supabaseAdmin = createClient<Database>(supabaseUrl, supabaseKey);
+
+// ─── Datos reales de BD ────────────────────────────────────────────────
+const { data: reservas } = await supabaseAdmin.from('reservas').select('*');
+const { data: habitaciones } = await supabaseAdmin.from('habitaciones').select('*');
+
+const hoy = new Date();
+hoy.setHours(0, 0, 0, 0);
+
+// ─── Ingresos del mes actual ───────────────────────────────────────────
+const primerDiaMes = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+const ultimoDiaMes = new Date(hoy.getFullYear(), hoy.getMonth() + 1, 0);
+
+// ─── Matching atómico: reservas.habitacion === habitaciones.nombre ────
+
+const reservasDelMes = reservas?.filter(r => {
+  const entrada = new Date(r.fecha_entrada + "T00:00:00");
+  const salida = new Date(r.fecha_salida + "T00:00:00");
+  return entrada <= ultimoDiaMes && salida >= primerDiaMes;
+}) || [];
+
+// Calcular ingreso total mes con noches prorrateadas
+let ingresoTotalMes = 0;
+const ingresosPorTipo: Record<string, number> = {};
+
+reservasDelMes.forEach(r => {
+  const hab = habitaciones?.find(h => h.nombre === r.habitacion);
+  if (!hab) return;
+  const tipo = hab.tipo || 'Otro';
+  const inicioEfectivo = new Date(Math.max(new Date(r.fecha_entrada + "T00:00:00").getTime(), primerDiaMes.getTime()));
+  const finEfectivo = new Date(Math.min(new Date(r.fecha_salida + "T00:00:00").getTime(), ultimoDiaMes.getTime()));
+  // BUG FIX: Math.max(0,...) para no inventar noches
+  const noches = Math.max(0, Math.ceil((finEfectivo.getTime() - inicioEfectivo.getTime()) / 86400000));
+  const monto = Number(hab.precio) * noches;
+  
+  ingresoTotalMes += monto;
+  ingresosPorTipo[tipo] = (ingresosPorTipo[tipo] || 0) + monto;
+});
+
+// Gastos estimados (nómina + operativos)
+const gastoNomina = 29000;  // Carlos $13,500 + Ana $8,500 + Raúl $7,000
+const gastoOperativo = 8500; // Servicios, mantenimiento, insumos
+const gastosTotal = gastoNomina + gastoOperativo;
+
+// IVA
+const iva = ingresoTotalMes * 0.16;
+const ingresoNeto = ingresoTotalMes - iva;
+const balanceReal = ingresoNeto - gastosTotal;
+
+// Porcentajes por tipo
+const tiposConPorcentaje = Object.entries(ingresosPorTipo).map(([tipo, monto]) => ({
+  tipo,
+  monto,
+  porcentaje: ingresoTotalMes > 0 ? Math.round((monto / ingresoTotalMes) * 100) : 0,
+}));
+
+const nombreMes = hoy.toLocaleDateString('es-MX', { month: 'long', year: 'numeric' });
+const fechaHoy = hoy.toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' });
 ---
 
 <LayoutAdmin title="Admin | Balance" favicon="/images/balance-icono.png">
-  <header class="section pb-4 pt-5 has-text-centered">
-    <h1 class="title is-3 mb-0">
-      <i class="fa-solid fa-gears has-text-info mr-2" aria-hidden="true"></i>
+  <header class="py-10 px-4 text-center">
+    <h1 class="text-3xl font-bold text-white flex items-center justify-center gap-3">
+      <i class="fa-solid fa-gears text-blue-500" aria-hidden="true"></i>
       Panel de Administración
     </h1>
   </header>
 
-  <div class="container section pt-0">
-    <div class="columns">
+  <div class="w-full px-4 md:px-8 pb-10">
+    <div class="flex flex-col md:flex-row gap-6">
       <!-- ! Columna 1: de Navegación -->
       <NavAdmin paginaActual="balance" />
 
       <!-- ! Columna 2: Contenido Principal -->
-      <div class="column is-10">
-        <main class="box content">
-          <section id="balance">
-            <details open class="box p-4 has-background-black-ter">
-              <summary class="is-clickable m-0 p-0" style="list-style: none">
-                <h3 class="title is-5 is-inline-block m-0">
-                  <i class="fa-solid fa-cash-register has-text-info mr-2"></i>
-                  Balance y Caja
-                </h3>
-              </summary>
-              <div class="mt-4 pl-4 border-left has-text-white">
-                <div class="box">
-                  <h5 class="title is-5 mb-4 has-text-white">
-                    Resumen de Estados
-                  </h5>
-                  <ul
-                    class="is-size-6 has-text-grey-light"
-                    style="list-style-type: none; margin-left: 0"
-                  >
-                    <li class="mb-4">
-                      <strong class="has-text-info">Saldo Total en Caja:</strong
-                      >
-                      Actualmente en [x] fecha se dispone de $[y]MXN en efectivo.
-                    </li>
-                    <li class="mb-4">
-                      <strong class="has-text-info">Balance Bancario:</strong>
-                      Actualmente dentro de nuestro balance bancario (integrando cuentas
-                      digitales y de bancos) contamos con un saldo de: $[y]MXN
-                    </li>
-                    <li class="mb-4">
-                      <strong class="has-text-info">Ingresos del Mes:</strong>
-                      Actualmente percibimos un ingreso mensual estimado de $[x]MXN,
-                      de los cuales se estuvieron de estos diferentes ingresos:
-                      <ol type="a" class="mt-2 ml-5 has-text-grey-light">
-                        <li class="mb-2">
-                          Restaurante: $[x]MXN, de los cuales representan un
-                          [y]% de nuestros ingresos <em>totales</em>.
-                        </li>
-                        <li class="mb-2">
-                          Hotel (Habitaciones): $[x]MXN, de los cuales
-                          representan un [y]% de nuestros ingresos
-                          <em>totales</em>.
-                        </li>
-                        <li class="mb-2">
-                          Snacks, room service & máquina expendedora: $[x]MXN,
-                          de los cuales representan un [y]% de nuestros ingresos <em
-                            >totales</em
-                          >.
-                        </li>
-                      </ol>
-                    </li>
-                  </ul>
-                </div>
+      <div class="flex-1">
+        <main class="bg-[#141414] p-6 lg:p-8 rounded-xl border border-neutral-800/50 shadow-lg">
+          
+          <!-- Header de sección -->
+          <div class="flex flex-wrap gap-4 justify-between items-center mb-8">
+            <div>
+              <h2 class="text-2xl font-bold text-white mb-1 flex items-center gap-3">
+                <i class="fa-solid fa-cash-register text-blue-500"></i> Balance y Caja
+              </h2>
+              <p class="text-neutral-500 text-sm">Datos en tiempo real · <span class="text-neutral-400 capitalize">{nombreMes}</span></p>
+            </div>
+            <span class="inline-flex items-center px-4 py-1.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20 text-sm font-medium">
+              <i class="fa-solid fa-clock mr-2"></i> Actualizado: {fechaHoy}
+            </span>
+          </div>
+
+          <!-- KPIs de Balance -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-8">
+            <!-- Ingreso Bruto -->
+            <div class="bg-[#0a0a0a] p-5 rounded-xl border border-neutral-800 border-l-4 border-l-blue-500">
+              <p class="text-xs uppercase tracking-widest text-neutral-500 mb-2 font-semibold">Ingreso Bruto</p>
+              <p class="text-2xl font-bold text-white">${ingresoTotalMes.toLocaleString('es-MX')}</p>
+              <p class="text-neutral-600 text-xs mt-1">{reservasDelMes.length} reserva(s) este mes</p>
+            </div>
+            <!-- IVA -->
+            <div class="bg-[#0a0a0a] p-5 rounded-xl border border-neutral-800 border-l-4 border-l-red-500">
+              <p class="text-xs uppercase tracking-widest text-red-400 mb-2 font-semibold">IVA (16%)</p>
+              <p class="text-2xl font-bold text-red-500">-${iva.toLocaleString('es-MX')}</p>
+              <p class="text-neutral-600 text-xs mt-1">Retención obligatoria</p>
+            </div>
+            <!-- Gastos -->
+            <div class="bg-[#0a0a0a] p-5 rounded-xl border border-neutral-800 border-l-4 border-l-yellow-500">
+              <p class="text-xs uppercase tracking-widest text-yellow-400 mb-2 font-semibold">Gastos Totales</p>
+              <p class="text-2xl font-bold text-yellow-500">-${gastosTotal.toLocaleString('es-MX')}</p>
+              <p class="text-neutral-600 text-xs mt-1">Nómina + operativos</p>
+            </div>
+            <!-- Balance -->
+            <div class={`bg-[#0a0a0a] p-5 rounded-xl border border-neutral-800 border-l-4 ${balanceReal >= 0 ? 'border-l-green-500' : 'border-l-red-500'}`}>
+              <p class="text-xs uppercase tracking-widest text-neutral-500 mb-2 font-semibold">Balance Real</p>
+              <p class={`text-2xl font-bold ${balanceReal >= 0 ? 'text-green-500' : 'text-red-500'}`}>{balanceReal >= 0 ? '+' : ''}${balanceReal.toLocaleString('es-MX')}</p>
+              <p class="text-neutral-600 text-xs mt-1">{balanceReal >= 0 ? 'Rentable' : 'Déficit'} este mes</p>
+            </div>
+          </div>
+
+          <!-- Desglose de Ingresos por Tipo -->
+          <div class="bg-[#0a0a0a] p-6 rounded-xl border border-neutral-800 border-l-4 border-l-blue-600 mb-6">
+            <h3 class="text-lg font-semibold text-white flex items-center gap-2 mb-6">
+              <i class="fa-solid fa-chart-pie text-blue-500"></i> Desglose de Ingresos por Tipo de Habitación
+            </h3>
+            
+            {tiposConPorcentaje.length > 0 ? (
+              <div class="space-y-4">
+                {tiposConPorcentaje.map(({ tipo, monto, porcentaje }) => (
+                  <div>
+                    <div class="flex justify-between items-baseline mb-1.5">
+                      <span class="text-neutral-300 font-medium text-sm">{tipo}</span>
+                      <div class="flex items-center gap-3">
+                        <span class="text-neutral-500 text-xs">{porcentaje}%</span>
+                        <span class="text-white font-semibold text-sm">${monto.toLocaleString('es-MX')} MXN</span>
+                      </div>
+                    </div>
+                    <div class="w-full h-2 bg-neutral-800 rounded-full overflow-hidden">
+                      <div class="h-full bg-blue-500 rounded-full transition-all duration-700" style={`width: ${porcentaje}%`}></div>
+                    </div>
+                  </div>
+                ))}
               </div>
-            </details>
-          </section>
+            ) : (
+              <p class="text-neutral-500 text-center py-4">No hay reservas registradas para este mes.</p>
+            )}
+          </div>
+
+          <!-- Desglose de Gastos -->
+          <div class="bg-[#0a0a0a] p-6 rounded-xl border border-neutral-800 border-l-4 border-l-yellow-600">
+            <h3 class="text-lg font-semibold text-white flex items-center gap-2 mb-6">
+              <i class="fa-solid fa-receipt text-yellow-500"></i> Desglose de Gastos Fijos
+            </h3>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse text-sm">
+                <thead>
+                  <tr>
+                    <th class="border-b border-neutral-800 py-3 px-3 text-neutral-400 font-medium">Concepto</th>
+                    <th class="border-b border-neutral-800 py-3 px-3 text-neutral-400 font-medium text-right">Monto</th>
+                    <th class="border-b border-neutral-800 py-3 px-3 text-neutral-400 font-medium text-right">% del Gasto</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr class="hover:bg-neutral-900/40 transition-colors">
+                    <td class="py-3 px-3 border-b border-neutral-800/50 text-white font-medium">
+                      <i class="fa-solid fa-users text-blue-400 mr-2"></i> Nómina (3 empleados)
+                    </td>
+                    <td class="py-3 px-3 border-b border-neutral-800/50 text-yellow-500 text-right font-semibold">${gastoNomina.toLocaleString('es-MX')} MXN</td>
+                    <td class="py-3 px-3 border-b border-neutral-800/50 text-neutral-400 text-right">{Math.round((gastoNomina / gastosTotal) * 100)}%</td>
+                  </tr>
+                  <tr class="hover:bg-neutral-900/40 transition-colors">
+                    <td class="py-3 px-3 border-b border-neutral-800/50 text-white font-medium">
+                      <i class="fa-solid fa-toolbox text-green-400 mr-2"></i> Servicios y Mantenimiento
+                    </td>
+                    <td class="py-3 px-3 border-b border-neutral-800/50 text-yellow-500 text-right font-semibold">${gastoOperativo.toLocaleString('es-MX')} MXN</td>
+                    <td class="py-3 px-3 border-b border-neutral-800/50 text-neutral-400 text-right">{Math.round((gastoOperativo / gastosTotal) * 100)}%</td>
+                  </tr>
+                  <tr class="hover:bg-neutral-900/40 transition-colors">
+                    <td class="py-3 px-3 border-b border-neutral-800/50 text-white font-medium">
+                      <i class="fa-solid fa-landmark text-red-400 mr-2"></i> IVA Retenido (16%)
+                    </td>
+                    <td class="py-3 px-3 border-b border-neutral-800/50 text-red-500 text-right font-semibold">${iva.toLocaleString('es-MX')} MXN</td>
+                    <td class="py-3 px-3 border-b border-neutral-800/50 text-neutral-400 text-right">—</td>
+                  </tr>
+                </tbody>
+                <tfoot>
+                  <tr>
+                    <td class="py-3 px-3 text-white font-bold text-base">Total Egresos</td>
+                    <td class="py-3 px-3 text-red-400 text-right font-bold text-base">${(gastosTotal + iva).toLocaleString('es-MX')} MXN</td>
+                    <td class="py-3 px-3 text-neutral-400 text-right">100%</td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          </div>
+
         </main>
       </div>
     </div>
