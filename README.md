@@ -8,9 +8,11 @@
 
 ## 🌟 Propósito
 
+
 El **Hotel Quinta Dalam** es una propuesta web moderna y responsiva diseñada para capturar la esencia cultural de los Pueblos Mágicos de Michoacán. Este proyecto busca proporcionar una experiencia de usuario fluida, cumpliendo con los requerimientos académicos de la materia de **Programación Web** y apuntando a ser un espacio de desarrollo para un entorno profesional.
 
 Actualmente, el proyecto ha escalado y ha sido migrado al poderoso ecosistema de **Astro**, permitiendo una mayor modularidad de componentes, mejor experiencia de desarrollo y un rendimiento inigualable.
+
 
 ---
 
@@ -21,6 +23,7 @@ Actualmente, el proyecto ha escalado y ha sido migrado al poderoso ecosistema de
 - **💬 Interacción Directa**: Integración con redes sociales y reserva vía WhatsApp.
 - **⚡ Rendimiento Ultra Rápido**: Gracias a la arquitectura de **Astro**, el sitio comprime y sirve código HTML optimizado.
 - **🧱 Modularidad**: Uso de componentes reutilizables como Layouts, Headers y Footers.
+
 
 ---
 
