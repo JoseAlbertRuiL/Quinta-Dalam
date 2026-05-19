@@ -1,0 +1,258 @@
+---
+// ↓ Importamos nuestra Plantilla Base
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout title="Términos y Condiciones - Quinta Dalam">
+  <main class="pagina-tyc">
+    <section>
+      <header>
+        <h2>Términos y Condiciones</h2>
+      </header>
+      <p class="intro-text">
+        Por favor, tómese un momento para revisar nuestras políticas y garantizar una estancia mágica e inolvidable.
+      </p>
+
+      <div class="tyc-contenedor">
+        
+        <article class="tyc-bloque bg-light">
+          <h3>Introducción</h3>
+          <p>
+            Bienvenido a Hotel Quinta Dalam. Al realizar una reserva, hacer uso de nuestras instalaciones o utilizar nuestros servicios, usted acepta cumplir con los siguientes términos y condiciones. Nos reservamos el derecho de modificar estos términos en cualquier momento.
+          </p>
+        </article>
+
+        <article class="tyc-bloque bg-white">
+          <h3>Reservaciones y Pagos</h3>
+          <p>
+            Todas las reservaciones están sujetas a disponibilidad. Se requiere un depósito o tarjeta de crédito válida para garantizar la reserva. El pago restante debe liquidarse al momento del check-in.
+          </p>
+        </article>
+
+        <article class="tyc-bloque bg-light">
+          <h3>Política de Cancelación</h3>
+          <p>
+            Las cancelaciones deben realizarse con al menos <strong>48 horas de anticipación</strong> a la fecha de llegada para evitar cargos. Cancelaciones fuera de este plazo o la no presentación (No-Show) incurrirán en el cargo de la primera noche.
+          </p>
+        </article>
+
+        <article class="tyc-bloque bg-white">
+          <h3>Horarios</h3>
+          <p>
+            <strong>Check-in:</strong> A partir de las 15:00 horas.<br />
+            <strong>Check-out:</strong> Hasta las 12:00 horas del mediodía.
+          </p>
+          <p class="nota">
+            El check-out tardío está sujeto a disponibilidad y puede generar cargos adicionales.
+          </p>
+        </article>
+
+        <article class="tyc-bloque bg-light">
+          <h3>Normas de Convivencia</h3>
+          <p>
+            Para garantizar la relajación de todos nuestros huéspedes, se prohíbe el ruido excesivo después de las 22:00 horas. Hotel Quinta Dalam es un <strong>espacio libre de humo</strong> en todas las habitaciones y áreas cerradas.
+          </p>
+        </article>
+
+        <article class="tyc-bloque bg-white">
+          <h3>Responsabilidad</h3>
+          <p>
+            El hotel no se hace responsable por objetos de valor no depositados en la caja fuerte de la habitación o recepción. Cualquier daño causado a las instalaciones por el huésped será cargado a su cuenta.
+          </p>
+        </article>
+
+        <article class="tyc-bloque bg-light">
+          <h3>Uso Justo y Correcto</h3>
+          <p>
+            Todas las instalaciones y servicios del hotel deben ser usados de manera correcta y debida, es decir:
+          </p>
+          <ul class="lista-bonita">
+            <li><i class="fa-solid fa-angle-right"></i> No romper ni maltratar el material de construcción de cualquiera de las instalaciones.</li>
+            <li><i class="fa-solid fa-angle-right"></i> Respetar a todo el personal del Hotel Quinta Dalam, así como a sus huéspedes.</li>
+            <li><i class="fa-solid fa-angle-right"></i> Hacer un uso responsable de las reservaciones y de la página web.</li>
+          </ul>
+        </article>
+
+      </div>
+    </section>
+
+    <!-- Responsabilidades Final -->
+    <section id="responsabilidades" class="responsabilidades-final">
+      <header>
+        <h2>Nuestras Responsabilidades</h2>
+      </header>
+      <div class="resp-content">
+        <p>
+          A cambio de respetar dichas reglas, normas y acuerdos de Términos y Condiciones, nosotros, Hotel Quinta Dalam, nos comprometemos a dar siempre un servicio único y excelente a todos nuestros clientes.
+        </p>
+        <p>
+          No discriminamos por ningún motivo: color de piel, etnia, religión, ideología, apariencia física, sexo o género.
+        </p>
+        <div class="resp-agradecimiento">
+          <p>Gracias por elegirnos como tu hotel de confianza.</p>
+          <span>Aquí vivirás la magia de Michoacán en cada rincón.</span>
+        </div>
+      </div>
+    </section>
+  </main>
+</Layout>
+
+<style>
+  /* ============================
+     Estilos Scoped para TyC 
+  ============================ */
+  .intro-text {
+    max-width: 800px;
+    margin: -1.5rem auto 3rem auto;
+    font-size: 1.15rem;
+    color: var(--color-text);
+    text-align: center;
+  }
+
+  .tyc-contenedor {
+    max-width: 900px;
+    margin: 0 auto;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+    overflow: hidden;
+    border: 1px solid rgba(0,0,0,0.05);
+  }
+
+  /* Intercalando colores de fondo sutiles */
+  .tyc-bloque {
+    padding: 3.5rem 2rem;
+    text-align: center;
+    border-bottom: 1px solid rgba(0,0,0,0.04);
+    transition: var(--transition, all 0.3s ease);
+  }
+  
+  .tyc-bloque:last-child {
+    border-bottom: none;
+  }
+
+  .bg-light {
+    background-color: var(--color-light, #f8f9fa);
+  }
+
+  .bg-white {
+    background-color: var(--color-white, #ffffff);
+  }
+
+  .tyc-bloque h3 {
+    color: var(--color-primary);
+    font-size: 1.6rem;
+    margin-bottom: 1.2rem;
+    font-family: "Georgia", serif;
+    font-weight: 500;
+  }
+
+  .tyc-bloque p {
+    margin: 0 auto 0.8rem auto;
+    max-width: 700px;
+    line-height: 1.8;
+  }
+  
+  .tyc-bloque strong {
+    color: var(--color-dark);
+  }
+
+  .nota {
+    font-size: 0.95rem;
+    color: #666;
+    font-style: italic;
+    margin-top: 0.5rem !important;
+  }
+
+  /* Lista con flecha estilo viñeta */
+  .lista-bonita {
+    margin: 1.5rem auto 0 auto;
+    max-width: 650px;
+    text-align: left; /* Alineado a la izquierda por estética interna, pero en bloque centrado */
+    list-style: none;
+    padding: 0;
+    display: inline-block;
+  }
+
+  .lista-bonita li {
+    padding: 0.6rem 0;
+    font-size: 1.05rem;
+    line-height: 1.6;
+    color: var(--color-text);
+    display: flex;
+    align-items: flex-start;
+    gap: 0.8rem;
+  }
+
+  .lista-bonita i {
+    color: var(--color-accent);
+    background: transparent !important;
+    box-shadow: none !important;
+    width: auto !important;
+    height: auto !important;
+    font-size: 1.1rem;
+    margin-top: 0.2rem;
+  }
+
+  /* Sección Responsabilidades Final */
+  .responsabilidades-final {
+    background: linear-gradient(13deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+    color: var(--color-white);
+    margin: 4rem 2rem 2rem 2rem;
+    border-radius: 16px;
+    text-align: center;
+    padding: 4rem 2rem !important;
+    box-shadow: 0 15px 40px rgba(26, 77, 46, 0.2);
+  }
+
+  .responsabilidades-final header h2 {
+    color: var(--color-white);
+    border: none;
+  }
+
+  .responsabilidades-final header h2::after {
+    background-color: var(--color-accent);
+  }
+
+  .resp-content {
+    max-width: 750px;
+    margin: 0 auto;
+  }
+  
+  .resp-content p {
+    color: rgba(255,255,255,0.9);
+    margin-bottom: 1.2rem;
+    font-size: 1.1rem;
+    text-align: center;
+  }
+
+  .resp-agradecimiento {
+    margin-top: 2.5rem;
+    padding-top: 2rem;
+    border-top: 1px solid rgba(212, 165, 116, 0.3);
+  }
+
+  .resp-agradecimiento p {
+    color: var(--color-accent);
+    font-family: "Georgia", serif;
+    font-size: 1.4rem;
+    font-style: italic;
+    margin-bottom: 0.5rem;
+  }
+
+  .resp-agradecimiento span {
+    display: block;
+    font-size: 1.1rem;
+    color: var(--color-white);
+  }
+
+  @media (max-width: 768px) {
+    .responsabilidades-final {
+      margin: 2rem 1rem;
+      padding: 3rem 1.5rem !important;
+    }
+    
+    .tyc-bloque {
+      padding: 2.5rem 1.5rem;
+    }
+  }
+</style>

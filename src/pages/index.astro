@@ -1,11 +1,290 @@
 ---
-import Welcome from '../components/Welcome.astro';
-import Layout from '../layouts/Layout.astro';
+// ↓ Importamos nuestra Plantilla Base
+import Layout from "../layouts/Layout.astro";
+// ↓ Importamos nuestro componente de Reservación dentro del index.astro
+import PanelReservation from "../components/PanelReservation.astro";
 
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+// ↓ Importamos el componente Image para optimizar imágenes pesadas
+import { Image } from "astro:assets";
+import instalacionesImg from "../assets/images/Instalaciones.png";
+import habitacionImg from "../assets/images/habitacion.png";
+import serviciosImg from "../assets/images/servicios2.jpg";
 ---
 
-<Layout>
-	<Welcome />
+<!--
+Usamos nuestra importaciones usando nuestro Layout (que ya contiene la Base, Header & Footer).
+Al usar title="", le pasamos la variable al <head> de la página en cuestión 
+-->
+<Layout title="Hotel Quinta Dalam">
+  <main>
+    <!-- * <main>: Define el contenido principal y único de la página web dentro del <body> -->
+    <!-- Sección Inicio / Hero -->
+    <section id="inicio" class="hero-section">
+      <style>
+        @import url("https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap");
+
+        .hero-section {
+          background: #ffffff; /* Fondo blanco forzado desde el componente */
+          color: inherit;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+          padding: 6rem 1.5rem;
+          position: relative;
+          min-height: 400px;
+        }
+
+        .font-luxury {
+          font-family: "Playfair Display", serif;
+        }
+
+        /* Hero layout general */
+        .hero-row {
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          justify-content: center;
+          gap: clamp(2rem, 5vw, 5rem);
+          width: 100%;
+          max-width: 1300px;
+          margin: 0 auto 2.5rem;
+          position: relative;
+          z-index: 10;
+        }
+
+        .hero-text-group {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 1.5rem;
+        }
+
+        /* Título Principal */
+        .main-title {
+          font-size: clamp(3.5rem, 7.5vw, 8.5rem);
+          font-weight: 900;
+          line-height: 1;
+          letter-spacing: -0.03em;
+          margin: 0;
+        }
+
+        /* Layout paralelo para los subtítulos */
+        .hero-inline-row {
+          display: flex;
+          flex-direction: row;
+          align-items: flex-start;
+          gap: clamp(1.5rem, 3vw, 3rem);
+          width: 100%;
+        }
+
+        .hero-subtext-box {
+          flex: 1; /* Ambos contenedores toman exactamente el 50% del espacio disponible */
+        }
+
+        /* Línea divisoria */
+        .hero-inline-row .hero-subtext-box:first-child {
+          border-right: 1px solid rgba(180, 140, 30, 0.25);
+          padding-right: clamp(1.5rem, 3vw, 3rem);
+        }
+
+        /* Clase unificada para igualar el estilo de h2 y p */
+        .hero-subtext {
+          color: #111;
+          font-size: clamp(
+            1rem,
+            1.5vw,
+            1.4rem
+          ); /* Ajustado para que no se vea gigante */
+          font-weight: 300;
+          font-style: italic;
+          line-height: 1.6;
+          margin: 0;
+        }
+
+        .hero-subtext strong {
+          font-weight: 700;
+          color: #000;
+        }
+
+        /* Configuración del Logo */
+        .hero-logo-box {
+          flex-shrink: 0;
+          width: clamp(180px, 18vw, 320px);
+          animation: float-slow 8s ease-in-out infinite;
+        }
+
+        .hero-logo-box img {
+          width: 100%;
+          height: auto;
+          filter: drop-shadow(0 0 40px rgba(212, 175, 55, 0.35));
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+          .hero-row {
+            flex-direction: column;
+            align-items: center;
+          }
+          .hero-text-group {
+            align-items: center;
+            text-align: center;
+          }
+          .hero-inline-row {
+            flex-direction: column;
+            gap: 1.5rem;
+          }
+          /* En móviles cambiamos la línea lateral por una inferior */
+          .hero-inline-row .hero-subtext-box:first-child {
+            border-right: none;
+            padding-right: 0;
+            border-bottom: 1px solid rgba(180, 140, 30, 0.25);
+            padding-bottom: 1.5rem;
+          }
+        }
+      </style>
+
+      <div class="hero-row hidden-item">
+        <div class="hero-text-group">
+          <div class="title-reveal-wrapper">
+            <h1
+              class="font-luxury main-title text-gradient-gold title-reveal-text"
+            >
+              Hotel Quinta Dalam
+            </h1>
+          </div>
+
+          <div class="hero-inline-row">
+            <div
+              class="title-reveal-wrapper hero-subtext-box"
+              style="transition-delay: 0.4s;"
+            >
+              <h2 class="font-luxury title-reveal-text hero-subtext">
+                Vive la magia de Michoacán en cada rincón.
+              </h2>
+            </div>
+
+            <div
+              class="title-reveal-wrapper hero-subtext-box"
+              style="transition-delay: 0.7s;"
+            >
+              <p class="font-luxury title-reveal-text hero-subtext">
+                Bienvenido a <strong>Hotel Quinta Dalam</strong>, un espacio
+                diseñado para que vivas la experiencia de los Pueblos Mágicos de
+                Michoacán. Contamos con <strong
+                  >15 habitaciones temáticas</strong
+                > y todos los servicios para una estadía inolvidable.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-logo-box">
+          <img src="/images/Hotel_icono.png" alt="Logo Hotel Quinta Dalam" />
+        </div>
+      </div>
+    </section>
+
+    <PanelReservation />
+
+    <section id="video" class="hidden-item">
+      <header>
+        <h3 style="display: none">Bienvenido</h3>
+      </header>
+      <div>
+        <video
+          class="hero-video"
+          autoplay
+          muted
+          loop
+          src="/media/showcase_hotel.mp4"></video>
+      </div>
+    </section>
+
+    <section id="features">
+      <!-- * Contenedor Grid para las 3 secciones -->
+      <div class="seccion-grid hidden">
+        <!-- Instalaciones -->
+        <div class="seccion-item">
+          <h2>Instalaciones</h2>
+          <a href="/instalaciones">
+            <Image
+              src={instalacionesImg}
+              title="Instalaciones del hotel"
+              alt="Ver más detalles de nuestras instalaciones"
+              width={600}
+              height={400}
+            />
+          </a>
+          <p>
+            Explora nuestros espacios inspirados en la arquitectura colonial,
+            patios y jardines que te transportarán a lo mejor de Michoacán.
+          </p>
+        </div>
+
+        <!-- Habitaciones -->
+        <div class="seccion-item">
+          <h2>Habitaciones</h2>
+          <a href="/habitaciones">
+            <Image
+              src={habitacionImg}
+              title="Habitaciones del hotel"
+              alt="Ver más detalles de nuestras habitaciones"
+              width={600}
+              height={400}
+            />
+          </a>
+          <p>
+            Vive una experiencia única en nuestras 15 habitaciones temáticas,
+            cada una rindiendo homenaje a un Pueblo Mágico distinto.
+          </p>
+        </div>
+
+        <!-- Servicios -->
+        <div class="seccion-item">
+          <h2>Servicios</h2>
+          <a href="/servicios">
+            <Image
+              src={serviciosImg}
+              title="Servicios Premium"
+              alt="Ver más detalles de nuestro servicios de restaurant"
+              width={600}
+              height={400}
+            />
+          </a>
+          <p>
+            Disfruta de servicios diseñados para consentirte, desde gastronomía
+            típica hasta una atención personalizada para tu estadía mágica
+            viviendo Michoacán en cada momento.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Sección Reservar -->
+    <section id="reservar" class="hidden-item">
+      <header>
+        <h2>Reservar</h2>
+      </header>
+      <h3>¿Estás listo para reservar?</h3>
+      <div>
+        <p>
+          Ingresa a nuestra página de
+          <a href="/reservaciones">reservaciones</a>
+          para poder apartar tu lugar en un paraíso en Morelia Michoacán. También
+          puedes reservar rápidamente en nuestro
+          <a
+            href="https://wa.me/443212345678?text=Hola,%20me%20gustar%C3%ADa%20reservar%20una%20habitación%20en%20Hotel%20Quinta%20Dalam"
+            style="display: inline-flex; align-items: center; gap: 5px"
+            target="_blank"
+            aria-label="Reservar por WhatsApp"
+          >
+            <i class="fa-brands fa-whatsapp"></i>
+            WhatsApp
+          </a>
+        </p>
+      </div>
+    </section>
+  </main>
 </Layout>

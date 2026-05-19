@@ -1,0 +1,302 @@
+---
+// ↓ Importamos nuestra Plantilla Base para admin/
+import LayoutAdmin from "../../layouts/LayoutAdmin.astro";
+// ↓ Importamos el componente de navegación reutilizable del panel
+import NavAdmin from "../../components/NavAdmin.astro";
+
+// LA AUTENTICACIÓN AHORA LA MANEJA src/middleware.ts
+// TODO: Implementar sistema de tickets/comunicación dev ↔ admin real
+---
+
+<LayoutAdmin title="Admin | Dev" favicon="/images/dev-icono.png">
+  <header class="py-10 px-4 text-center">
+    <h1
+      class="text-3xl font-bold text-white flex items-center justify-center gap-3"
+    >
+      <i class="fa-solid fa-gears text-blue-500" aria-hidden="true"></i>
+      Panel de Administración
+    </h1>
+  </header>
+
+  <div class="w-full px-4 md:px-8 pb-10">
+    <div class="flex flex-col md:flex-row gap-6">
+      <!-- ! Columna 1: de Navegación -->
+      <NavAdmin paginaActual="dev" />
+
+      <!-- ! Columna 2: Contenido Principal -->
+      <div class="flex-1">
+        <main
+          class="bg-[#141414] p-6 lg:p-8 rounded-xl border border-neutral-800/50 shadow-lg"
+        >
+          <!-- Header -->
+          <div class="flex flex-wrap gap-4 justify-between items-center mb-6">
+            <div>
+              <h2
+                class="text-2xl font-bold text-white mb-1 flex items-center gap-3"
+              >
+                <i class="fa-solid fa-laptop-code text-blue-500"></i> Canal de Desarrollo
+              </h2>
+              <p class="text-neutral-500 text-sm">
+                Comunicación directa con el equipo de desarrollo
+              </p>
+            </div>
+            <span
+              class="inline-flex items-center px-3 py-1.5 rounded-full bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 text-xs font-semibold uppercase tracking-wider"
+            >
+              <i class="fa-solid fa-flask mr-2"></i> Prototipo
+            </span>
+          </div>
+
+          <!-- Contenedor principal tipo Slack/Discord -->
+          <div
+            class="bg-[#0a0a0a] rounded-xl border border-neutral-800 overflow-hidden"
+          >
+            <!-- Barra del canal -->
+            <div
+              class="p-4 border-b border-neutral-800 flex items-center gap-3"
+            >
+              <div class="flex items-center gap-2">
+                <span class="text-neutral-600 text-lg">#</span>
+                <span class="text-white font-semibold text-sm">dev-general</span
+                >
+              </div>
+              <div class="h-4 w-px bg-neutral-800"></div>
+              <span class="text-neutral-600 text-xs"
+                >Canal principal de comunicación con los desarrolladores</span
+              >
+              <div class="ml-auto flex items-center gap-2">
+                <div class="flex -space-x-2">
+                  <div
+                    class="w-7 h-7 rounded-full bg-linear-to-br from-blue-500 to-blue-700 border-2 border-[#0a0a0a] flex items-center justify-center text-white text-[10px] font-bold"
+                  >
+                    JL
+                  </div>
+                  <div
+                    class="w-7 h-7 rounded-full bg-linear-to-br from-purple-500 to-purple-700 border-2 border-[#0a0a0a] flex items-center justify-center text-white text-[10px] font-bold"
+                  >
+                    JA
+                  </div>
+                  <div
+                    class="w-7 h-7 rounded-full bg-linear-to-br from-green-500 to-green-700 border-2 border-[#0a0a0a] flex items-center justify-center text-white text-[10px] font-bold"
+                  >
+                    AD
+                  </div>
+                </div>
+                <span class="text-neutral-600 text-xs">3 miembros</span>
+              </div>
+            </div>
+
+            <!-- Área de mensajes (prototipo visual) -->
+            <div class="p-5 space-y-5 min-h-[360px]">
+              <!-- Separador de fecha -->
+              <div class="flex items-center gap-3">
+                <div class="flex-1 h-px bg-neutral-800"></div>
+                <span
+                  class="text-neutral-600 text-xs font-medium px-3 py-1 bg-[#0d0d0d] rounded-full border border-neutral-800"
+                  >Hoy</span
+                >
+                <div class="flex-1 h-px bg-neutral-800"></div>
+              </div>
+
+              <!-- Mensaje del sistema -->
+              <div class="flex gap-3">
+                <div
+                  class="w-9 h-9 rounded-full bg-linear-to-br from-neutral-700 to-neutral-800 flex items-center justify-center shrink-0"
+                >
+                  <i class="fa-solid fa-robot text-neutral-400 text-xs"></i>
+                </div>
+                <div>
+                  <div class="flex items-baseline gap-2 mb-1">
+                    <span class="text-neutral-400 font-semibold text-sm"
+                      >Sistema</span
+                    >
+                    <span class="text-neutral-700 text-xs">14:30</span>
+                  </div>
+                  <div
+                    class="bg-[#141414] border border-neutral-800 rounded-lg rounded-tl-none p-3 max-w-lg"
+                  >
+                    <p class="text-neutral-400 text-sm leading-relaxed">
+                      <i class="fa-solid fa-circle-check text-green-500 mr-1.5"
+                      ></i>
+                      Deploy exitoso en producción. Build <code
+                        class="bg-neutral-800 text-green-400 px-1.5 py-0.5 rounded text-xs font-mono"
+                        >#v2.4.1</code
+                      > completado sin errores.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Mensaje de dev -->
+              <div class="flex gap-3">
+                <div
+                  class="w-9 h-9 rounded-full bg-linear-to-br from-purple-500 to-purple-700 flex items-center justify-center text-white text-xs font-bold shrink-0"
+                >
+                  JA
+                </div>
+                <div>
+                  <div class="flex items-baseline gap-2 mb-1">
+                    <span class="text-purple-400 font-semibold text-sm"
+                      >José Alberto</span
+                    >
+                    <span
+                      class="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-semibold uppercase tracking-wider bg-purple-500/10 text-purple-400 border border-purple-500/20"
+                      >Dev</span
+                    >
+                    <span class="text-neutral-700 text-xs">14:45</span>
+                  </div>
+                  <div
+                    class="bg-[#141414] border border-neutral-800 rounded-lg rounded-tl-none p-3 max-w-lg"
+                  >
+                    <p class="text-neutral-300 text-sm leading-relaxed">
+                      Se completó la auditoría de seguridad del backend. Se
+                      corrigieron los fallbacks silenciosos de credenciales y se
+                      implementó validación estricta de IDs.
+                    </p>
+                  </div>
+                  <!-- Reacciones -->
+                  <div class="flex gap-1.5 mt-1.5">
+                    <button
+                      class="flex items-center gap-1 bg-[#141414] border border-neutral-800 hover:border-neutral-700 rounded-full px-2 py-0.5 transition-colors"
+                    >
+                      <span class="text-xs">👍</span>
+                      <span class="text-neutral-500 text-xs">2</span>
+                    </button>
+                    <button
+                      class="flex items-center gap-1 bg-[#141414] border border-neutral-800 hover:border-neutral-700 rounded-full px-2 py-0.5 transition-colors"
+                    >
+                      <span class="text-xs">🚀</span>
+                      <span class="text-neutral-500 text-xs">1</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Mensaje del admin -->
+              <div class="flex gap-3">
+                <div
+                  class="w-9 h-9 rounded-full bg-linear-to-br from-green-500 to-green-700 flex items-center justify-center text-white text-xs font-bold shrink-0"
+                >
+                  AD
+                </div>
+                <div>
+                  <div class="flex items-baseline gap-2 mb-1">
+                    <span class="text-green-400 font-semibold text-sm"
+                      >Admin</span
+                    >
+                    <span
+                      class="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-semibold uppercase tracking-wider bg-green-500/10 text-green-400 border border-green-500/20"
+                      >Owner</span
+                    >
+                    <span class="text-neutral-700 text-xs">15:12</span>
+                  </div>
+                  <div
+                    class="bg-[#141414] border border-neutral-800 rounded-lg rounded-tl-none p-3 max-w-lg"
+                  >
+                    <p class="text-neutral-300 text-sm leading-relaxed">
+                      Excelente trabajo. ¿Cuándo estará lista la funcionalidad
+                      de tickets para esta misma página? Necesitamos poder crear
+                      issues directamente desde aquí.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Indicador "escribiendo..." -->
+              <div class="flex gap-3 items-center">
+                <div
+                  class="w-9 h-9 rounded-full bg-linear-to-br from-blue-500 to-blue-700 flex items-center justify-center text-white text-xs font-bold shrink-0"
+                >
+                  JL
+                </div>
+                <div
+                  class="bg-[#141414] border border-neutral-800 rounded-lg rounded-tl-none px-4 py-2.5"
+                >
+                  <div class="flex gap-1 items-center">
+                    <div
+                      class="w-1.5 h-1.5 bg-neutral-500 rounded-full animate-bounce"
+                      style="animation-delay: 0ms"
+                    >
+                    </div>
+                    <div
+                      class="w-1.5 h-1.5 bg-neutral-500 rounded-full animate-bounce"
+                      style="animation-delay: 150ms"
+                    >
+                    </div>
+                    <div
+                      class="w-1.5 h-1.5 bg-neutral-500 rounded-full animate-bounce"
+                      style="animation-delay: 300ms"
+                    >
+                    </div>
+                    <span class="text-neutral-600 text-xs ml-2"
+                      >José Luis está escribiendo...</span
+                    >
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Barra de composición -->
+            <div class="p-4 border-t border-neutral-800 bg-[#0d0d0d]">
+              <div class="flex gap-3">
+                <button
+                  class="text-neutral-600 hover:text-neutral-400 transition-colors shrink-0 w-10 h-10 flex items-center justify-center rounded-lg hover:bg-neutral-800/50"
+                >
+                  <i class="fa-solid fa-plus"></i>
+                </button>
+                <div class="flex-1 relative">
+                  <input
+                    type="text"
+                    placeholder="Enviar mensaje a #dev-general..."
+                    class="w-full bg-[#141414] border border-neutral-800 rounded-lg px-4 py-2.5 text-white placeholder-neutral-600 text-sm focus:outline-none focus:border-blue-500/50 transition-colors"
+                  />
+                </div>
+                <button
+                  class="bg-blue-600 hover:bg-blue-500 disabled:opacity-40 disabled:cursor-not-allowed text-white w-10 h-10 rounded-lg transition-colors flex items-center justify-center shrink-0"
+                >
+                  <i class="fa-solid fa-paper-plane text-sm"></i>
+                </button>
+              </div>
+              <div class="flex gap-4 mt-2 ml-13">
+                <button
+                  class="text-neutral-600 hover:text-neutral-400 transition-colors text-xs flex items-center gap-1.5"
+                >
+                  <i class="fa-solid fa-code text-[10px]"></i> Snippet
+                </button>
+                <button
+                  class="text-neutral-600 hover:text-neutral-400 transition-colors text-xs flex items-center gap-1.5"
+                >
+                  <i class="fa-solid fa-link text-[10px]"></i> Enlace
+                </button>
+                <button
+                  class="text-neutral-600 hover:text-neutral-400 transition-colors text-xs flex items-center gap-1.5"
+                >
+                  <i class="fa-solid fa-face-smile text-[10px]"></i> Emoji
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Nota de prototipo -->
+          <div
+            class="mt-4 p-4 bg-yellow-500/5 border border-yellow-500/20 rounded-xl flex items-start gap-3"
+          >
+            <i class="fa-solid fa-triangle-exclamation text-yellow-500 mt-0.5"
+            ></i>
+            <div>
+              <p class="text-yellow-400 font-semibold text-sm mb-1">
+                Prototipo Visual
+              </p>
+              <p class="text-neutral-500 text-xs leading-relaxed">
+                Esta vista es una previsualización del sistema de comunicación
+                dev ↔ admin planificado. La funcionalidad de envío, tickets e
+                integración con la base de datos será implementada en una fase
+                futura.
+              </p>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+  </div>
+</LayoutAdmin>
